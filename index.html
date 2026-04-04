@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OurNightSky · Artemis II Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#06030f;}
+#loader{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#06030f;transition:opacity 0.55s ease;}
+#loader.out{opacity:0;pointer-events:none;}
+.ldr-moon{font-size:2.8rem;animation:spin 3s linear infinite;display:block;margin-bottom:18px;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.ldr-txt{font-family:monospace;font-size:0.72rem;letter-spacing:0.2em;color:rgba(196,181,253,0.5);text-transform:uppercase;animation:blink 1.2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+#frame{width:100%;height:100%;border:none;display:block;opacity:0;transition:opacity 0.45s ease;}
+#frame.vis{opacity:1;}
+/* SWITCHER */
+#sw{position:fixed;bottom:18px;right:18px;z-index:1000;display:flex;align-items:center;gap:7px;}
+.sw-btn{border:none;cursor:pointer;font-family:monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;padding:8px 15px;border-radius:20px;transition:all 0.2s;}
+.sw-main{background:rgba(139,92,246,0.22);border:1px solid rgba(168,85,247,0.38);color:rgba(196,181,253,0.88);}
+.sw-main:hover{background:rgba(139,92,246,0.42);color:#fff;box-shadow:0 0 14px rgba(139,92,246,0.38);}
+.sw-dot{width:10px;height:10px;border-radius:50%;padding:0;flex-shrink:0;}
+.sw-dot.t0{background:#4ee8d0;border:2px solid rgba(78,232,208,0.45);}
+.sw-dot.t1{background:#ffb830;border:2px solid rgba(255,184,48,0.45);}
+.sw-dot.t2{background:#a855f7;border:2px solid rgba(168,85,247,0.45);}
+.sw-dot.active{transform:scale(1.45);box-shadow:0 0 10px currentColor;}
+#sw-lbl{font-family:monospace;font-size:0.52rem;letter-spacing:0.13em;text-transform:uppercase;color:rgba(196,181,253,0.38);position:fixed;bottom:50px;right:18px;z-index:1000;}
+</style>
+</head>
+<body>
+<div id="loader"><span class="ldr-moon">🌙</span><div class="ldr-txt">Loading mission data…</div></div>
+<iframe id="frame" src="" title="OurNightSky Artemis II Tracker"></iframe>
+<div id="sw-lbl"></div>
+<div id="sw">
+  <button class="sw-btn sw-dot t0" onclick="setTheme(0)" title="Deep Space"></button>
+  <button class="sw-btn sw-dot t1" onclick="setTheme(1)" title="Mission Control"></button>
+  <button class="sw-btn sw-dot t2" onclick="setTheme(2)" title="Nebula Purple"></button>
+  <button class="sw-btn sw-main" onclick="nextTheme()">↻ Switch Theme</button>
+</div>
+<script>
+const THEMES=[
+  {file:'ournightsky-artemis-tracker.html',   name:'Deep Space',      color:'#4ee8d0'},
+  {file:'ournightsky-artemis-tracker-v2.html',name:'Mission Control', color:'#ffb830'},
+  {file:'ournightsky-artemis-tracker-v3.html',name:'Nebula Purple',   color:'#a855f7'},
+];
+function pickRandom(exclude){const opts=[0,1,2].filter(i=>i!==exclude);return opts[Math.floor(Math.random()*opts.length)];}
+const last=localStorage.getItem('ons_theme');
+let cur=pickRandom(last!==null?parseInt(last):-1);
+function setTheme(idx){cur=idx;apply();}
+function nextTheme(){cur=(cur+1)%THEMES.length;apply();}
+function apply(){
+  const t=THEMES[cur],frame=document.getElementById('frame'),loader=document.getElementById('loader');
+  loader.classList.remove('out');frame.classList.remove('vis');
+  document.querySelectorAll('.sw-dot').forEach((b,i)=>b.classList.toggle('active',i===cur));
+  document.getElementById('sw-lbl').textContent='Theme: '+t.name;
+  document.getElementById('sw-lbl').style.color=t.color+'70';
+  frame.src=t.file;
+  frame.onload=()=>{setTimeout(()=>{loader.classList.add('out');frame.classList.add('vis');},350);};
+  localStorage.setItem('ons_theme',cur);
+}
+apply();
+</script>
+</body>
+</html>

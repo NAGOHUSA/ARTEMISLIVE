@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OurNightSky · Artemis II Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#1a1208;--console:#120e05;--panel:#1f1609;--border:#3d2e10;--amber:#ffb830;--amber2:#e8960a;--amber3:#ff8c00;--dim:#7a5a1a;--rust:#c44a00;--green:#5dfc6e;--green2:#2db33d;--cream:#f0d890;--muted:#5a4520;--glow:0 0 18px rgba(255,184,48,0.35);--glow-sm:0 0 8px rgba(255,184,48,0.25);}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--console);color:var(--amber);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;cursor:default;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");pointer-events:none;opacity:0.5;}
+body::after{content:'';position:fixed;inset:0;z-index:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,184,48,0.025) 2px,rgba(255,184,48,0.025) 4px);pointer-events:none;}
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 20px;}
+/* TOP BAR */
+.topbar{background:var(--console);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:100;}
+.topbar-inner{max-width:1120px;margin:0 auto;display:flex;align-items:stretch;padding:0 20px;}
+.tb-brand{display:flex;align-items:center;gap:10px;padding:11px 18px 11px 0;border-right:1px solid var(--border);margin-right:18px;flex-shrink:0;text-decoration:none;}
+.tb-logo{font-size:1.3rem;filter:sepia(1) saturate(3);}
+.tb-name{font-family:'Orbitron',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.12em;color:var(--amber);text-transform:uppercase;}
+.tb-name span{color:var(--amber3);}
+.tb-stats{display:flex;flex:1;overflow:hidden;}
+.tb-stat{padding:0 16px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);}
+.tb-stat.last{border-right:none;margin-left:auto;}
+.tb-sl{font-size:0.5rem;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+.tb-sv{font-family:'Orbitron',sans-serif;font-size:0.72rem;color:var(--amber);font-weight:600;white-space:nowrap;}
+.tb-sv.g{color:var(--green);}
+.live-pill{display:flex;align-items:center;gap:7px;padding:0 16px;font-size:0.58rem;letter-spacing:0.14em;color:var(--green);text-transform:uppercase;font-weight:700;}
+.live-pip{width:8px;height:8px;border-radius:50%;background:var(--green);animation:ping 1.5s ease infinite;box-shadow:0 0 0 0 rgba(93,252,110,0.7);}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(93,252,110,0.7);}70%{box-shadow:0 0 0 8px rgba(93,252,110,0);}100%{box-shadow:0 0 0 0 rgba(93,252,110,0);}  }
+/* HERO */
+.hero-banner{position:relative;overflow:hidden;background:var(--paper);border-bottom:3px solid var(--border);padding:44px 20px 36px;text-align:center;}
+.hero-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(255,140,0,0.1) 0%,transparent 65%);}
+.mission-patch{display:inline-flex;align-items:center;justify-content:center;width:84px;height:84px;border-radius:50%;border:3px solid var(--amber2);background:radial-gradient(circle,rgba(255,184,48,0.07) 0%,transparent 70%);font-size:2.5rem;margin-bottom:18px;box-shadow:var(--glow);position:relative;z-index:1;animation:glow-pulse 3s ease-in-out infinite;}
+@keyframes glow-pulse{0%,100%{box-shadow:var(--glow);}50%{box-shadow:0 0 32px rgba(255,184,48,0.55);}}
+.hero-ey{font-size:0.58rem;letter-spacing:0.22em;color:var(--dim);text-transform:uppercase;margin-bottom:9px;position:relative;z-index:1;}
+.hero-h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(2rem,6vw,4.5rem);line-height:1;letter-spacing:0.08em;color:var(--amber);margin-bottom:5px;text-shadow:var(--glow);position:relative;z-index:1;animation:flicker 7s ease infinite;}
+@keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:.92;}94%{opacity:1;}96%{opacity:.95;}97%{opacity:1;}}
+.hero-sub{font-family:'Orbitron',sans-serif;font-weight:400;font-size:clamp(0.62rem,1.8vw,.9rem);letter-spacing:0.18em;color:var(--dim);text-transform:uppercase;margin-bottom:18px;position:relative;z-index:1;}
+.hero-met-lbl{font-size:0.52rem;letter-spacing:0.2em;color:var(--dim);position:relative;z-index:1;margin-bottom:5px;}
+.hero-met{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(1.2rem,3vw,2rem);color:var(--amber3);letter-spacing:0.1em;background:rgba(255,140,0,0.07);border:1px solid rgba(255,140,0,0.28);border-radius:4px;padding:9px 26px;text-shadow:0 0 18px rgba(255,140,0,0.55);position:relative;z-index:1;}
+/* PROGRESS */
+.prog-strip{background:var(--console);border-bottom:2px solid var(--border);padding:14px 20px;}
+.prog-r{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+.prog-lbl{font-size:0.54rem;letter-spacing:0.14em;color:var(--dim);text-transform:uppercase;}
+.prog-pct{font-family:'Orbitron',sans-serif;font-size:0.78rem;color:var(--amber);font-weight:600;}
+.prog-track{height:5px;background:rgba(61,46,16,0.5);border-radius:1px;overflow:hidden;margin-bottom:8px;}
+.prog-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--amber2),var(--amber3));box-shadow:0 0 9px rgba(255,140,0,0.4);transition:width 1s linear;}
+.prog-ticks{display:flex;justify-content:space-between;}
+.prog-tick{font-size:0.46rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;}
+/* CONSOLE PANELS */
+.console-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:2px solid var(--border);}
+@media(max-width:680px){.console-grid{grid-template-columns:1fr;}}
+.cp{border-right:1px solid var(--border);}
+.cp:last-child{border-right:none;}
+.cp-hdr{background:var(--console);border-bottom:1px solid var(--border);padding:7px 14px;display:flex;align-items:center;justify-content:space-between;}
+.cp-title{font-size:0.56rem;letter-spacing:0.17em;text-transform:uppercase;color:var(--dim);}
+.cp-id{font-size:0.48rem;color:var(--muted);letter-spacing:0.1em;}
+.cp-body{padding:14px;}
+.rdout{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid rgba(61,46,16,0.4);}
+.rdout:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.rd-lbl{font-size:0.56rem;color:var(--dim);letter-spacing:0.07em;}
+.rd-val{font-family:'Orbitron',sans-serif;font-weight:600;font-size:0.88rem;color:var(--amber);text-shadow:var(--glow-sm);text-align:right;}
+.rd-val.g{color:var(--green);text-shadow:0 0 7px rgba(93,252,110,0.3);}
+.rd-val.r{color:var(--rust);text-shadow:0 0 7px rgba(196,74,0,0.3);}
+.rd-val.sm{font-size:0.6rem;}
+.rd-unit{font-size:0.48rem;color:var(--muted);margin-left:3px;}
+/* TRAJ */
+.traj-wrap{background:var(--paper);border-bottom:2px solid var(--border);}
+.sec-bar{background:var(--console);border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;justify-content:space-between;}
+.sb-title{font-size:0.56rem;letter-spacing:0.17em;color:var(--dim);text-transform:uppercase;}
+.sb-note{font-size:0.48rem;color:var(--muted);}
+.traj-box{height:280px;position:relative;overflow:hidden;background:var(--console);}
+#trajCanvas{width:100%;height:100%;display:block;}
+/* PHASE */
+.phase-con{background:var(--paper);border-bottom:2px solid var(--border);}
+.phase-steps-row{display:flex;border-bottom:1px solid var(--border);overflow:hidden;}
+.psr{flex:1;padding:11px 7px;text-align:center;border-right:1px solid var(--border);position:relative;transition:background 0.2s;}
+.psr:last-child{border-right:none;}
+.psr.p-done{background:rgba(93,252,110,0.04);}
+.psr.p-cur{background:rgba(255,184,48,0.07);}
+.psr.p-fut{opacity:.42;}
+.psr-bar{position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);box-shadow:0 0 7px var(--amber3);}
+.psr-ico{font-size:0.95rem;display:block;margin-bottom:3px;}
+.psr-lbl{font-size:0.46rem;letter-spacing:0.09em;text-transform:uppercase;line-height:1.3;color:var(--dim);}
+.psr-lbl.a{color:var(--amber);}
+.psr-lbl.d{color:var(--green2);}
+.phase-desc-row{padding:13px 20px;font-size:0.63rem;color:var(--cream);line-height:1.65;}
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--border);}
+@media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+.tc-left{border-right:1px solid var(--border);}
+/* TIMELINE */
+.tl-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(61,46,16,0.35);}
+.tl-row:last-child{border-bottom:none;}
+.tl-row:hover{background:rgba(255,184,48,0.025);}
+.tl-st{width:26px;height:26px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.78rem;margin-top:1px;}
+.tl-st.d{background:rgba(93,252,110,0.08);border:1px solid rgba(93,252,110,0.25);}
+.tl-st.c{background:rgba(255,184,48,0.1);border:1px solid rgba(255,184,48,0.45);box-shadow:0 0 9px rgba(255,184,48,0.18);}
+.tl-st.f{background:rgba(61,46,16,0.25);border:1px solid rgba(61,46,16,0.4);opacity:.6;}
+.tl-inf{flex:1;}
+.tl-nm{font-size:0.63rem;color:var(--amber);margin-bottom:2px;line-height:1.25;}
+.tl-nm.dim{color:var(--dim);}
+.tl-nm.cur{color:var(--amber);text-shadow:var(--glow-sm);}
+.tl-dt{font-size:0.52rem;color:var(--muted);margin-bottom:2px;}
+.tl-nt{font-size:0.56rem;color:var(--dim);line-height:1.4;}
+/* CREW */
+.crew-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid rgba(61,46,16,0.35);}
+.crew-row:last-child{border-bottom:none;}
+.crew-ini{width:38px;height:38px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:700;font-size:0.66rem;}
+.crew-det{flex:1;}
+.crew-nm{font-family:'Orbitron',sans-serif;font-size:0.68rem;font-weight:700;color:var(--cream);margin-bottom:2px;}
+.crew-rl{font-size:0.52rem;color:var(--dim);letter-spacing:0.09em;text-transform:uppercase;}
+.crew-fl{font-size:1rem;}
+/* FEED */
+.feed-section{padding:0;background:var(--paper);}
+.feed-hdr-bar{background:var(--console);border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;justify-content:space-between;}
+.feed-title-r{display:flex;align-items:center;gap:8px;font-size:0.54rem;letter-spacing:0.16em;color:var(--dim);text-transform:uppercase;}
+.feed-pip{width:6px;height:6px;border-radius:50%;background:var(--green);animation:ping 1.8s ease infinite;}
+.feed-meta-t{font-size:0.5rem;color:var(--muted);}
+.feed-ref-btn{background:transparent;border:1px solid var(--border);color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+.feed-ref-btn:hover{border-color:var(--amber2);color:var(--amber);}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0;border-top:1px solid var(--border);}
+.img-card{background:var(--panel);border-right:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;cursor:pointer;position:relative;transition:background 0.2s;}
+.img-card:hover{background:rgba(31,22,9,0.8);}
+.img-card-top{position:relative;width:100%;padding-top:62%;overflow:hidden;background:var(--console);}
+.img-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.4s;filter:sepia(0.15) saturate(0.9);}
+.img-card:hover .img-photo{transform:scale(1.04);filter:sepia(0) saturate(1);}
+.img-shade{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(transparent,rgba(18,14,5,0.88));pointer-events:none;}
+.img-date{position:absolute;top:6px;right:6px;background:rgba(12,9,3,0.75);border:1px solid var(--border);border-radius:2px;font-size:0.46rem;letter-spacing:0.1em;color:var(--muted);padding:2px 5px;text-transform:uppercase;}
+.img-id{position:absolute;bottom:6px;left:6px;font-size:0.44rem;color:rgba(255,184,48,0.35);letter-spacing:0.07em;}
+.img-body{padding:8px 10px;border-top:1px solid var(--border);}
+.img-desc{font-size:0.58rem;color:var(--dim);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.feed-status{font-size:0.5rem;color:var(--muted);text-align:center;padding:7px;border-top:1px solid var(--border);letter-spacing:0.07em;}
+/* SKELETONS */
+.skel{background:var(--panel);border-right:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;}
+.skel-img{width:100%;padding-top:62%;background:linear-gradient(90deg,rgba(255,184,48,0.03) 25%,rgba(255,184,48,0.08) 50%,rgba(255,184,48,0.03) 75%);background-size:200% 100%;animation:sk 1.6s ease infinite;}
+.skel-bdy{padding:8px 10px;}
+.skel-ln{height:6px;border-radius:2px;margin-bottom:5px;background:linear-gradient(90deg,rgba(255,184,48,0.04) 25%,rgba(255,184,48,0.1) 50%,rgba(255,184,48,0.04) 75%);background-size:200% 100%;animation:sk 1.6s ease infinite;}
+.skel-ln.s{width:55%;}
+@keyframes sk{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+/* NEWS */
+.news-con{background:var(--paper);border-bottom:2px solid var(--border);}
+.news-list{display:flex;flex-direction:column;}
+.news-item{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid rgba(61,46,16,0.35);text-decoration:none;transition:background 0.15s;}
+.news-item:last-child{border-bottom:none;}
+.news-item:hover{background:rgba(255,184,48,0.03);}
+.news-dot{width:5px;height:5px;border-radius:50%;background:var(--amber2);flex-shrink:0;margin-top:6px;box-shadow:0 0 5px rgba(255,184,48,0.4);}
+.news-bd{flex:1;}
+.news-hed{font-size:0.68rem;color:var(--amber);margin-bottom:2px;line-height:1.3;}
+.news-item:hover .news-hed{color:var(--cream);}
+.news-summ{font-size:0.57rem;color:var(--dim);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:3px;}
+.news-dt{font-size:0.5rem;color:var(--muted);letter-spacing:0.07em;}
+.news-arr{font-size:0.72rem;color:var(--muted);flex-shrink:0;margin-top:2px;transition:color 0.2s,transform 0.2s;}
+.news-item:hover .news-arr{color:var(--amber);transform:translateX(2px);}
+/* LIGHTBOX */
+#lb{display:none;position:fixed;inset:0;z-index:9999;background:rgba(12,9,3,0.94);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:22px;cursor:pointer;}
+#lb.open{display:flex;animation:lb-in 0.22s ease;}
+@keyframes lb-in{from{opacity:0}to{opacity:1}}
+.lb-card{max-width:800px;width:100%;background:var(--panel);border:1px solid rgba(255,184,48,0.22);border-radius:4px;overflow:hidden;cursor:default;animation:lb-up 0.28s ease;}
+@keyframes lb-up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.lb-img-box{width:100%;max-height:470px;overflow:hidden;background:var(--console);}
+.lb-img{width:100%;display:block;max-height:470px;object-fit:contain;}
+.lb-body{padding:14px 18px;}
+.lb-id{font-size:0.48rem;color:rgba(255,184,48,0.35);letter-spacing:0.12em;margin-bottom:5px;}
+.lb-cap{font-size:0.65rem;color:var(--cream);line-height:1.6;}
+.lb-foot{display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid var(--border);}
+.lb-dt{font-size:0.52rem;color:var(--muted);}
+.lb-close{background:transparent;border:1px solid var(--border);color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;padding:5px 11px;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+.lb-close:hover{border-color:var(--amber2);color:var(--amber);}
+/* COFFEE */
+.coffee-section{background:var(--paper);border-bottom:2px solid var(--border);padding:36px 22px;text-align:center;position:relative;overflow:hidden;}
+.coffee-section::before{content:'☕';position:absolute;font-size:11rem;opacity:0.025;top:-20px;right:-20px;pointer-events:none;}
+.coffee-tag{font-size:0.58rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;margin-bottom:11px;}
+.coffee-hed{font-family:'Orbitron',sans-serif;font-weight:700;font-size:clamp(1rem,2.5vw,1.6rem);color:var(--amber);margin-bottom:9px;text-shadow:var(--glow-sm);}
+.coffee-copy{font-size:0.67rem;color:var(--dim);line-height:1.8;max-width:450px;margin:0 auto 22px;font-family:'Special Elite',cursive;}
+.coffee-btn{display:inline-flex;align-items:center;gap:9px;text-decoration:none;background:transparent;border:2px solid var(--amber2);color:var(--amber);font-family:'Orbitron',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;padding:12px 28px;border-radius:2px;transition:all 0.2s;box-shadow:0 0 14px rgba(255,184,48,0.12);}
+.coffee-btn:hover{background:rgba(255,184,48,0.09);box-shadow:0 0 26px rgba(255,184,48,0.32);color:var(--cream);border-color:var(--amber);}
+/* FOOTER */
+footer{background:var(--console);border-top:2px solid var(--border);padding:18px 22px;text-align:center;}
+.footer-inner{max-width:1120px;margin:0 auto;}
+.footer-brand{font-family:'Orbitron',sans-serif;font-weight:700;font-size:0.72rem;color:var(--dim);letter-spacing:0.14em;margin-bottom:7px;}
+.footer-brand span{color:var(--amber3);}
+.footer-copy{font-size:0.52rem;color:var(--muted);letter-spacing:0.08em;line-height:1.9;text-transform:uppercase;}
+.footer-links{display:flex;justify-content:center;gap:18px;margin-top:9px;}
+.footer-links a{font-size:0.52rem;color:var(--muted);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;}
+.footer-links a:hover{color:var(--amber);}
+.feed-err{grid-column:1/-1;text-align:center;padding:26px;font-size:0.62rem;color:var(--muted);}
+.feed-err span{font-size:1.7rem;display:block;margin-bottom:8px;}
+.feed-err a{color:rgba(255,184,48,0.55);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.fi{opacity:0;animation:fadeUp 0.7s ease forwards;}
+.fi.d1{animation-delay:0.05s}.fi.d2{animation-delay:0.2s}.fi.d3{animation-delay:0.35s}.fi.d4{animation-delay:0.5s}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--console);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="topbar fi d1">
+  <div class="topbar-inner">
+    <a class="tb-brand" href="#"><span class="tb-logo">🌙</span><span class="tb-name">Our<span>NightSky</span></span></a>
+    <div class="tb-stats">
+      <div class="tb-stat"><div class="tb-sl">Mission</div><div class="tb-sv">ARTEMIS II</div></div>
+      <div class="tb-stat"><div class="tb-sl">Spacecraft</div><div class="tb-sv">ORION "INTEGRITY"</div></div>
+      <div class="tb-stat"><div class="tb-sl">Flight Day</div><div class="tb-sv g" id="tbDay">—</div></div>
+      <div class="tb-stat last"><div class="tb-sl">☕ Support</div><div class="tb-sv"><a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener" style="color:var(--amber2);text-decoration:none;">BUYMEACOFFEE.COM</a></div></div>
+      <div class="live-pill"><span class="live-pip"></span>LIVE</div>
+    </div>
+  </div>
+</div>
+
+<div class="hero-banner fi d1">
+  <div class="mission-patch">🚀</div>
+  <div class="hero-ey">NASA · Kennedy Space Center LC-39B · April 1, 2026</div>
+  <h1 class="hero-h1">ARTEMIS II</h1>
+  <div class="hero-sub">Lunar Flyby Mission · Free-Return Trajectory</div>
+  <div class="hero-met-lbl">MISSION ELAPSED TIME</div>
+  <div class="hero-met" id="heroMet">T+ --D --:--:--</div>
+</div>
+
+<div class="wrap">
+<div class="prog-strip fi d2">
+  <div class="prog-r"><span class="prog-lbl">Mission Progress — 10 Day Duration</span><span class="prog-pct" id="progNum">0.0%</span></div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-ticks"><span class="prog-tick">Launch</span><span class="prog-tick">TLI</span><span class="prog-tick">Outbound</span><span class="prog-tick">Flyby</span><span class="prog-tick">Return</span><span class="prog-tick">Splashdown</span></div>
+</div>
+</div>
+
+<div class="console-grid fi d2">
+  <div class="cp"><div class="cp-hdr"><span class="cp-title">Navigation Data</span><span class="cp-id">NAV-01</span></div><div class="cp-body">
+    <div class="rdout"><span class="rd-lbl">DIST / EARTH</span><span class="rd-val" id="dEarth">—<span class="rd-unit">KM</span></span></div>
+    <div class="rdout"><span class="rd-lbl">DIST / MOON</span><span class="rd-val" id="dMoon">—<span class="rd-unit">KM</span></span></div>
+    <div class="rdout"><span class="rd-lbl">ALTITUDE</span><span class="rd-val g" id="alt">—<span class="rd-unit">KM</span></span></div>
+  </div></div>
+  <div class="cp"><div class="cp-hdr"><span class="cp-title">Propulsion / Dynamics</span><span class="cp-id">PROP-02</span></div><div class="cp-body">
+    <div class="rdout"><span class="rd-lbl">VELOCITY</span><span class="rd-val r" id="vel">—<span class="rd-unit">KM/H</span></span></div>
+    <div class="rdout"><span class="rd-lbl">PATH FLOWN</span><span class="rd-val" id="path">—<span class="rd-unit">KM</span></span></div>
+    <div class="rdout"><span class="rd-lbl">PROGRESS</span><span class="rd-val" id="prog">—<span class="rd-unit">%</span></span></div>
+  </div></div>
+  <div class="cp"><div class="cp-hdr"><span class="cp-title">Communications</span><span class="cp-id">COMM-03</span></div><div class="cp-body">
+    <div class="rdout"><span class="rd-lbl">SIGNAL DELAY</span><span class="rd-val g" id="sig">—<span class="rd-unit">SEC</span></span></div>
+    <div class="rdout"><span class="rd-lbl">DSN STATUS</span><span class="rd-val g">NOMINAL</span></div>
+    <div class="rdout"><span class="rd-lbl">SPLASHDOWN</span><span class="rd-val sm">APR 11, 2026</span></div>
+  </div></div>
+</div>
+
+<div class="traj-wrap fi d2">
+  <div class="sec-bar"><span class="sb-title">Trajectory Map</span><span class="sb-note">Modeled · Not to scale</span></div>
+  <div class="traj-box"><canvas id="trajCanvas"></canvas></div>
+</div>
+
+<div class="phase-con fi d3">
+  <div class="sec-bar"><span class="sb-title">Mission Phase Tracker</span><span class="sb-note" id="phaseDayTag">Flight Day —</span></div>
+  <div class="phase-steps-row" id="phaseSteps"></div>
+  <div class="phase-desc-row" id="phaseDesc">Computing…</div>
+</div>
+
+<div class="two-col fi d3">
+  <div class="tc-left">
+    <div class="sec-bar"><span class="sb-title">Mission Timeline</span><span class="sb-note">Key Events</span></div>
+    <div id="tlList"></div>
+  </div>
+  <div>
+    <div class="sec-bar"><span class="sb-title">Crew Manifest</span><span class="sb-note">Orion · 4 Astronauts</span></div>
+    <div class="crew-row"><div class="crew-ini" style="background:rgba(255,184,48,0.13);color:var(--amber);border:1px solid rgba(255,184,48,0.28)">RW</div><div class="crew-det"><div class="crew-nm">WISEMAN</div><div class="crew-rl">Commander · NASA</div></div><span class="crew-fl">🇺🇸</span></div>
+    <div class="crew-row"><div class="crew-ini" style="background:rgba(93,252,110,0.09);color:var(--green);border:1px solid rgba(93,252,110,0.2)">VG</div><div class="crew-det"><div class="crew-nm">GLOVER</div><div class="crew-rl">Pilot · NASA</div></div><span class="crew-fl">🇺🇸</span></div>
+    <div class="crew-row"><div class="crew-ini" style="background:rgba(196,74,0,0.13);color:var(--rust);border:1px solid rgba(196,74,0,0.27)">CK</div><div class="crew-det"><div class="crew-nm">KOCH</div><div class="crew-rl">Mission Specialist · NASA</div></div><span class="crew-fl">🇺🇸</span></div>
+    <div class="crew-row"><div class="crew-ini" style="background:rgba(232,150,10,0.12);color:var(--amber2);border:1px solid rgba(232,150,10,0.24)">JH</div><div class="crew-det"><div class="crew-nm">HANSEN</div><div class="crew-rl">Mission Specialist · CSA</div></div><span class="crew-fl">🇨🇦</span></div>
+  </div>
+</div>
+
+<!-- IMAGE FEED -->
+<div class="feed-section fi d4">
+  <div class="feed-hdr-bar">
+    <div class="feed-title-r"><span class="feed-pip"></span>Mission Images · images.nasa.gov</div>
+    <div style="display:flex;align-items:center;gap:9px"><span class="feed-meta-t" id="imgMeta">Loading…</span><button class="feed-ref-btn" onclick="loadImgs()">↻ REFRESH</button></div>
+  </div>
+  <div class="img-grid" id="imgGrid"></div>
+  <div class="feed-status" id="imgStatus"></div>
+</div>
+
+<!-- NEWS -->
+<div class="news-con fi d4">
+  <div class="sec-bar"><span class="sb-title">Mission Updates · NASA Artemis Blog</span><span class="sb-note">Auto-refresh every 5 min</span></div>
+  <div class="news-list" id="newsList"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lb" onclick="closeLB(event)">
+  <div class="lb-card">
+    <div class="lb-img-box"><img class="lb-img" id="lbImg" src="" alt=""></div>
+    <div class="lb-body"><div class="lb-id" id="lbId"></div><div class="lb-cap" id="lbCap"></div><div class="lb-foot"><span class="lb-dt" id="lbDt"></span><button class="lb-close" onclick="closeLB({target:document.getElementById('lb')})">✕ CLOSE</button></div></div>
+  </div>
+</div>
+
+<!-- COFFEE -->
+<div class="coffee-section fi d4">
+  <div class="coffee-tag">// Fuel This Mission</div>
+  <div class="coffee-hed">RUNNING ON COSMIC CURIOSITY & COFFEE</div>
+  <p class="coffee-copy">OurNightSky is a passion project built to bring the wonder of deep space home. If this tracker gave you chills watching humanity reach for the Moon — consider buying a coffee. Every cup keeps the lights on. ☕</p>
+  <a class="coffee-btn" href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener">☕ &nbsp;BUYMEACOFFEE.COM/OURNIGHTSKY</a>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">Our<span>NightSky</span></div>
+    <div class="footer-copy">Artemis II · Orion "Integrity" · Launched April 1, 2026 · LC-39B KSC<br>Telemetry estimated from NASA mission profile · Not official NASA data</div>
+    <div class="footer-links"><a href="https://buymeacoffee.com/ournightsky" target="_blank">☕ Support</a><a href="https://www.nasa.gov/mission/artemis-ii/" target="_blank">NASA Official</a><a href="https://www.nasa.gov/blogs/artemis/" target="_blank">Mission Blog</a></div>
+  </div>
+</footer>
+
+<script>
+const LAUNCH=new Date('2026-04-01T22:35:00Z'),MISSION_MS=10*24*3600*1e3,MOON=384400,C=299792;
+const PHASES=[
+  {l:'Launch',i:'🚀',h0:0,h1:.3,desc:'SLS lifts off from LC-39B. Solid rocket boosters and core stage burn to orbit. ICPS inserts Orion into initial Earth orbit.'},
+  {l:'Earth Orb',i:'🌍',h0:.3,h1:6,desc:'Proximity operations demo and orbit raise burns. Crew tests systems, repairs toilet, performs first health checks in deep space.'},
+  {l:'TLI Burn',i:'🔥',h0:6,h1:8,desc:'5-minute main engine burn sets Orion on free-return trajectory toward the Moon. No additional propulsion needed to return to Earth.'},
+  {l:'Outbound',i:'✨',h0:8,h1:120,desc:'4-day coast to the Moon. Three trajectory correction burns. Science observations from this unique deep-space vantage point.'},
+  {l:'Flyby',i:'🌑',h0:120,h1:144,desc:'Historic flyby — closest approach ~7,600 km beyond Moon surface. ~30-min radio blackout. First humans near Moon since Apollo 17.'},
+  {l:'Return',i:'↩️',h0:144,h1:228,desc:'Free-return trajectory carries Orion back over ~3.5 days. Crew rests and completes final science tasks ahead of reentry.'},
+  {l:'Splashdown',i:'🌊',h0:228,h1:240,desc:'Skip reentry at ~40,000 km/h. Heat shield protects crew. Parachutes deploy, Orion splashes down in Pacific Ocean.'}
+];
+const EVENTS=[
+  {i:'🚀',n:'SLS Liftoff · LC-39B',dt:'Apr 1 · 18:35 EDT',d:true,c:false,nt:'Space Launch System launches from Kennedy Space Center.'},
+  {i:'💥',n:'SRB Separation',dt:'Apr 1 · T+2 min',d:true,c:false,nt:'Solid rocket boosters separate after initial thrust.'},
+  {i:'⚡',n:'Solar Array Deployment',dt:'Apr 1 · T+25 min',d:true,c:false,nt:'All four solar array wings confirmed fully deployed.'},
+  {i:'🛸',n:'Proximity Operations Demo',dt:'Apr 2, 2026',d:true,c:false,nt:'70-min manual maneuvering demonstration complete.'},
+  {i:'🔥',n:'Translunar Injection Burn',dt:'Apr 2–3, 2026',d:false,c:true,nt:'5-min main engine burn sets Orion on free-return trajectory.'},
+  {i:'🧭',n:'Trajectory Correction Burns',dt:'Apr 4–6, 2026',d:false,c:false,nt:'Three small burns fine-tune path toward the Moon.'},
+  {i:'🌑',n:'Lunar Flyby · Far Side',dt:'~Apr 7, 2026',d:false,c:false,nt:'First humans near the Moon in 50+ years. ~30 min blackout.'},
+  {i:'↩️',n:'Return Transit',dt:'~Apr 7–11, 2026',d:false,c:false,nt:'Free-return path carries Orion back to Earth.'},
+  {i:'🔴',n:'Atmospheric Reentry',dt:'~Apr 11, 2026',d:false,c:false,nt:'Skip reentry at ~40,000 km/h. Heat shield activation.'},
+  {i:'🌊',n:'Pacific Splashdown',dt:'~Apr 11, 2026',d:false,c:false,nt:'Mission ends. Recovery teams retrieve crew and capsule.'}
+];
+function pad(n){return String(n).padStart(2,'0');}function fmt(n){return Math.round(n).toLocaleString();}
+function getMET(now){const ms=now-LAUNCH;if(ms<0)return null;const s=Math.floor(ms/1e3);return{ms,hrs:ms/36e5,d:Math.floor(s/86400),h:Math.floor(s%86400/3600),m:Math.floor(s%3600/60),sec:s%60};}
+function getPos(hrs){const h=Math.min(hrs,240);let dist,vel;
+  if(h<.3){dist=6371+h*1e3;vel=25e3+h*3e4;}else if(h<6){dist=6971;vel=28e3;}else if(h<8){const t=(h-6)/2;dist=6971+t*5e3;vel=28e3+t*11e3;}else if(h<120){const t=(h-8)/112;dist=12e3+t*t*(392e3-12e3);vel=39e3*(1-t)+3400*t;}else if(h<144){const t=(h-120)/24;const pk=Math.sin(t*Math.PI);dist=392e3-pk*4e3;vel=3400+pk*1200;}else if(h<228){const t=(h-144)/84;dist=392e3*(1-t*t)+6600*t*t;vel=3400+t*t*(36e3-3400);}else{const t=(h-228)/12;dist=6600*(1-t)+6371*t;vel=4e4*(1-t)+500*t;}
+  return{alt:Math.max(0,dist-6371),dc:dist,dm:Math.abs(MOON+6371-dist),vel:Math.round(vel)};}
+function getPhI(hrs){for(let i=PHASES.length-1;i>=0;i--)if(hrs>=PHASES[i].h0)return i;return 0;}
+function drawTraj(hrs){const cv=document.getElementById('trajCanvas'),box=cv.parentElement,dpr=devicePixelRatio||1;cv.width=box.clientWidth*dpr;cv.height=box.clientHeight*dpr;const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);const W=box.clientWidth,H=box.clientHeight;ctx.clearRect(0,0,W,H);
+  const ex=W*.22,ey=H*.52,mx=W*.82,my=H*.4;
+  const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,28);eg.addColorStop(0,'#4a6fff');eg.addColorStop(1,'#0a1a50');ctx.beginPath();ctx.arc(ex,ey,28,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();ctx.beginPath();ctx.arc(ex,ey,38,0,Math.PI*2);ctx.strokeStyle='rgba(78,100,200,0.12)';ctx.lineWidth=10;ctx.stroke();ctx.fillStyle='rgba(240,216,144,0.5)';ctx.font='700 8px Share Tech Mono';ctx.textAlign='center';ctx.fillText('EARTH',ex,ey+43);
+  const mg=ctx.createRadialGradient(mx,my,2,mx,my,15);mg.addColorStop(0,'#ccc');mg.addColorStop(1,'#555');ctx.beginPath();ctx.arc(mx,my,15,0,Math.PI*2);ctx.fillStyle=mg;ctx.fill();ctx.fillStyle='rgba(240,216,144,0.5)';ctx.font='700 7px Share Tech Mono';ctx.textAlign='center';ctx.fillText('MOON',mx,my+28);
+  const STEPS=300,pts=[];for(let i=0;i<=STEPS;i++){const h=(i/STEPS)*240;let px,py;if(h<120){const t=h/120,cmx=ex+(mx-ex)*.44,cmy=ey-65;px=(1-t)*(1-t)*ex+2*(1-t)*t*cmx+t*t*mx;py=(1-t)*(1-t)*ey+2*(1-t)*t*cmy+t*t*my;}else if(h<144){const t=(h-120)/24,ang=-Math.PI/3+t*Math.PI*1.1;px=mx+Math.cos(ang)*(15+12);py=my+Math.sin(ang)*(15+12);}else{const t=(h-144)/96,cmx=ex+(mx-ex)*.54,cmy=ey+80;px=(1-t)*(1-t)*mx+2*(1-t)*t*cmx+t*t*ex;py=(1-t)*(1-t)*my+2*(1-t)*t*cmy+t*t*ey;}pts.push({px,py});}
+  ctx.setLineDash([3,6]);ctx.lineWidth=1;ctx.strokeStyle='rgba(61,46,16,0.7)';ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();ctx.setLineDash([]);
+  const cut=Math.min(Math.floor((hrs/240)*STEPS),STEPS);if(cut>1){const gl=ctx.createLinearGradient(ex,ey,pts[cut].px,pts[cut].py);gl.addColorStop(0,'rgba(232,150,10,0.5)');gl.addColorStop(1,'rgba(255,184,48,1)');ctx.lineWidth=2.5;ctx.strokeStyle=gl;ctx.beginPath();pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();}
+  const cp=pts[Math.min(cut,STEPS-1)];ctx.beginPath();ctx.arc(cp.px,cp.py,9,0,Math.PI*2);ctx.fillStyle='rgba(255,184,48,0.15)';ctx.fill();ctx.beginPath();ctx.arc(cp.px,cp.py,5,0,Math.PI*2);ctx.fillStyle='#ffb830';ctx.fill();ctx.font='700 8px Share Tech Mono';ctx.fillStyle='rgba(255,184,48,0.85)';ctx.textAlign='left';ctx.fillText('ORION',cp.px+9,cp.py-3);}
+function renderPhase(pi){const p=PHASES[pi];document.getElementById('phaseDayTag').textContent=`Flight Day ${Math.floor(getMET(new Date()).hrs/24)+1} · Phase ${pi+1}/7`;document.getElementById('phaseDesc').textContent=p.desc;document.getElementById('phaseSteps').innerHTML=PHASES.map((ph,i)=>{const c=i<pi?'p-done':i===pi?'p-cur':'p-fut';const lc=i<pi?'d':i===pi?'a':'';return`<div class="psr ${c}">${i===pi?'<div class="psr-bar"></div>':''}<span class="psr-ico">${ph.i}</span><div class="psr-lbl ${lc}">${ph.l}</div></div>`;}).join('');}
+function renderTimeline(){document.getElementById('tlList').innerHTML=EVENTS.map(e=>{const ic=e.d?'d':e.c?'c':'f';const nc=e.c?'cur':e.d?'':'dim';return`<div class="tl-row"><div class="tl-st ${ic}">${e.i}</div><div class="tl-inf"><div class="tl-nm ${nc}">${e.n}</div><div class="tl-dt">${e.dt}</div><div class="tl-nt">${e.nt}</div></div></div>`;}).join('');}
+function update(){const met=getMET(new Date());if(!met)return;const h=met.hrs,pos=getPos(h),pi=getPhI(h),pct=Math.min(100,met.ms/MISSION_MS*100),fd=Math.floor(h/24)+1,pathKm=h<120?h/120*5e5:h<144?5e5+(h-120)/24*6e4:5.6e5+(h-144)/96*4.8e5;
+  document.getElementById('heroMet').textContent=`T+ ${met.d}D ${pad(met.h)}:${pad(met.m)}:${pad(met.sec)}`;document.getElementById('tbDay').textContent=`DAY ${fd}`;document.getElementById('dEarth').innerHTML=fmt(pos.alt)+'<span class="rd-unit">KM</span>';document.getElementById('dMoon').innerHTML=fmt(pos.dm)+'<span class="rd-unit">KM</span>';document.getElementById('alt').innerHTML=fmt(pos.alt)+'<span class="rd-unit">KM</span>';document.getElementById('vel').innerHTML=fmt(pos.vel)+'<span class="rd-unit">KM/H</span>';document.getElementById('path').innerHTML=fmt(pathKm)+'<span class="rd-unit">KM</span>';document.getElementById('prog').innerHTML=pct.toFixed(1)+'<span class="rd-unit">%</span>';document.getElementById('sig').innerHTML=(pos.dc/C).toFixed(3)+'<span class="rd-unit">SEC</span>';document.getElementById('progNum').textContent=pct.toFixed(1)+'%';document.getElementById('progFill').style.width=pct.toFixed(2)+'%';
+  renderPhase(pi);drawTraj(h);}
+const NASA_IMG='https://images-api.nasa.gov/search',PROXY='https://api.allorigins.win/raw?url=',NASA_RSS='https://www.nasa.gov/blogs/artemis/feed/';let IMGS=[];
+function showSkel(n){document.getElementById('imgGrid').innerHTML=Array.from({length:n},()=>'<div class="skel"><div class="skel-img"></div><div class="skel-bdy"><div class="skel-ln"></div><div class="skel-ln s"></div></div></div>').join('');}
+async function loadImgs(){showSkel(6);document.getElementById('imgMeta').textContent='Fetching from NASA…';try{const p=new URLSearchParams({q:'Artemis II 2026',media_type:'image',year_start:'2026',page_size:12});const r=await fetch(NASA_IMG+'?'+p);if(!r.ok)throw 0;const data=await r.json();let items=(data.collection?.items||[]).filter(i=>i.links?.[0]?.href);if(items.length<4){const p2=new URLSearchParams({q:'Orion spacecraft Artemis',media_type:'image',year_start:'2025',page_size:12});const r2=await fetch(NASA_IMG+'?'+p2);const d2=await r2.json();const ids=new Set(items.map(i=>i.data?.[0]?.nasa_id));(d2.collection?.items||[]).filter(i=>i.links?.[0]?.href).forEach(i=>{if(!ids.has(i.data?.[0]?.nasa_id))items.push(i);});}if(!items.length){showErr();return;}IMGS=items;renderImgs(items);document.getElementById('imgMeta').textContent=items.length+' images · '+new Date().toLocaleTimeString();}catch(e){showErr();}}
+function renderImgs(items){const g=document.getElementById('imgGrid');g.innerHTML=items.slice(0,12).map((item,idx)=>{const d=item.data?.[0]||{},thumb=item.links?.[0]?.href||'',date=d.date_created?new Date(d.date_created).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'',desc=(d.description||d.title||'NASA Artemis II').slice(0,160);return`<div class="img-card" onclick="openLB(${idx})"><div class="img-card-top"><img class="img-photo" src="${thumb}" alt="${d.title||''}" loading="lazy" onerror="this.closest('.img-card').style.display='none'"><div class="img-shade"></div>${date?`<div class="img-date">${date}</div>`:''} ${d.nasa_id?`<div class="img-id">${d.nasa_id}</div>`:''}</div><div class="img-body"><div class="img-desc">${desc}</div></div></div>`;}).join('');document.getElementById('imgStatus').textContent=`${Math.min(items.length,12)} of ${items.length} images · NASA Image & Video Library`;}
+function showErr(){document.getElementById('imgGrid').innerHTML='<div class="feed-err"><span>🛸</span>Could not connect to NASA Image API.<br><a href="https://images.nasa.gov/search?q=artemis+II" target="_blank" rel="noopener">Browse on images.nasa.gov →</a></div>';document.getElementById('imgMeta').textContent='Unavailable';}
+function openLB(idx){const item=IMGS[idx];if(!item)return;const d=item.data?.[0]||{},thumb=item.links?.[0]?.href||'',hi=thumb.replace('~thumb','~orig');const img=document.getElementById('lbImg');img.src=hi;img.onerror=()=>{img.src=thumb;};document.getElementById('lbId').textContent=d.nasa_id||'';document.getElementById('lbCap').textContent=d.description||d.title||'';document.getElementById('lbDt').textContent=d.date_created?new Date(d.date_created).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'';document.getElementById('lb').classList.add('open');document.body.style.overflow='hidden';}
+function closeLB(e){const lb=document.getElementById('lb');if(e&&e.target!==lb&&!e.target.classList.contains('lb-close'))return;lb.classList.remove('open');document.getElementById('lbImg').src='';document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB({target:document.getElementById('lb')});});
+async function loadNews(){const list=document.getElementById('newsList');list.innerHTML='<div class="skel" style="height:50px;border-radius:3px;margin:0;border-right:none"><div class="skel-img" style="padding-top:0;height:100%"></div></div>'.repeat(4);try{const r=await fetch(PROXY+encodeURIComponent(NASA_RSS));if(!r.ok)throw 0;const xml=new DOMParser().parseFromString(await r.text(),'text/xml');const items=Array.from(xml.querySelectorAll('item')).slice(0,8);if(!items.length)throw 0;list.innerHTML=items.map(item=>{const title=item.querySelector('title')?.textContent?.trim()||'',link=item.querySelector('link')?.textContent?.trim()||'#',desc=(item.querySelector('description')?.textContent||'').replace(/<[^>]+>/g,'').trim().slice(0,200),pub=item.querySelector('pubDate')?.textContent||'',date=pub?new Date(pub).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';return`<a class="news-item" href="${link}" target="_blank" rel="noopener"><div class="news-dot"></div><div class="news-bd"><div class="news-hed">${title}</div>${desc?`<div class="news-summ">${desc}</div>`:''}<div class="news-dt">${date} · NASA Artemis Blog</div></div><div class="news-arr">→</div></a>`;}).join('');}catch(e){list.innerHTML='<div class="feed-err"><span>📡</span>Could not load updates.<br><a href="https://www.nasa.gov/blogs/artemis/" target="_blank">Read NASA Artemis Blog →</a></div>';}}
+renderTimeline();update();setInterval(update,1e3);window.addEventListener('resize',()=>{const m=getMET(new Date());if(m)drawTraj(m.hrs);});
+loadImgs();loadNews();setInterval(loadImgs,10*60*1e3);setInterval(loadNews,5*60*1e3);
+</script>
+</body>
+</html>
