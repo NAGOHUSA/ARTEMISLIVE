@@ -203,6 +203,402 @@ footer{border-top:1px solid var(--border);padding:26px 22px;text-align:center;ba
 .fi.d1{animation-delay:0.05s}.fi.d2{animation-delay:0.2s}.fi.d3{animation-delay:0.35s}.fi.d4{animation-delay:0.5s}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--void);}::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.28);border-radius:3px;}
 </style>
+<style id="ons-feeds-style">
+/* ── SIDEBAR TOGGLE BUTTON ─────────────────────────────────── */
+#ons-toggle {
+  position: fixed;
+  right: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 9998;
+  background: linear-gradient(135deg, #7c3aed, #c026d3);
+  border: none; border-radius: 10px 0 0 10px;
+  padding: 14px 10px;
+  cursor: pointer;
+  box-shadow: -4px 0 24px rgba(139,92,246,0.4);
+  transition: all 0.25s;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+}
+#ons-toggle:hover {
+  background: linear-gradient(135deg, #9333ea, #d946ef);
+  box-shadow: -6px 0 32px rgba(192,38,211,0.55);
+  padding-right: 14px;
+}
+#ons-toggle.open {
+  right: 380px;
+  border-radius: 10px 0 0 10px;
+  background: rgba(20,10,40,0.95);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+}
+.toggle-icon { font-size: 1.3rem; line-height: 1; }
+.toggle-label {
+  font-family: monospace; font-size: 0.42rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.75); writing-mode: vertical-rl;
+  text-orientation: mixed; transform: rotate(180deg);
+  white-space: nowrap;
+}
+.toggle-notif {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #5dfc6e;
+  animation: notif-pulse 1.8s ease infinite;
+  box-shadow: 0 0 0 0 rgba(93,252,110,0.7);
+}
+@keyframes notif-pulse {
+  0%  { box-shadow: 0 0 0 0 rgba(93,252,110,0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(93,252,110,0); }
+  100%{ box-shadow: 0 0 0 0 rgba(93,252,110,0); }
+}
+
+/* ── SIDEBAR PANEL ─────────────────────────────────────────── */
+#ons-sidebar {
+  position: fixed;
+  right: -390px; top: 0; bottom: 0;
+  width: 380px; z-index: 9997;
+  background: rgba(8,4,20,0.97);
+  backdrop-filter: blur(24px) saturate(1.5);
+  border-left: 1px solid rgba(139,92,246,0.25);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.6);
+  display: flex; flex-direction: column;
+  transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+#ons-sidebar.open { right: 0; }
+
+/* header */
+.sb-head {
+  background: rgba(20,10,42,0.95);
+  border-bottom: 1px solid rgba(139,92,246,0.2);
+  padding: 14px 16px;
+  flex-shrink: 0;
+}
+.sb-head-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.sb-title {
+  font-family: monospace; font-size: 0.62rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(196,181,253,0.7);
+  display: flex; align-items: center; gap: 8px;
+}
+.sb-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #e879f9;
+  animation: notif-pulse 1.5s ease infinite;
+}
+.sb-close {
+  background: rgba(139,92,246,0.12);
+  border: 1px solid rgba(139,92,246,0.25);
+  color: rgba(196,181,253,0.7);
+  font-family: monospace; font-size: 0.6rem;
+  padding: 4px 9px; border-radius: 4px; cursor: pointer;
+  transition: all 0.2s;
+}
+.sb-close:hover { background: rgba(139,92,246,0.28); color: #fff; }
+
+/* tabs */
+.sb-tabs {
+  display: flex; gap: 4px;
+}
+.sb-tab {
+  flex: 1; background: rgba(139,92,246,0.06);
+  border: 1px solid rgba(139,92,246,0.15);
+  color: rgba(196,181,253,0.45);
+  font-family: monospace; font-size: 0.52rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 6px 4px; border-radius: 5px; cursor: pointer;
+  transition: all 0.2s; text-align: center;
+}
+.sb-tab:hover { background: rgba(139,92,246,0.18); color: rgba(196,181,253,0.8); }
+.sb-tab.active {
+  background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(192,38,211,0.2));
+  border-color: rgba(168,85,247,0.4);
+  color: #e9d5ff;
+  box-shadow: 0 0 10px rgba(139,92,246,0.2);
+}
+.sb-tab-icon { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+
+/* panels */
+.sb-body { flex: 1; overflow: hidden; position: relative; }
+.sb-panel {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  display: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139,92,246,0.3) transparent;
+}
+.sb-panel.active { display: block; }
+.sb-panel::-webkit-scrollbar { width: 4px; }
+.sb-panel::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 2px; }
+
+/* ── PANEL: NASA TV ────────────────────────────────────────── */
+.tv-panel { padding: 14px; }
+.tv-embed-wrap {
+  position: relative; width: 100%; padding-top: 56.25%;
+  background: #000; border-radius: 8px; overflow: hidden;
+  border: 1px solid rgba(139,92,246,0.2);
+  margin-bottom: 12px;
+}
+.tv-embed-wrap iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: none;
+}
+.tv-info {
+  background: rgba(139,92,246,0.06);
+  border: 1px solid rgba(139,92,246,0.15);
+  border-radius: 8px; padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.tv-info-title {
+  font-family: monospace; font-size: 0.6rem;
+  letter-spacing: 0.1em; color: #c4b5fd;
+  margin-bottom: 6px; font-weight: 700;
+}
+.tv-info-desc {
+  font-family: monospace; font-size: 0.58rem;
+  color: rgba(196,181,253,0.5); line-height: 1.6;
+}
+.tv-links { display: flex; flex-direction: column; gap: 7px; }
+.tv-link {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+  background: rgba(139,92,246,0.06);
+  border: 1px solid rgba(139,92,246,0.15);
+  border-radius: 7px; padding: 10px 12px;
+  transition: all 0.2s;
+}
+.tv-link:hover {
+  background: rgba(139,92,246,0.18);
+  border-color: rgba(168,85,247,0.35);
+  box-shadow: 0 4px 14px rgba(109,40,217,0.2);
+}
+.tv-link-icon { font-size: 1.1rem; flex-shrink: 0; }
+.tv-link-info { flex: 1; }
+.tv-link-name {
+  font-family: monospace; font-size: 0.6rem; font-weight: 700;
+  color: #c4b5fd; margin-bottom: 2px; letter-spacing: 0.06em;
+}
+.tv-link-sub { font-family: monospace; font-size: 0.52rem; color: rgba(196,181,253,0.45); }
+.tv-link-arr { font-size: 0.7rem; color: rgba(196,181,253,0.35); flex-shrink: 0; transition: transform 0.2s; }
+.tv-link:hover .tv-link-arr { transform: translateX(3px); color: #e879f9; }
+
+/* ── PANEL: TWITTER/X ──────────────────────────────────────── */
+.x-panel { padding: 0; }
+.x-embed-wrap {
+  width: 100%; min-height: 500px;
+  background: rgba(8,4,20,0.8);
+}
+.x-embed-wrap iframe {
+  width: 100%; border: none; display: block;
+}
+.x-fallback {
+  padding: 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.x-account-card {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(139,92,246,0.06);
+  border: 1px solid rgba(139,92,246,0.15);
+  border-radius: 8px; padding: 11px 12px;
+  text-decoration: none; transition: all 0.2s;
+}
+.x-account-card:hover {
+  background: rgba(139,92,246,0.18);
+  border-color: rgba(168,85,247,0.35);
+}
+.x-acc-icon { font-size: 1.2rem; flex-shrink: 0; }
+.x-acc-info { flex: 1; }
+.x-acc-name {
+  font-family: monospace; font-size: 0.62rem; font-weight: 700;
+  color: #c4b5fd; letter-spacing: 0.06em;
+}
+.x-acc-handle { font-family: monospace; font-size: 0.52rem; color: rgba(196,181,253,0.45); }
+.x-acc-arr { font-size: 0.7rem; color: rgba(196,181,253,0.35); transition: transform 0.2s; }
+.x-account-card:hover .x-acc-arr { transform: translateX(3px); color: #e879f9; }
+.x-note {
+  font-family: monospace; font-size: 0.55rem;
+  color: rgba(196,181,253,0.35); line-height: 1.6;
+  padding: 10px 12px;
+  background: rgba(139,92,246,0.04);
+  border: 1px solid rgba(139,92,246,0.1);
+  border-radius: 6px; letter-spacing: 0.04em;
+}
+
+/* ── PANEL: REDDIT ─────────────────────────────────────────── */
+.reddit-panel { padding: 14px; }
+.reddit-banner {
+  background: linear-gradient(135deg, rgba(255,69,0,0.12), rgba(139,92,246,0.08));
+  border: 1px solid rgba(255,100,50,0.2);
+  border-radius: 9px; padding: 12px 14px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.reddit-logo { font-size: 1.5rem; }
+.reddit-banner-text { flex: 1; }
+.reddit-banner-title {
+  font-family: monospace; font-size: 0.65rem; font-weight: 700;
+  color: #fbbf8a; letter-spacing: 0.07em; margin-bottom: 3px;
+}
+.reddit-banner-sub { font-family: monospace; font-size: 0.54rem; color: rgba(251,191,138,0.55); }
+.reddit-open-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  text-decoration: none;
+  background: rgba(255,69,0,0.15);
+  border: 1px solid rgba(255,100,50,0.3);
+  color: #fbbf8a; border-radius: 6px; padding: 7px 12px;
+  font-family: monospace; font-size: 0.56rem; letter-spacing: 0.1em;
+  text-transform: uppercase; font-weight: 700;
+  transition: all 0.2s; width: 100%; justify-content: center;
+  margin-bottom: 12px;
+}
+.reddit-open-btn:hover {
+  background: rgba(255,69,0,0.28);
+  box-shadow: 0 4px 16px rgba(255,69,0,0.2);
+}
+.reddit-posts { display: flex; flex-direction: column; gap: 8px; }
+.reddit-post {
+  background: rgba(139,92,246,0.05);
+  border: 1px solid rgba(139,92,246,0.12);
+  border-radius: 8px; padding: 11px 12px;
+  text-decoration: none; transition: all 0.2s;
+  cursor: pointer;
+}
+.reddit-post:hover {
+  background: rgba(139,92,246,0.14);
+  border-color: rgba(168,85,247,0.3);
+}
+.reddit-post-title {
+  font-family: monospace; font-size: 0.6rem;
+  color: #c4b5fd; line-height: 1.45; margin-bottom: 6px;
+  font-weight: 700;
+}
+.reddit-post-meta {
+  display: flex; gap: 10px; align-items: center;
+}
+.reddit-post-score {
+  font-family: monospace; font-size: 0.52rem;
+  color: rgba(255,140,50,0.7); font-weight: 700;
+}
+.reddit-post-comments {
+  font-family: monospace; font-size: 0.52rem;
+  color: rgba(196,181,253,0.4);
+}
+.reddit-post-time {
+  font-family: monospace; font-size: 0.5rem;
+  color: rgba(196,181,253,0.3); margin-left: auto;
+}
+.reddit-loading {
+  text-align: center; padding: 24px 14px;
+  font-family: monospace; font-size: 0.58rem;
+  color: rgba(196,181,253,0.35); letter-spacing: 0.1em;
+}
+.reddit-skel {
+  background: rgba(139,92,246,0.04);
+  border: 1px solid rgba(139,92,246,0.1);
+  border-radius: 8px; padding: 11px 12px;
+  margin-bottom: 8px;
+}
+.reddit-skel-ln {
+  height: 6px; border-radius: 3px; margin-bottom: 6px;
+  background: linear-gradient(90deg, rgba(139,92,246,0.04) 25%, rgba(139,92,246,0.1) 50%, rgba(139,92,246,0.04) 75%);
+  background-size: 200% 100%;
+  animation: reddit-sh 1.6s ease infinite;
+}
+.reddit-skel-ln.s { width: 55%; }
+@keyframes reddit-sh { 0%{background-position:200% 0}100%{background-position:-200% 0} }
+
+/* ── PANEL: TELEMETRY ──────────────────────────────────────── */
+.telem-panel { padding: 14px; font-family: monospace; }
+.telem-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.telem-header-title {
+  font-size: 0.6rem; letter-spacing: 0.16em;
+  color: rgba(196,181,253,0.6); text-transform: uppercase; font-weight: 700;
+}
+.telem-live-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.52rem; letter-spacing: 0.12em;
+  color: #5dfc6e; text-transform: uppercase;
+}
+.telem-live-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #5dfc6e; animation: notif-pulse 1.5s ease infinite;
+}
+.telem-group { margin-bottom: 14px; }
+.telem-group-title {
+  font-size: 0.5rem; letter-spacing: 0.18em; color: rgba(196,181,253,0.3);
+  text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px;
+  border-bottom: 1px solid rgba(139,92,246,0.1);
+}
+.telem-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 7px 0; border-bottom: 1px solid rgba(139,92,246,0.07);
+}
+.telem-row:last-child { border-bottom: none; }
+.telem-row-label { font-size: 0.56rem; color: rgba(196,181,253,0.4); letter-spacing: 0.06em; }
+.telem-row-val {
+  font-size: 0.8rem; font-weight: 700;
+  letter-spacing: 0.04em; font-variant-numeric: tabular-nums;
+}
+.telem-row-val.cyan  { color: #4ee8d0; }
+.telem-row-val.pink  { color: #e879f9; }
+.telem-row-val.gold  { color: #f0b84a; }
+.telem-row-val.green { color: #5dfc6e; }
+.telem-row-val.blue  { color: #818cf8; }
+.telem-row-unit { font-size: 0.46rem; color: rgba(196,181,253,0.3); margin-left: 3px; }
+.telem-chart-wrap {
+  background: rgba(139,92,246,0.04);
+  border: 1px solid rgba(139,92,246,0.1);
+  border-radius: 7px; padding: 10px; margin-top: 6px;
+  overflow: hidden;
+}
+.telem-chart-label {
+  font-size: 0.5rem; letter-spacing: 0.12em; color: rgba(196,181,253,0.3);
+  text-transform: uppercase; margin-bottom: 7px;
+}
+#telem-vel-chart { width: 100%; height: 60px; display: block; }
+.telem-phase-box {
+  background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(192,38,211,0.08));
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 8px; padding: 12px 13px; margin-bottom: 12px;
+}
+.telem-phase-label {
+  font-size: 0.5rem; letter-spacing: 0.14em; color: rgba(196,181,253,0.4);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.telem-phase-name {
+  font-size: 0.88rem; font-weight: 700; color: #e879f9;
+  letter-spacing: 0.06em; margin-bottom: 4px;
+}
+.telem-phase-desc {
+  font-size: 0.56rem; color: rgba(196,181,253,0.5); line-height: 1.55;
+}
+.telem-met-big {
+  text-align: center; padding: 16px 12px;
+  background: rgba(78,232,208,0.04);
+  border: 1px solid rgba(78,232,208,0.12);
+  border-radius: 9px; margin-bottom: 14px;
+}
+.telem-met-lbl {
+  font-size: 0.5rem; letter-spacing: 0.18em; color: rgba(196,181,253,0.35);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.telem-met-val {
+  font-size: 1.2rem; font-weight: 700; color: #4ee8d0;
+  letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
+}
+
+/* ── MOBILE ────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  #ons-sidebar { width: 100%; }
+  #ons-toggle.open { right: 100%; }
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+#ons-sidebar *::-webkit-scrollbar { width: 3px; }
+#ons-sidebar *::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 2px; }
+</style>
 </head>
 <body>
 <div id="nebula"></div>
@@ -373,6 +769,464 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB({target:docu
 async function loadNews(){const list=document.getElementById('newsList');list.innerHTML='<div class="skel" style="height:52px;border-radius:8px;margin-bottom:8px"><div class="skel-img" style="padding-top:0;height:100%"></div></div>'.repeat(4);try{const r=await fetch(PROXY+encodeURIComponent(NASA_RSS));if(!r.ok)throw 0;const xml=new DOMParser().parseFromString(await r.text(),'text/xml');const items=Array.from(xml.querySelectorAll('item')).slice(0,8);if(!items.length)throw 0;list.innerHTML=items.map(item=>{const title=item.querySelector('title')?.textContent?.trim()||'',link=item.querySelector('link')?.textContent?.trim()||'#',desc=(item.querySelector('description')?.textContent||'').replace(/<[^>]+>/g,'').trim().slice(0,200),pub=item.querySelector('pubDate')?.textContent||'',date=pub?new Date(pub).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';return`<a class="news-item" href="${link}" target="_blank" rel="noopener"><div class="news-dot"></div><div class="news-bd"><div class="news-hed">${title}</div>${desc?`<div class="news-summ">${desc}</div>`:''}<div class="news-dt">${date} · NASA Artemis Blog</div></div><div class="news-arr">→</div></a>`;}).join('');}catch(e){list.innerHTML='<div class="feed-err"><span>📡</span>Could not load updates.<br><a href="https://www.nasa.gov/blogs/artemis/" target="_blank">Read NASA Artemis Blog →</a></div>';}}
 renderTimeline();update();setInterval(update,1e3);window.addEventListener('resize',()=>{const m=getMET(new Date());if(m)drawTraj(m.hrs);});
 loadImgs();loadNews();setInterval(loadImgs,10*60*1e3);setInterval(loadNews,5*60*1e3);
+</script>
+
+<!-- OurNightSky Live Feeds Sidebar -->
+<!-- TOGGLE BUTTON -->
+<button id="ons-toggle" onclick="onsSidebarToggle()" aria-label="Toggle live feeds">
+  <span class="toggle-icon">📡</span>
+  <span class="toggle-label">Live Feeds</span>
+  <span class="toggle-notif"></span>
+</button>
+
+<!-- SIDEBAR -->
+<div id="ons-sidebar">
+  <div class="sb-head">
+    <div class="sb-head-top">
+      <div class="sb-title">
+        <span class="sb-live-dot"></span>
+        OurNightSky · Live Feeds
+      </div>
+      <button class="sb-close" onclick="onsSidebarToggle()">✕ Close</button>
+    </div>
+    <div class="sb-tabs">
+      <button class="sb-tab active" onclick="onsTab('tv')">
+        <span class="sb-tab-icon">📺</span>NASA TV
+      </button>
+      <button class="sb-tab" onclick="onsTab('x')">
+        <span class="sb-tab-icon">𝕏</span>Twitter
+      </button>
+      <button class="sb-tab" onclick="onsTab('reddit')">
+        <span class="sb-tab-icon">🔴</span>Reddit
+      </button>
+      <button class="sb-tab" onclick="onsTab('telem')">
+        <span class="sb-tab-icon">📡</span>Telemetry
+      </button>
+    </div>
+  </div>
+
+  <div class="sb-body">
+
+    <!-- TAB: NASA TV -->
+    <div class="sb-panel active" id="panel-tv">
+      <div class="tv-panel">
+        <div class="tv-embed-wrap">
+          <iframe
+            src="https://www.youtube.com/embed/live_stream?channel=UCVTomc35agH1muPB33f7zCw&autoplay=0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            title="NASA TV Live">
+          </iframe>
+        </div>
+        <div class="tv-info">
+          <div class="tv-info-title">🚀 NASA TV · Artemis II Coverage</div>
+          <div class="tv-info-desc">Official NASA livestream with mission control audio. 24/7 coverage of Artemis II — crew downlinks, press briefings, flyby broadcast, and splashdown coverage.</div>
+        </div>
+        <div class="tv-links">
+          <a class="tv-link" href="https://www.youtube.com/@NASA/live" target="_blank" rel="noopener">
+            <span class="tv-link-icon">▶️</span>
+            <div class="tv-link-info">
+              <div class="tv-link-name">NASA YouTube · Live</div>
+              <div class="tv-link-sub">Full resolution · Mission control audio</div>
+            </div>
+            <span class="tv-link-arr">→</span>
+          </a>
+          <a class="tv-link" href="https://plus.nasa.gov" target="_blank" rel="noopener">
+            <span class="tv-link-icon">🛰️</span>
+            <div class="tv-link-info">
+              <div class="tv-link-name">NASA+ Streaming</div>
+              <div class="tv-link-sub">Free · No subscription · Ad-free</div>
+            </div>
+            <span class="tv-link-arr">→</span>
+          </a>
+          <a class="tv-link" href="https://www.youtube.com/watch?v=xNLqxBNE_hY" target="_blank" rel="noopener">
+            <span class="tv-link-icon">🌍</span>
+            <div class="tv-link-info">
+              <div class="tv-link-name">Orion Live View · Earth & Moon</div>
+              <div class="tv-link-sub">Continuous exterior camera feed</div>
+            </div>
+            <span class="tv-link-arr">→</span>
+          </a>
+          <a class="tv-link" href="https://www.nasa.gov/live/" target="_blank" rel="noopener">
+            <span class="tv-link-icon">📅</span>
+            <div class="tv-link-info">
+              <div class="tv-link-name">NASA Live Schedule</div>
+              <div class="tv-link-sub">Upcoming events · Press conferences</div>
+            </div>
+            <span class="tv-link-arr">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: TWITTER/X -->
+    <div class="sb-panel" id="panel-x">
+      <div class="x-fallback">
+        <div class="x-note">
+          Twitter/X embeds require JavaScript from x.com — loading below. If it doesn't appear, tap an account link to open directly.
+        </div>
+        <!-- Official X Timeline Widget -->
+        <div id="x-widget-container" style="min-height:400px;">
+          <a class="twitter-timeline"
+             data-theme="dark"
+             data-chrome="nofooter noborders transparent"
+             data-tweet-limit="6"
+             href="https://twitter.com/NASAArtemis">
+            Loading @NASAArtemis tweets…
+          </a>
+        </div>
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <a class="x-account-card" href="https://twitter.com/NASAArtemis" target="_blank" rel="noopener">
+            <span class="x-acc-icon">🌙</span>
+            <div class="x-acc-info">
+              <div class="x-acc-name">@NASAArtemis</div>
+              <div class="x-acc-handle">Official Artemis Program</div>
+            </div>
+            <span class="x-acc-arr">→</span>
+          </a>
+          <a class="x-account-card" href="https://twitter.com/NASA" target="_blank" rel="noopener">
+            <span class="x-acc-icon">🚀</span>
+            <div class="x-acc-info">
+              <div class="x-acc-name">@NASA</div>
+              <div class="x-acc-handle">National Aeronautics and Space Administration</div>
+            </div>
+            <span class="x-acc-arr">→</span>
+          </a>
+          <a class="x-account-card" href="https://twitter.com/astro_reid" target="_blank" rel="noopener">
+            <span class="x-acc-icon">👨‍🚀</span>
+            <div class="x-acc-info">
+              <div class="x-acc-name">@astro_reid</div>
+              <div class="x-acc-handle">Reid Wiseman · Commander</div>
+            </div>
+            <span class="x-acc-arr">→</span>
+          </a>
+          <a class="x-account-card" href="https://twitter.com/astro_christina" target="_blank" rel="noopener">
+            <span class="x-acc-icon">👩‍🚀</span>
+            <div class="x-acc-info">
+              <div class="x-acc-name">@astro_christina</div>
+              <div class="x-acc-handle">Christina Koch · Mission Specialist</div>
+            </div>
+            <span class="x-acc-arr">→</span>
+          </a>
+          <a class="x-account-card" href="https://twitter.com/astrovicglover" target="_blank" rel="noopener">
+            <span class="x-acc-icon">👨‍🚀</span>
+            <div class="x-acc-info">
+              <div class="x-acc-name">@astrovicglover</div>
+              <div class="x-acc-handle">Victor Glover · Pilot</div>
+            </div>
+            <span class="x-acc-arr">→</span>
+          </a>
+          <a class="x-account-card" href="https://twitter.com/astrojeremy" target="_blank" rel="noopener">
+            <span class="x-acc-icon">🇨🇦</span>
+            <div class="x-acc-info">
+              <div class="x-acc-name">@astrojeremy</div>
+              <div class="x-acc-handle">Jeremy Hansen · CSA</div>
+            </div>
+            <span class="x-acc-arr">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: REDDIT -->
+    <div class="sb-panel" id="panel-reddit">
+      <div class="reddit-panel">
+        <div class="reddit-banner">
+          <span class="reddit-logo">🔴</span>
+          <div class="reddit-banner-text">
+            <div class="reddit-banner-title">r/space · Live Discussion</div>
+            <div class="reddit-banner-sub">Top posts · Artemis II · Updated every 5 min</div>
+          </div>
+        </div>
+        <a class="reddit-open-btn" href="https://www.reddit.com/r/space/search/?q=artemis+II&sort=new&t=week" target="_blank" rel="noopener">
+          🔴 &nbsp;Open r/space Discussion →
+        </a>
+        <div id="reddit-posts-list">
+          <div class="reddit-skel"><div class="reddit-skel-ln"></div><div class="reddit-skel-ln s"></div></div>
+          <div class="reddit-skel"><div class="reddit-skel-ln"></div><div class="reddit-skel-ln s"></div></div>
+          <div class="reddit-skel"><div class="reddit-skel-ln"></div><div class="reddit-skel-ln s"></div></div>
+          <div class="reddit-skel"><div class="reddit-skel-ln"></div><div class="reddit-skel-ln s"></div></div>
+        </div>
+        <div style="margin-top:10px; font-family:monospace; font-size:0.5rem; color:rgba(196,181,253,0.25); text-align:center; letter-spacing:0.08em;">
+          Data from Reddit public API · r/space
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: TELEMETRY CONSOLE -->
+    <div class="sb-panel" id="panel-telem">
+      <div class="telem-panel">
+        <div class="telem-header">
+          <div class="telem-header-title">DSN Telemetry Console</div>
+          <div class="telem-live-badge"><span class="telem-live-dot"></span>Computing</div>
+        </div>
+        <div class="telem-met-big">
+          <div class="telem-met-lbl">Mission Elapsed Time</div>
+          <div class="telem-met-val" id="sb-met">T+ --D --:--:--</div>
+        </div>
+        <div class="telem-phase-box">
+          <div class="telem-phase-label">Current Mission Phase</div>
+          <div class="telem-phase-name" id="sb-phase-name">Loading…</div>
+          <div class="telem-phase-desc" id="sb-phase-desc">Computing mission phase…</div>
+        </div>
+        <div class="telem-group">
+          <div class="telem-group-title">Navigation</div>
+          <div class="telem-row"><span class="telem-row-label">Dist. from Earth</span><span class="telem-row-val cyan" id="sb-dearth">—<span class="telem-row-unit">km</span></span></div>
+          <div class="telem-row"><span class="telem-row-label">Dist. from Moon</span><span class="telem-row-val pink" id="sb-dmoon">—<span class="telem-row-unit">km</span></span></div>
+          <div class="telem-row"><span class="telem-row-label">Altitude</span><span class="telem-row-val blue" id="sb-alt">—<span class="telem-row-unit">km</span></span></div>
+          <div class="telem-row"><span class="telem-row-label">Flight Day</span><span class="telem-row-val gold" id="sb-fday">—<span class="telem-row-unit">/ 10</span></span></div>
+        </div>
+        <div class="telem-group">
+          <div class="telem-group-title">Propulsion & Dynamics</div>
+          <div class="telem-row"><span class="telem-row-label">Velocity</span><span class="telem-row-val cyan" id="sb-vel">—<span class="telem-row-unit">km/h</span></span></div>
+          <div class="telem-row"><span class="telem-row-label">Path Flown</span><span class="telem-row-val blue" id="sb-path">—<span class="telem-row-unit">km</span></span></div>
+          <div class="telem-row"><span class="telem-row-label">Mission Progress</span><span class="telem-row-val green" id="sb-pct">—</span></div>
+        </div>
+        <div class="telem-group">
+          <div class="telem-group-title">Communications</div>
+          <div class="telem-row"><span class="telem-row-label">Signal Delay (1-way)</span><span class="telem-row-val gold" id="sb-sig">—<span class="telem-row-unit">sec</span></span></div>
+          <div class="telem-row"><span class="telem-row-label">DSN Status</span><span class="telem-row-val green">NOMINAL</span></div>
+          <div class="telem-row"><span class="telem-row-label">Next Event</span><span class="telem-row-val pink" id="sb-next" style="font-size:0.6rem">—</span></div>
+        </div>
+        <div class="telem-chart-wrap">
+          <div class="telem-chart-label">Velocity History (last 60 sec)</div>
+          <canvas id="telem-vel-chart" height="60"></canvas>
+        </div>
+        <div style="margin-top:12px;font-family:monospace;font-size:0.5rem;color:rgba(196,181,253,0.22);text-align:center;letter-spacing:0.08em;line-height:1.7;">
+          Estimated from NASA published mission profile<br>
+          Not official NASA real-time data
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sb-body -->
+</div><!-- /ons-sidebar -->
+
+<script>
+// ── SIDEBAR TOGGLE ────────────────────────────────────────────
+let _sbOpen = false;
+function onsSidebarToggle() {
+  _sbOpen = !_sbOpen;
+  document.getElementById('ons-sidebar').classList.toggle('open', _sbOpen);
+  document.getElementById('ons-toggle').classList.toggle('open', _sbOpen);
+  if (_sbOpen && _activeTab === 'x' && !_xLoaded) onsLoadXWidget();
+  if (_sbOpen && _activeTab === 'reddit') onsLoadReddit();
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+let _activeTab = 'tv';
+let _xLoaded = false;
+function onsTab(tab) {
+  _activeTab = tab;
+  document.querySelectorAll('.sb-tab').forEach((t,i) => {
+    const tabs = ['tv','x','reddit','telem'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.sb-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'x' && !_xLoaded) onsLoadXWidget();
+  if (tab === 'reddit') onsLoadReddit();
+}
+
+// ── TWITTER/X WIDGET ─────────────────────────────────────────
+function onsLoadXWidget() {
+  if (_xLoaded) return;
+  _xLoaded = true;
+  const s = document.createElement('script');
+  s.src = 'https://platform.twitter.com/widgets.js';
+  s.charset = 'utf-8';
+  s.async = true;
+  document.head.appendChild(s);
+}
+
+// ── REDDIT FEED ───────────────────────────────────────────────
+let _redditLoaded = false;
+let _redditLastFetch = 0;
+async function onsLoadReddit() {
+  const now = Date.now();
+  if (_redditLoaded && now - _redditLastFetch < 5 * 60 * 1000) return;
+  _redditLastFetch = now;
+  const list = document.getElementById('reddit-posts-list');
+  if (!_redditLoaded) {
+    list.innerHTML = '<div class="reddit-skel"><div class="reddit-skel-ln"></div><div class="reddit-skel-ln s"></div></div>'.repeat(4);
+  }
+  try {
+    // Reddit JSON API — search r/space for Artemis
+    const res = await fetch(
+      'https://api.allorigins.win/raw?url=' +
+      encodeURIComponent('https://www.reddit.com/r/space/search.json?q=artemis+II&sort=top&t=week&limit=10'),
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (!res.ok) throw new Error('Reddit API ' + res.status);
+    const data = await res.json();
+    const posts = data?.data?.children || [];
+    if (!posts.length) throw new Error('No posts');
+    _redditLoaded = true;
+
+    list.innerHTML = posts.map(p => {
+      const d = p.data;
+      const score = d.score > 999 ? (d.score/1000).toFixed(1)+'k' : d.score;
+      const comments = d.num_comments > 999 ? (d.num_comments/1000).toFixed(1)+'k' : d.num_comments;
+      const age = _timeAgo(d.created_utc);
+      const url = 'https://reddit.com' + d.permalink;
+      const title = d.title.length > 90 ? d.title.slice(0,87)+'…' : d.title;
+      return `<a class="reddit-post" href="${url}" target="_blank" rel="noopener">
+        <div class="reddit-post-title">${title}</div>
+        <div class="reddit-post-meta">
+          <span class="reddit-post-score">▲ ${score}</span>
+          <span class="reddit-post-comments">💬 ${comments}</span>
+          <span class="reddit-post-time">${age}</span>
+        </div>
+      </a>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `
+      <div style="font-family:monospace;font-size:0.58rem;color:rgba(196,181,253,0.35);text-align:center;padding:20px 10px;line-height:1.7;">
+        📡 Could not load Reddit posts.<br>
+        <a href="https://www.reddit.com/r/space/search/?q=artemis+II&sort=new" target="_blank" rel="noopener"
+           style="color:rgba(255,140,50,0.6);font-size:0.54rem;">
+          Open r/space directly →
+        </a>
+      </div>`;
+  }
+  // Re-fetch every 5 min
+  setTimeout(onsLoadReddit, 5 * 60 * 1000);
+}
+
+function _timeAgo(ts) {
+  const s = Math.floor(Date.now()/1000 - ts);
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+
+// ── TELEMETRY SIDEBAR (uses shared math from main tracker) ────
+const _SB_LAUNCH = new Date('2026-04-01T22:35:00Z');
+const _SB_MISSION_MS = 10*24*3600*1000;
+const _SB_MOON = 384400, _SB_C = 299792;
+const _SB_PHASES = [
+  {l:'Launch',     h0:0,   h1:.3,  desc:'SLS lifts off from LC-39B. ICPS inserts Orion into initial Earth orbit.'},
+  {l:'Earth Orbit',h0:.3,  h1:6,   desc:'Proximity ops demo and orbit raise burns. Crew tests systems.'},
+  {l:'TLI Burn',   h0:6,   h1:8,   desc:'5-min main engine burn sets Orion on free-return trajectory.'},
+  {l:'Outbound',   h0:8,   h1:120, desc:'4-day coast to the Moon. Three trajectory correction burns.'},
+  {l:'Flyby',      h0:120, h1:144, desc:'Historic flyby ~7,600 km beyond Moon. ~30-min radio blackout.'},
+  {l:'Return',     h0:144, h1:228, desc:'Free-return carries Orion back over ~3.5 days.'},
+  {l:'Splashdown', h0:228, h1:240, desc:'Skip reentry at ~40,000 km/h. Pacific Ocean splashdown.'}
+];
+const _SB_EVENTS = [
+  {n:'TLI Burn',      h:7},
+  {n:'Traj. Correction', h:72},
+  {n:'Lunar Flyby',   h:126},
+  {n:'Return Transit',h:150},
+  {n:'Reentry',       h:232},
+  {n:'Splashdown',    h:238}
+];
+
+function _sbGetPos(hrs) {
+  const h = Math.min(hrs, 240); let dist, vel;
+  if(h<.3){dist=6371+h*1e3;vel=25e3+h*3e4;}
+  else if(h<6){dist=6971;vel=28e3;}
+  else if(h<8){const t=(h-6)/2;dist=6971+t*5e3;vel=28e3+t*11e3;}
+  else if(h<120){const t=(h-8)/112;dist=12e3+t*t*(392e3-12e3);vel=39e3*(1-t)+3400*t;}
+  else if(h<144){const t=(h-120)/24;const pk=Math.sin(t*Math.PI);dist=392e3-pk*4e3;vel=3400+pk*1200;}
+  else if(h<228){const t=(h-144)/84;dist=392e3*(1-t*t)+6600*t*t;vel=3400+t*t*(36e3-3400);}
+  else{const t=(h-228)/12;dist=6600*(1-t)+6371*t;vel=4e4*(1-t)+500*t;}
+  return{alt:Math.max(0,dist-6371),dc:dist,dm:Math.abs(_SB_MOON+6371-dist),vel:Math.round(vel)};
+}
+function _sbPhaseIdx(hrs) {
+  for(let i=_SB_PHASES.length-1;i>=0;i--) if(hrs>=_SB_PHASES[i].h0) return i;
+  return 0;
+}
+function _sbNextEvent(hrs) {
+  for(const e of _SB_EVENTS) if(e.h > hrs) {
+    const diff = e.h - hrs;
+    if(diff < 1) return e.n + ' ~' + Math.round(diff*60) + 'm';
+    if(diff < 24) return e.n + ' ~' + diff.toFixed(1) + 'h';
+    return e.n + ' ~' + Math.floor(diff/24) + 'd';
+  }
+  return 'Splashdown Complete';
+}
+function _sbFmt(n) { return Math.round(n).toLocaleString(); }
+function _sbPad(n) { return String(n).padStart(2,'0'); }
+
+// Velocity history for sparkline
+const _velHistory = [];
+const _velMax = 60; // samples
+
+function _sbUpdateTelemetry() {
+  const now = new Date();
+  const ms = now - _SB_LAUNCH; if(ms < 0) return;
+  const s = Math.floor(ms/1000);
+  const hrs = ms/3600000;
+  const pos = _sbGetPos(hrs);
+  const pi = _sbPhaseIdx(hrs);
+  const pct = Math.min(100, ms/_SB_MISSION_MS*100);
+  const fd = Math.floor(hrs/24)+1;
+  const pathKm = hrs<120?hrs/120*5e5:hrs<144?5e5+(hrs-120)/24*6e4:5.6e5+(hrs-144)/96*4.8e5;
+  const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;
+
+  document.getElementById('sb-met').textContent = `T+ ${d}D ${_sbPad(h)}:${_sbPad(m)}:${_sbPad(sec)}`;
+  document.getElementById('sb-phase-name').textContent = _SB_PHASES[pi].l;
+  document.getElementById('sb-phase-desc').textContent = _SB_PHASES[pi].desc;
+  document.getElementById('sb-dearth').innerHTML = _sbFmt(pos.alt)+'<span class="telem-row-unit">km</span>';
+  document.getElementById('sb-dmoon').innerHTML  = _sbFmt(pos.dm)+'<span class="telem-row-unit">km</span>';
+  document.getElementById('sb-alt').innerHTML    = _sbFmt(pos.alt)+'<span class="telem-row-unit">km</span>';
+  document.getElementById('sb-fday').innerHTML   = fd+'<span class="telem-row-unit">/ 10</span>';
+  document.getElementById('sb-vel').innerHTML    = _sbFmt(pos.vel)+'<span class="telem-row-unit">km/h</span>';
+  document.getElementById('sb-path').innerHTML   = _sbFmt(pathKm)+'<span class="telem-row-unit">km</span>';
+  document.getElementById('sb-pct').textContent  = pct.toFixed(2)+'%';
+  document.getElementById('sb-sig').innerHTML    = (pos.dc/_SB_C).toFixed(3)+'<span class="telem-row-unit">sec</span>';
+  document.getElementById('sb-next').textContent = _sbNextEvent(hrs);
+
+  // Sparkline
+  _velHistory.push(pos.vel);
+  if(_velHistory.length > _velMax) _velHistory.shift();
+  _drawVelChart();
+}
+
+function _drawVelChart() {
+  const cv = document.getElementById('telem-vel-chart');
+  if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.offsetWidth || 320, H = 60;
+  cv.width = W; cv.height = H;
+  ctx.clearRect(0,0,W,H);
+  if(_velHistory.length < 2) return;
+  const min = Math.min(..._velHistory)*0.98;
+  const max = Math.max(..._velHistory)*1.02;
+  const range = max - min || 1;
+  const pts = _velHistory.map((v,i) => ({
+    x: (i/(_velMax-1))*W,
+    y: H - ((v-min)/range)*(H-8) - 4
+  }));
+  // gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(78,232,208,0.25)');
+  grad.addColorStop(1,'rgba(78,232,208,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, H);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length-1].x, H);
+  ctx.fillStyle = grad; ctx.fill();
+  // line
+  ctx.beginPath();
+  pts.forEach((p,i) => i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='rgba(78,232,208,0.8)'; ctx.lineWidth=1.5; ctx.stroke();
+  // current dot
+  const last = pts[pts.length-1];
+  ctx.beginPath(); ctx.arc(last.x,last.y,3,0,Math.PI*2);
+  ctx.fillStyle='#4ee8d0'; ctx.fill();
+}
+
+// Update telemetry every second
+setInterval(_sbUpdateTelemetry, 1000);
+_sbUpdateTelemetry();
+
+// Auto-load reddit when tab becomes visible
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden && _activeTab === 'reddit') onsLoadReddit();
+});
 </script>
 </body>
 </html>
