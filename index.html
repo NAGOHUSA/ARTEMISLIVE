@@ -5,1039 +5,1079 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OurNightSky · Artemis II Mission Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ── TOKENS ─────────────────────────────────────── */
-:root{
-  --bg:    #0a0c12; --bg2:   #0d1018; --bg3:   #111520;
-  --panel: #131825; --panel2:#182030;
-  --border:#1e2840; --border2:#263354;
-
-  /* accent palette */
-  --cyan:  #00d4ff; --cyan2: #0099cc;
-  --green: #00e676; --green2:#00a854;
-  --amber: #ffb300; --amber2:#e65c00;
-  --purple:#b388ff; --purple2:#7c4dff;
-  --pink:  #ff4081; --pink2: #c2185b;
-  --blue:  #448aff; --blue2: #1565c0;
-  --teal:  #1de9b6; --teal2: #00897b;
-  --red:   #ff5252; --red2:  #b71c1c;
-
-  --text:  #dde4ff; --muted: #7080a8; --dim: #3d4f72;
-
-  /* phase colours */
-  --phase-launch: #ff6b35;
-  --phase-orbit:  #448aff;
-  --phase-tli:    #ff4081;
-  --phase-trans:  #00d4ff;
-  --phase-flyby:  #b388ff;
-  --phase-return: #00e676;
-  --phase-splsh:  #ffb300;
+:root {
+  --bg:     #070910; --bg2:    #0b0d18; --bg3:    #0f121f;
+  --panel:  #111422; --panel2: #161b2e;
+  --border: #1c2238; --border2:#243060;
+  --cyan:   #00d4ff; --cyan2:  #0088bb;
+  --green:  #00e676; --green2: #00994d;
+  --amber:  #ffb300; --amber2: #cc7700;
+  --purple: #b388ff; --purple2:#7b4fff;
+  --pink:   #ff4081; --teal:   #1de9b6;
+  --blue:   #448aff; --red:    #ff5252;
+  --text:   #d8e0ff; --muted:  #6070a0; --dim: #2d3a5a;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);}
-body{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);display:flex;flex-direction:column;}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); }
+body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text); display:flex; flex-direction:column; }
 
-/* ── HEADER ROW ─────────────────────────────────── */
-.hdr{
-  flex-shrink:0;height:36px;
-  background:var(--bg2);border-bottom:1px solid var(--border2);
-  display:flex;align-items:center;gap:0;overflow:hidden;
+/* ── TOPBAR ─────────────────────────────────────── */
+#topbar {
+  flex-shrink:0; height:34px; background:var(--bg2);
+  border-bottom:2px solid var(--border2);
+  display:flex; align-items:stretch; overflow:hidden;
 }
-.hdr-brand{
-  display:flex;align-items:center;gap:7px;padding:0 14px;
-  border-right:1px solid var(--border2);flex-shrink:0;height:100%;
-  text-decoration:none;
+.tb-brand {
+  display:flex; align-items:center; gap:8px; padding:0 14px;
+  border-right:1px solid var(--border2); text-decoration:none; flex-shrink:0;
 }
-.hdr-moon{font-size:1rem;filter:drop-shadow(0 0 6px var(--cyan));}
-.hdr-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.85rem;color:#fff;letter-spacing:0.06em;}
-.hdr-name span{color:var(--cyan);}
-.hdr-chip{
-  display:flex;align-items:center;gap:5px;padding:0 12px;
-  border-right:1px solid var(--border);height:100%;flex-shrink:0;
+.tb-moon { font-size:1.05rem; filter:drop-shadow(0 0 8px var(--cyan)); }
+.tb-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:0.9rem; color:#fff; letter-spacing:0.06em; }
+.tb-title span { color:var(--cyan); }
+.tb-chip {
+  display:flex; align-items:center; gap:4px; padding:0 11px;
+  border-right:1px solid var(--border); flex-shrink:0;
 }
-.hdr-chip-lbl{font-size:0.52rem;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;margin-right:2px;}
-.hdr-chip-val{font-size:0.68rem;font-weight:700;letter-spacing:0.04em;font-variant-numeric:tabular-nums;}
-.hdr-chip-val.cyan  {color:var(--cyan);}
-.hdr-chip-val.green {color:var(--green);}
-.hdr-chip-val.amber {color:var(--amber);}
-.hdr-chip-val.purple{color:var(--purple);}
-.hdr-chip-val.pink  {color:var(--pink);}
-.hdr-chip-val.teal  {color:var(--teal);}
-.hdr-chip-val.white {color:#fff;}
-.hdr-live{display:flex;align-items:center;gap:5px;padding:0 10px;font-size:0.55rem;letter-spacing:0.14em;color:var(--green);font-weight:700;}
-.live-pip{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pip 1.6s ease infinite;box-shadow:0 0 0 0 rgba(0,230,118,0.6);}
-@keyframes pip{0%{box-shadow:0 0 0 0 rgba(0,230,118,0.6);}70%{box-shadow:0 0 0 7px rgba(0,230,118,0);}100%{box-shadow:0 0 0 0 rgba(0,230,118,0);}}
-.phase-badge{padding:2px 8px;border-radius:2px;font-size:0.52rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-left:2px;}
-.hdr-nav-tabs{display:flex;margin-left:auto;height:100%;}
-.hdr-tab{padding:0 13px;height:100%;display:flex;align-items:center;border:none;background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
-.hdr-tab:hover{color:var(--text);}
-.hdr-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(0,212,255,0.04);}
-.hdr-sep{width:1px;background:var(--border);height:100%;}
+.tb-lbl { font-size:0.48rem; letter-spacing:0.14em; color:var(--muted); text-transform:uppercase; }
+.tb-val { font-size:0.68rem; font-weight:700; font-variant-numeric:tabular-nums; }
+.v-cyan   { color:var(--cyan); }
+.v-green  { color:var(--green); }
+.v-amber  { color:var(--amber); }
+.v-purple { color:var(--purple); }
+.v-teal   { color:var(--teal); }
+.v-white  { color:#fff; }
+.v-pink   { color:var(--pink); }
+.tb-live { display:flex; align-items:center; gap:5px; padding:0 10px; font-size:0.55rem; letter-spacing:0.14em; color:var(--green); font-weight:700; }
+.pip { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(0,230,118,.7); animation:pip 1.6s ease infinite; }
+@keyframes pip { 0%{box-shadow:0 0 0 0 rgba(0,230,118,.7)} 70%{box-shadow:0 0 0 8px rgba(0,230,118,0)} 100%{box-shadow:0 0 0 0 rgba(0,230,118,0)} }
+.ph-badge { padding:2px 7px; border-radius:2px; font-size:0.5rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+.ph-trans { background:rgba(0,212,255,.15); color:var(--cyan); border:1px solid rgba(0,212,255,.3); }
+.ph-flyby { background:rgba(179,136,255,.15); color:var(--purple); border:1px solid rgba(179,136,255,.3); }
+.ph-return{ background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
+.ph-launch{ background:rgba(255,107,53,.15); color:#ff6b35; border:1px solid rgba(255,107,53,.3); }
+.tb-nav { display:flex; margin-left:auto; height:100%; }
+.tb-tab { padding:0 12px; height:100%; border:none; background:transparent; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:0.56rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
+.tb-tab:hover { color:var(--text); }
+.tb-tab.active { color:var(--cyan); border-bottom-color:var(--cyan); background:rgba(0,212,255,.04); }
+.tb-sep { width:1px; background:var(--border); align-self:stretch; }
 
-/* ── TIMELINE BAR ───────────────────────────────── */
-.timeline-bar{
-  flex-shrink:0;background:var(--bg2);
-  border-bottom:1px solid var(--border2);
-  position:relative;overflow:hidden;
-  height:80px;
+/* ── TIMELINE ───────────────────────────────────── */
+#timeline-wrap {
+  flex-shrink:0; background:var(--bg2); border-bottom:1px solid var(--border2);
+  height:72px; overflow:hidden;
 }
-.tl-header{
-  display:flex;align-items:center;gap:10px;padding:4px 12px 2px;
-  border-bottom:1px solid var(--border);
-}
-.tl-title{font-size:0.55rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.tl-tracking{font-size:0.5rem;color:var(--green);border:1px solid rgba(0,230,118,0.3);padding:1px 6px;margin-left:auto;}
-#tlCanvas{width:100%;height:50px;display:block;}
+.tl-hdr { display:flex; align-items:center; gap:8px; padding:3px 12px; border-bottom:1px solid var(--border); }
+.tl-hdr-title { font-size:0.5rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.tl-legend { display:flex; gap:10px; margin-left:auto; }
+.tl-leg-item { display:flex; align-items:center; gap:3px; font-size:0.46rem; color:var(--muted); }
+.tl-leg-dot { width:6px; height:6px; border-radius:1px; }
+#tlCanvas { width:100%; height:52px; display:block; }
 
-/* ── MAIN 3-COL ─────────────────────────────────── */
-.main{flex:1;min-height:0;display:grid;grid-template-columns:290px 1fr 280px;overflow:hidden;}
+/* ── MAIN GRID ──────────────────────────────────── */
+#main { flex:1; min-height:0; display:grid; grid-template-columns:300px 1fr 290px; overflow:hidden; }
 
 /* ── LEFT PANEL ─────────────────────────────────── */
-.left-panel{
-  background:var(--panel);border-right:1px solid var(--border2);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.lp-map{flex-shrink:0;border-bottom:1px solid var(--border2);position:relative;}
-.lp-map-header{
-  padding:5px 10px;background:var(--bg2);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.lp-mh-title{font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.lp-mh-badge{font-size:0.48rem;color:var(--cyan);border:1px solid rgba(0,212,255,0.25);padding:1px 5px;}
-#mapCanvas{width:100%;height:200px;display:block;background:var(--bg);}
-.lp-telem{flex:1;overflow-y:auto;padding:8px 0;}
-.lp-telem::-webkit-scrollbar{width:3px;}
-.lp-telem::-webkit-scrollbar-thumb{background:var(--dim);border-radius:1px;}
-.tl-section{margin-bottom:4px;}
-.tls-title{
-  padding:3px 10px;font-size:0.48rem;letter-spacing:0.16em;
-  text-transform:uppercase;color:var(--muted);font-weight:700;
-  background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
-}
-.tl-row{display:flex;align-items:center;padding:4px 10px;border-bottom:1px solid rgba(30,40,64,0.5);}
-.tl-row:last-child{border-bottom:none;}
-.tl-lbl{font-size:0.56rem;color:var(--muted);min-width:90px;flex-shrink:0;}
-.tl-bar-wrap{flex:1;display:flex;align-items:center;gap:5px;}
-.tl-bar-track{flex:1;height:2px;background:rgba(255,255,255,0.05);border-radius:1px;overflow:hidden;}
-.tl-bar-fill{height:100%;border-radius:1px;transition:width 0.8s ease;}
-.tl-val{font-size:0.62rem;font-weight:700;min-width:72px;text-align:right;font-variant-numeric:tabular-nums;}
-.tl-val.c{color:var(--cyan);}
-.tl-val.g{color:var(--green);}
-.tl-val.a{color:var(--amber);}
-.tl-val.p{color:var(--purple);}
-.tl-val.t{color:var(--teal);}
-.tl-val.w{color:#fff;}
-.tl-dot-wrap{display:flex;align-items:center;gap:3px;margin-right:4px;}
-.tl-dot{width:4px;height:4px;border-radius:50%;background:var(--green);}
-.att-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:6px 10px;}
-.att-cell{background:var(--bg3);padding:5px 7px;border-radius:2px;border:1px solid var(--border);}
-.att-lbl{font-size:0.46rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:2px;}
-.att-val{font-size:0.72rem;font-weight:700;color:var(--purple);}
+#left { background:var(--panel); border-right:1px solid var(--border2); display:flex; flex-direction:column; overflow:hidden; }
+.p-hdr { padding:5px 10px; background:var(--bg2); border-bottom:1px solid var(--border2); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.p-hdr-title { font-size:0.5rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.p-hdr-badge { font-size:0.46rem; padding:1px 5px; border-radius:1px; }
+
+/* map */
+#mapWrap { position:relative; flex-shrink:0; }
+#mapCanvas { width:100%; height:196px; display:block; background:var(--bg); }
+
+/* wireframe attitude spacecraft */
+#attitudeWrap { flex-shrink:0; border-top:1px solid var(--border2); background:var(--bg3); position:relative; height:100px; }
+#attCanvas { width:100%; height:100%; display:block; }
+.att-labels { position:absolute; top:6px; left:8px; display:flex; flex-direction:column; gap:1px; }
+.att-label { font-size:0.48rem; color:var(--muted); }
+
+/* telemetry */
+#telemScroll { flex:1; overflow-y:auto; }
+#telemScroll::-webkit-scrollbar { width:3px; }
+#telemScroll::-webkit-scrollbar-thumb { background:var(--dim); border-radius:2px; }
+.t-section-hdr { padding:3px 10px; font-size:0.46rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); font-weight:700; background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:1; }
+.t-row { display:flex; align-items:center; padding:4px 10px; border-bottom:1px solid rgba(28,34,56,.7); gap:5px; }
+.t-row:last-child { border-bottom:none; }
+.t-lbl { font-size:0.54rem; color:var(--muted); min-width:90px; flex-shrink:0; }
+.t-arrow { font-size:0.5rem; color:var(--cyan); flex-shrink:0; animation:arr .8s ease infinite alternate; }
+@keyframes arr { from{opacity:.4; transform:translateX(-1px)} to{opacity:1; transform:translateX(1px)} }
+.t-bar-wrap { flex:1; display:flex; align-items:center; gap:4px; }
+.t-bar-track { flex:1; height:2px; background:rgba(255,255,255,.05); border-radius:1px; overflow:hidden; }
+.t-bar-fill { height:100%; border-radius:1px; transition:width .9s ease; }
+.t-val { font-size:0.62rem; font-weight:700; text-align:right; min-width:75px; font-variant-numeric:tabular-nums; }
+.t-unit { font-size:0.46rem; color:var(--muted); margin-left:1px; }
+
+/* att grid */
+.att-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; padding:6px 8px; }
+.att-cell { background:var(--bg2); border:1px solid var(--border); padding:4px 6px; border-radius:1px; }
+.att-c-lbl { font-size:0.44rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1px; }
+.att-c-val { font-size:0.68rem; font-weight:700; color:var(--purple); font-variant-numeric:tabular-nums; }
+.att-c-val.green { color:var(--green); }
+.att-c-val.teal { color:var(--teal); }
 
 /* ── CENTER PANEL ───────────────────────────────── */
-.center-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--bg3);}
-.cp-activity{
-  flex-shrink:0;background:var(--panel);
-  border-bottom:1px solid var(--border2);
-  padding:10px 14px;
-}
-.cpa-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.cpa-hdr-icon{font-size:0.8rem;}
-.cpa-hdr-title{font-size:0.55rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.cpa-type-badge{padding:1px 7px;border-radius:2px;font-size:0.48rem;font-weight:700;letter-spacing:0.1em;margin-left:auto;}
-.cpa-activity-name{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:0.02em;line-height:1.1;}
-.cpa-desc{font-size:0.58rem;color:var(--muted);line-height:1.55;margin-bottom:10px;}
-.cpa-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px;}
-.cpa-meta-cell{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;border-bottom:1px solid var(--border);}
-.cpa-meta-lbl{font-size:0.5rem;color:var(--muted);}
-.cpa-meta-val{font-size:0.6rem;color:var(--text);font-weight:600;}
-.progress-wrap{display:flex;align-items:center;gap:8px;}
-.progress-track{flex:1;height:3px;background:var(--bg);border-radius:2px;overflow:hidden;}
-.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--cyan2),var(--cyan));box-shadow:0 0 8px rgba(0,212,255,0.4);transition:width 0.5s ease;}
-.progress-pct{font-size:0.54rem;color:var(--cyan);min-width:36px;text-align:right;}
+#center { display:flex; flex-direction:column; overflow:hidden; background:var(--bg3); }
 
-/* next milestone */
-.cp-milestone{
-  flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border2);
-  padding:8px 14px;display:flex;align-items:center;gap:12px;
-}
-.ms-icon{font-size:1rem;flex-shrink:0;}
-.ms-body{flex:1;}
-.ms-label{font-size:0.48rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
-.ms-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:1px;}
-.ms-desc{font-size:0.54rem;color:var(--muted);}
-.ms-countdown{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:var(--amber);white-space:nowrap;text-shadow:0 0 16px rgba(255,179,0,0.4);}
+/* current activity */
+#actBlock { flex-shrink:0; background:var(--panel); border-bottom:1px solid var(--border2); padding:9px 13px; }
+.act-top { display:flex; align-items:center; gap:7px; margin-bottom:6px; }
+.act-icon { font-size:0.78rem; }
+.act-label { font-size:0.5rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.act-type-badge { padding:1px 6px; border-radius:1px; font-size:0.46rem; font-weight:700; letter-spacing:0.08em; margin-left:auto; }
+.act-name { font-family:'Barlow Condensed',sans-serif; font-size:1.25rem; font-weight:800; color:#fff; margin-bottom:3px; line-height:1.1; letter-spacing:.01em; }
+.act-desc { font-size:0.55rem; color:var(--muted); line-height:1.55; margin-bottom:8px; }
+.act-meta { display:grid; grid-template-columns:1fr 1fr; gap:2px 12px; margin-bottom:8px; }
+.act-meta-row { display:flex; justify-content:space-between; align-items:baseline; padding:2px 0; border-bottom:1px solid var(--border); }
+.act-meta-lbl { font-size:0.48rem; color:var(--muted); }
+.act-meta-val { font-size:0.58rem; color:var(--text); font-weight:600; }
+.act-prog-row { display:flex; align-items:center; gap:7px; }
+.act-prog-track { flex:1; height:3px; background:var(--bg); border-radius:2px; overflow:hidden; position:relative; }
+.act-prog-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,var(--cyan2),var(--cyan)); box-shadow:0 0 8px rgba(0,212,255,.35); transition:width .5s ease; }
+.act-att-row { display:flex; justify-content:space-between; margin-top:5px; font-size:0.52rem; }
+.act-att-lbl { color:var(--muted); }
+.act-att-val { color:var(--text); font-weight:600; }
 
-/* live stream embed */
-.cp-stream{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--panel);}
-.cps-hdr{
-  flex-shrink:0;padding:5px 10px;background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:8px;
-}
-.cps-hdr-title{font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.stream-tabs{display:flex;gap:4px;margin-left:auto;}
-.stream-tab{
-  padding:2px 8px;font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;
-  background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  color:var(--muted);cursor:pointer;border-radius:1px;font-family:'JetBrains Mono',monospace;
-  transition:all 0.15s;
-}
-.stream-tab:hover{color:var(--text);}
-.stream-tab.active{background:rgba(0,212,255,0.12);border-color:rgba(0,212,255,0.3);color:var(--cyan);}
-.stream-body{flex:1;min-height:0;position:relative;background:#000;}
-.stream-body iframe{width:100%;height:100%;border:none;display:block;}
-.stream-static{
-  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:12px;padding:20px;
-}
-.stream-links{display:flex;flex-direction:column;gap:6px;width:100%;max-width:320px;}
-.stream-link{
-  display:flex;align-items:center;gap:10px;text-decoration:none;
-  background:var(--bg3);border:1px solid var(--border);padding:9px 12px;
-  transition:all 0.2s;
-}
-.stream-link:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.04);}
-.sl-icon{font-size:1rem;flex-shrink:0;}
-.sl-info{flex:1;}
-.sl-name{font-size:0.62rem;font-weight:700;color:var(--cyan);margin-bottom:1px;}
-.sl-sub{font-size:0.52rem;color:var(--muted);}
-.sl-arr{font-size:0.7rem;color:var(--muted);transition:transform 0.2s;}
-.stream-link:hover .sl-arr{transform:translateX(3px);color:var(--cyan);}
+/* milestone */
+#msBlock { flex-shrink:0; background:var(--panel); border-bottom:1px solid var(--border2); padding:7px 13px; display:flex; align-items:center; gap:10px; }
+.ms-ico { font-size:0.95rem; flex-shrink:0; }
+.ms-body { flex:1; min-width:0; }
+.ms-label { font-size:0.46rem; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); margin-bottom:1px; }
+.ms-name { font-family:'Barlow Condensed',sans-serif; font-size:1rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ms-desc { font-size:0.5rem; color:var(--muted); }
+.ms-cd { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:800; color:var(--amber); white-space:nowrap; text-shadow:0 0 14px rgba(255,179,0,.4); flex-shrink:0; }
 
-/* apollo comparison */
-.apollo-card{
-  background:var(--bg2);border:1px solid rgba(179,136,255,0.2);padding:10px 12px;margin:8px 14px;border-radius:2px;
-}
-.ac-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.ac-year{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:800;color:var(--purple);}
-.ac-title{font-size:0.52rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;}
-.ac-met{margin-left:auto;font-size:0.54rem;color:var(--muted);}
-.ac-text{font-size:0.57rem;color:var(--text);line-height:1.6;font-style:italic;}
+/* stream — compact */
+#streamBlock { flex-shrink:0; background:var(--panel); border-bottom:1px solid var(--border2); }
+.stream-hdr { padding:4px 10px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; }
+.stream-hdr-title { font-size:0.5rem; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.stream-tabs-row { display:flex; gap:3px; margin-left:auto; }
+.s-tab { padding:2px 7px; font-size:0.46rem; letter-spacing:.07em; text-transform:uppercase; background:transparent; border:1px solid var(--border); color:var(--muted); cursor:pointer; font-family:'JetBrains Mono',monospace; border-radius:1px; transition:all .15s; }
+.s-tab:hover { color:var(--text); }
+.s-tab.active { background:rgba(0,212,255,.1); border-color:rgba(0,212,255,.3); color:var(--cyan); }
+.stream-embed { position:relative; width:100%; padding-top:42%; background:#000; overflow:hidden; }
+.stream-embed iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; }
+.stream-links-compact { display:flex; gap:5px; padding:6px 10px; flex-wrap:wrap; }
+.s-link { display:flex; align-items:center; gap:5px; text-decoration:none; background:var(--bg3); border:1px solid var(--border); padding:5px 8px; transition:all .15s; flex:1; min-width:130px; }
+.s-link:hover { border-color:rgba(0,212,255,.3); background:rgba(0,212,255,.04); }
+.s-link-name { font-size:0.56rem; font-weight:700; color:var(--cyan); }
+.s-link-sub { font-size:0.46rem; color:var(--muted); }
 
-/* ── RIGHT PANEL ────────────────────────────────── */
-.right-panel{
-  background:var(--panel);border-left:1px solid var(--border2);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.rp-section{flex-shrink:0;border-bottom:1px solid var(--border2);}
-.rp-hdr{
-  padding:5px 10px;background:var(--bg2);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:6px;
-}
-.rp-hdr-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.rp-hdr-title{font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);font-weight:700;}
-.rp-hdr-badge{font-size:0.46rem;color:var(--muted);margin-left:auto;border:1px solid var(--border);padding:1px 5px;}
+/* apollo card */
+#apolloBlock { flex:1; min-height:0; background:var(--panel); border-bottom:1px solid var(--border2); padding:8px 12px; overflow:hidden; display:flex; flex-direction:column; }
+.apollo-hdr { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.apollo-year { font-family:'Barlow Condensed',sans-serif; font-size:0.85rem; font-weight:800; color:var(--purple); }
+.apollo-met { font-size:0.5rem; color:var(--muted); margin-left:auto; }
+.apollo-text { font-size:0.56rem; color:var(--text); line-height:1.6; font-style:italic; }
+.apollo-event-box { background:var(--bg2); border:1px solid var(--border); padding:7px 10px; margin-top:8px; border-radius:1px; }
+.aeb-label { font-size:0.46rem; color:var(--amber); letter-spacing:.1em; text-transform:uppercase; margin-bottom:3px; }
+.aeb-name { font-size:0.7rem; font-weight:700; color:#fff; margin-bottom:2px; }
+.aeb-desc { font-size:0.54rem; color:var(--muted); }
+.aeb-next { font-size:0.5rem; color:var(--cyan); margin-top:5px; }
 
-/* upcoming activities */
-.upcoming-list{overflow-y:auto;max-height:200px;}
-.upcoming-list::-webkit-scrollbar{width:3px;}
-.upcoming-list::-webkit-scrollbar-thumb{background:var(--dim);}
-.upcoming-item{
-  display:flex;align-items:center;gap:8px;padding:6px 10px;
-  border-bottom:1px solid rgba(30,40,64,0.5);cursor:default;transition:background 0.15s;
-}
-.upcoming-item:hover{background:rgba(255,255,255,0.02);}
-.upcoming-item:last-child{border-bottom:none;}
-.ui-type-bar{width:3px;height:28px;flex-shrink:0;border-radius:1px;}
-.ui-body{flex:1;}
-.ui-name{font-size:0.6rem;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.2;}
-.ui-badge{display:inline-block;padding:1px 5px;border-radius:1px;font-size:0.44rem;font-weight:700;letter-spacing:0.08em;margin-top:1px;}
-.ui-time{font-size:0.56rem;color:var(--amber);font-weight:700;text-align:right;white-space:nowrap;flex-shrink:0;}
+/* ── RIGHT PANEL ─────────────────────────────────── */
+#right { background:var(--panel); border-left:1px solid var(--border2); display:flex; flex-direction:column; overflow:hidden; }
+.rp-hdr { padding:5px 10px; background:var(--bg2); border-bottom:1px solid var(--border2); display:flex; align-items:center; gap:5px; flex-shrink:0; }
+.rp-hdr-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.rp-hdr-title { font-size:0.5rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+.rp-hdr-ct { font-size:0.46rem; color:var(--muted); margin-left:auto; border:1px solid var(--border); padding:1px 4px; }
+
+/* current activity mini */
+.cur-act-mini { flex-shrink:0; padding:7px 10px; border-bottom:1px solid var(--border2); }
+.cam-name { font-family:'Barlow Condensed',sans-serif; font-size:1rem; font-weight:700; color:#fff; margin-bottom:3px; line-height:1.2; }
+.cam-row { display:flex; justify-content:space-between; font-size:0.52rem; margin-bottom:2px; }
+.cam-lbl { color:var(--muted); }
+.cam-val { color:var(--text); font-weight:600; }
+
+/* upcoming */
+#upcomingList { overflow-y:auto; flex-shrink:0; max-height:190px; }
+#upcomingList::-webkit-scrollbar { width:3px; }
+#upcomingList::-webkit-scrollbar-thumb { background:var(--dim); }
+.up-item { display:flex; align-items:center; gap:7px; padding:5px 10px; border-bottom:1px solid rgba(28,34,56,.6); cursor:default; transition:background .15s; }
+.up-item:hover { background:rgba(255,255,255,.015); }
+.up-item:last-child { border-bottom:none; }
+.up-bar { width:3px; height:26px; border-radius:1px; flex-shrink:0; }
+.up-body { flex:1; min-width:0; }
+.up-name { font-size:0.58rem; font-weight:600; color:var(--text); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.up-badge { display:inline-block; padding:1px 4px; border-radius:1px; font-size:0.42rem; font-weight:700; letter-spacing:.07em; margin-top:1px; }
+.up-time { font-size:0.56rem; color:var(--amber); font-weight:700; flex-shrink:0; white-space:nowrap; }
 
 /* milestones */
-.milestones-list{overflow-y:auto;flex:1;}
-.milestones-list::-webkit-scrollbar{width:3px;}
-.milestones-list::-webkit-scrollbar-thumb{background:var(--dim);}
-.ms-item{
-  display:flex;align-items:flex-start;gap:8px;padding:6px 10px;
-  border-bottom:1px solid rgba(30,40,64,0.4);transition:background 0.15s;cursor:default;
-}
-.ms-item:hover{background:rgba(255,255,255,0.015);}
-.ms-item:last-child{border-bottom:none;}
-.ms-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px;border:1px solid currentColor;}
-.ms-item-dot.done{background:var(--green);border-color:var(--green);box-shadow:0 0 5px rgba(0,230,118,0.4);}
-.ms-item-dot.cur{background:var(--amber);border-color:var(--amber);box-shadow:0 0 6px rgba(255,179,0,0.5);animation:pip2 1.5s ease infinite;}
-@keyframes pip2{0%,100%{box-shadow:0 0 6px rgba(255,179,0,0.5);}50%{box-shadow:0 0 12px rgba(255,179,0,0.8);}}
-.ms-item-dot.future{background:transparent;border-color:var(--dim);}
-.ms-item-body{flex:1;}
-.ms-item-name{font-size:0.6rem;font-weight:600;line-height:1.3;margin-bottom:1px;}
-.ms-item-name.done{color:var(--muted);text-decoration:line-through;}
-.ms-item-name.cur{color:var(--amber);}
-.ms-item-name.future{color:var(--text);}
-.ms-item-desc{font-size:0.5rem;color:var(--muted);line-height:1.4;}
-.ms-item-met{font-size:0.5rem;color:var(--dim);margin-top:1px;}
+#msList { flex:1; overflow-y:auto; }
+#msList::-webkit-scrollbar { width:3px; }
+#msList::-webkit-scrollbar-thumb { background:var(--dim); }
+.ms-it { display:flex; align-items:flex-start; gap:7px; padding:5px 10px; border-bottom:1px solid rgba(28,34,56,.5); transition:background .15s; cursor:default; }
+.ms-it:hover { background:rgba(255,255,255,.01); }
+.ms-it:last-child { border-bottom:none; }
+.ms-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:3px; border:1px solid currentColor; }
+.ms-dot.done { background:var(--green); border-color:var(--green); box-shadow:0 0 5px rgba(0,230,118,.4); }
+.ms-dot.cur  { background:var(--amber); border-color:var(--amber); animation:mspulse 1.5s ease infinite; }
+@keyframes mspulse { 0%,100%{box-shadow:0 0 6px rgba(255,179,0,.5)} 50%{box-shadow:0 0 14px rgba(255,179,0,.9)} }
+.ms-dot.fut { background:transparent; border-color:var(--dim); }
+.ms-bd { flex:1; }
+.ms-nm { font-size:0.58rem; font-weight:600; line-height:1.3; margin-bottom:1px; }
+.ms-nm.done { color:var(--muted); text-decoration:line-through; }
+.ms-nm.cur  { color:var(--amber); }
+.ms-nm.fut  { color:var(--text); }
+.ms-dd { font-size:0.48rem; color:var(--muted); line-height:1.35; }
+.ms-met { font-size:0.46rem; color:var(--dim); margin-top:1px; }
 
-/* ── BADGE COLOURS ──────────────────────────────── */
-.badge-science{background:rgba(0,212,255,0.15);color:var(--cyan);}
-.badge-exercise{background:rgba(0,230,118,0.15);color:var(--green);}
-.badge-sleep{background:rgba(128,103,230,0.15);color:var(--purple);}
-.badge-pao{background:rgba(255,64,129,0.15);color:var(--pink);}
-.badge-meal{background:rgba(255,179,0,0.15);color:var(--amber);}
-.badge-other{background:rgba(120,130,160,0.15);color:var(--muted);}
-.badge-systems{background:rgba(29,233,182,0.15);color:var(--teal);}
-
-/* phase badge colours */
-.pb-launch{background:rgba(255,107,53,0.2);color:#ff6b35;border:1px solid rgba(255,107,53,0.3);}
-.pb-orbit{background:rgba(68,138,255,0.2);color:var(--blue);border:1px solid rgba(68,138,255,0.3);}
-.pb-tli{background:rgba(255,64,129,0.2);color:var(--pink);border:1px solid rgba(255,64,129,0.3);}
-.pb-trans{background:rgba(0,212,255,0.2);color:var(--cyan);border:1px solid rgba(0,212,255,0.3);}
-.pb-flyby{background:rgba(179,136,255,0.2);color:var(--purple);border:1px solid rgba(179,136,255,0.3);}
-.pb-return{background:rgba(0,230,118,0.2);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+/* badges */
+.b-sci  { background:rgba(0,212,255,.12); color:var(--cyan); }
+.b-sys  { background:rgba(29,233,182,.12); color:var(--teal); }
+.b-ex   { background:rgba(0,230,118,.12); color:var(--green); }
+.b-slp  { background:rgba(179,136,255,.12); color:var(--purple); }
+.b-pao  { background:rgba(255,64,129,.12); color:var(--pink); }
+.b-meal { background:rgba(255,179,0,.12); color:var(--amber); }
+.b-oth  { background:rgba(96,112,160,.12); color:var(--muted); }
 
 /* ── FOOTER ─────────────────────────────────────── */
-.footer{
-  flex-shrink:0;height:26px;background:var(--bg2);
-  border-top:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 14px;font-size:0.48rem;color:var(--dim);letter-spacing:0.07em;
+#footer {
+  flex-shrink:0; height:24px; background:var(--bg2); border-top:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 12px; font-size:0.46rem; color:var(--dim);
 }
-.footer a{color:var(--dim);text-decoration:none;transition:color 0.2s;}
-.footer a:hover{color:var(--cyan);}
-.footer-links{display:flex;gap:14px;}
-.footer-coffee a{color:var(--amber);}
-
-/* ── SCROLLBARS ─────────────────────────────────── */
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
+#footer a { color:var(--dim); text-decoration:none; transition:color .2s; }
+#footer a:hover { color:var(--cyan); }
+.footer-left { display:flex; align-items:center; gap:10px; }
+.footer-center { display:flex; align-items:center; gap:14px; }
+.footer-right a { color:var(--amber) !important; }
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ─────────────────────────────────────── -->
-<div class="hdr">
-  <a class="hdr-brand" href="#">
-    <span class="hdr-moon">🌙</span>
-    <span class="hdr-name">Our<span>NightSky</span></span>
+<!-- ══════════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════════ -->
+<div id="topbar">
+  <a class="tb-brand" href="https://ournightsky.us" target="_blank" rel="noopener">
+    <span class="tb-moon">🌙</span>
+    <span class="tb-title">Our<span>NightSky</span></span>
   </a>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Mission</span>
-    <span class="hdr-chip-val white">ARTEMIS II</span>
-    <span class="hdr-live" style="margin-left:4px"><span class="live-pip"></span>LIVE</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">MET</span>
-    <span class="hdr-chip-val cyan" id="hMet">—</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Phase</span>
-    <span class="phase-badge pb-trans" id="hPhase">TRANS-LUNAR</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Day</span>
-    <span class="hdr-chip-val amber" id="hDay">—</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Vel</span>
-    <span class="hdr-chip-val cyan" id="hVel">—</span>
-    <span style="font-size:0.48rem;color:var(--muted);margin-left:2px">km/h</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Alt</span>
-    <span class="hdr-chip-val green" id="hAlt">—</span>
-    <span style="font-size:0.48rem;color:var(--muted);margin-left:2px">km</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Moon Dist</span>
-    <span class="hdr-chip-val purple" id="hMoon">—</span>
-    <span style="font-size:0.48rem;color:var(--muted);margin-left:2px">km</span>
-  </div>
-  <div class="hdr-sep"></div>
-  <div class="hdr-chip">
-    <span class="hdr-chip-lbl">Progress</span>
-    <span class="hdr-chip-val teal" id="hProg">—</span>
-  </div>
-  <div class="hdr-nav-tabs">
-    <button class="hdr-tab active" onclick="setTab('track')">Track</button>
-    <button class="hdr-tab" onclick="setTab('crew')">Crew</button>
-    <button class="hdr-tab" onclick="setTab('media')">Media</button>
-    <button class="hdr-tab" onclick="setTab('history')">History</button>
-    <div class="hdr-sep"></div>
-    <div class="hdr-chip" style="border-right:none;">
-      <a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:none;font-size:0.55rem;font-weight:700;">☕ Support</a>
-    </div>
+  <div class="tb-chip"><span class="tb-lbl">Mission</span><span class="tb-val v-white">ARTEMIS II</span><span class="tb-live" style="margin-left:4px"><span class="pip"></span>LIVE</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">MET</span><span class="tb-val v-cyan" id="hMet">—</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Phase</span><span class="ph-badge ph-trans" id="hPhase">—</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Day</span><span class="tb-val v-amber" id="hDay">—</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Vel</span><span class="tb-val v-cyan" id="hVel">—</span><span style="font-size:.44rem;color:var(--muted);margin-left:2px">km/h</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Alt</span><span class="tb-val v-green" id="hAlt">—</span><span style="font-size:.44rem;color:var(--muted);margin-left:2px">km</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Moon</span><span class="tb-val v-purple" id="hMoon">—</span><span style="font-size:.44rem;color:var(--muted);margin-left:2px">km</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Signal</span><span class="tb-val v-teal" id="hSig">—</span><span style="font-size:.44rem;color:var(--muted);margin-left:2px">sec</span></div>
+  <div class="tb-sep"></div>
+  <div class="tb-chip"><span class="tb-lbl">Progress</span><span class="tb-val v-pink" id="hProg">—</span></div>
+  <div class="tb-nav">
+    <button class="tb-tab active" onclick="setTab('track')">Track</button>
+    <button class="tb-tab" onclick="setTab('crew')">Crew</button>
+    <button class="tb-tab" onclick="setTab('history')">History</button>
+    <div class="tb-sep"></div>
+    <div class="tb-chip" style="border-right:none"><a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener" style="color:var(--amber);text-decoration:none;font-size:.55rem;font-weight:700">☕ Support</a></div>
   </div>
 </div>
 
-<!-- ── TIMELINE BAR ────────────────────────────────── -->
-<div class="timeline-bar">
-  <div class="tl-header">
-    <span class="tl-title">⏱ Mission Timeline</span>
-    <div style="display:flex;align-items:center;gap:10px;font-size:0.48rem;color:var(--muted);">
-      <span>Crew Activities</span>
-      <span style="color:var(--cyan);">·</span>
-      <span>Attitude Modes</span>
-      <span style="color:var(--cyan);">·</span>
-      <span>Mission Phase</span>
+<!-- ══════════════════════════════════════════════
+     TIMELINE
+══════════════════════════════════════════════ -->
+<div id="timeline-wrap">
+  <div class="tl-hdr">
+    <span class="tl-hdr-title">⏱ Mission Timeline</span>
+    <div class="tl-legend">
+      <div class="tl-leg-item"><div class="tl-leg-dot" style="background:var(--cyan)"></div>Science</div>
+      <div class="tl-leg-item"><div class="tl-leg-dot" style="background:var(--teal)"></div>Systems</div>
+      <div class="tl-leg-item"><div class="tl-leg-dot" style="background:var(--green)"></div>Exercise</div>
+      <div class="tl-leg-item"><div class="tl-leg-dot" style="background:var(--purple)"></div>Sleep</div>
+      <div class="tl-leg-item"><div class="tl-leg-dot" style="background:var(--pink)"></div>PAO</div>
+      <div class="tl-leg-item"><div class="tl-leg-dot" style="background:var(--amber)"></div>Meal</div>
     </div>
-    <span class="tl-tracking" style="margin-left:auto">TRACKING</span>
+    <span style="font-size:.44rem;color:var(--green);border:1px solid rgba(0,230,118,.3);padding:1px 5px;margin-left:10px">TRACKING</span>
   </div>
   <canvas id="tlCanvas" height="52"></canvas>
 </div>
 
-<!-- ── MAIN 3-COL ──────────────────────────────────── -->
-<div class="main">
+<!-- ══════════════════════════════════════════════
+     MAIN 3-COL
+══════════════════════════════════════════════ -->
+<div id="main">
 
-  <!-- LEFT: MAP + TELEMETRY -->
-  <div class="left-panel">
-    <div class="lp-map">
-      <div class="lp-map-header">
-        <span class="lp-mh-title">Figure-8 Trajectory · 2D</span>
-        <span class="lp-mh-badge" id="mapPhase">TRANS-LUNAR</span>
-      </div>
-      <canvas id="mapCanvas"></canvas>
+  <!-- ── LEFT ── -->
+  <div id="left">
+    <div class="p-hdr">
+      <span class="p-hdr-title">Figure-8 Trajectory · 2D Top-Down</span>
+      <span class="p-hdr-badge ph-trans" id="mapPhaseBadge">—</span>
     </div>
-    <div class="lp-telem">
-      <div class="tl-section">
-        <div class="tls-title">Dynamics</div>
-        <div class="tl-row">
-          <span class="tl-lbl">Speed</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--cyan)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barSpeed" style="background:var(--cyan);width:40%"></div></div>
-          </div>
-          <span class="tl-val c" id="tvSpeed">—</span>
-        </div>
-        <div class="tl-row">
-          <span class="tl-lbl">Moon Rel. Speed</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--purple)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barMoonSpeed" style="background:var(--purple);width:55%"></div></div>
-          </div>
-          <span class="tl-val p" id="tvMoonSpeed">—</span>
-        </div>
-        <div class="tl-row">
-          <span class="tl-lbl">G-Force</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--green)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barG" style="background:var(--green);width:2%"></div></div>
-          </div>
-          <span class="tl-val g" id="tvG">~0 g</span>
-        </div>
+    <div id="mapWrap"><canvas id="mapCanvas"></canvas></div>
+
+    <!-- Wireframe attitude -->
+    <div id="attitudeWrap">
+      <div class="p-hdr" style="position:absolute;top:0;left:0;right:0;z-index:2">
+        <span class="p-hdr-title">Attitude · Wireframe</span>
+        <span class="p-hdr-badge" style="color:var(--purple);border:1px solid rgba(179,136,255,.25);font-size:.44rem;padding:1px 4px" id="attModeLabel">Observation</span>
       </div>
-      <div class="tl-section">
-        <div class="tls-title">Position</div>
-        <div class="tl-row">
-          <span class="tl-lbl">Altitude</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--green)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barAlt" style="background:var(--green);width:65%"></div></div>
-          </div>
-          <span class="tl-val g" id="tvAlt">—</span>
-        </div>
-        <div class="tl-row">
-          <span class="tl-lbl">Earth Dist</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--cyan)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barEarth" style="background:var(--cyan);width:65%"></div></div>
-          </div>
-          <span class="tl-val c" id="tvEarth">—</span>
-        </div>
-        <div class="tl-row">
-          <span class="tl-lbl">Moon Dist</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--amber)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barMoon" style="background:var(--amber);width:35%"></div></div>
-          </div>
-          <span class="tl-val a" id="tvMoon">—</span>
-        </div>
+      <canvas id="attCanvas"></canvas>
+    </div>
+
+    <!-- Telemetry -->
+    <div id="telemScroll">
+      <div class="t-section-hdr" style="display:flex;justify-content:space-between"><span>Telemetry</span><span class="ph-trans ph-badge" id="telemPhase">—</span></div>
+      <div class="t-section-hdr">Dynamics</div>
+      <div class="t-row">
+        <span class="t-lbl">Speed</span>
+        <span class="t-arrow">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bSpeed" style="background:var(--cyan);width:0%"></div></div></div>
+        <span class="t-val v-cyan" id="vSpeed">—</span>
       </div>
-      <div class="tl-section">
-        <div class="tls-title">Comms</div>
-        <div class="tl-row">
-          <span class="tl-lbl">Signal 1-way</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--teal)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barSig" style="background:var(--teal);width:30%"></div></div>
-          </div>
-          <span class="tl-val t" id="tvSig">—</span>
-        </div>
-        <div class="tl-row">
-          <span class="tl-lbl">Progress</span>
-          <div class="tl-bar-wrap">
-            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--pink)"></div></div>
-            <div class="tl-bar-track"><div class="tl-bar-fill" id="barProg" style="background:linear-gradient(90deg,var(--blue2),var(--cyan));width:5%"></div></div>
-          </div>
-          <span class="tl-val" style="color:var(--pink)" id="tvProg">—</span>
-        </div>
+      <div class="t-row">
+        <span class="t-lbl">Moon Rel. Speed</span>
+        <span class="t-arrow" style="color:var(--purple)">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bMoonSpd" style="background:var(--purple);width:0%"></div></div></div>
+        <span class="t-val v-purple" id="vMoonSpd">—</span>
       </div>
-      <div class="tl-section">
-        <div class="tls-title">Attitude (simulated)</div>
-        <div class="att-grid">
-          <div class="att-cell"><div class="att-lbl">Roll</div><div class="att-val" id="attRoll">—</div></div>
-          <div class="att-cell"><div class="att-lbl">Pitch</div><div class="att-val" id="attPitch">—</div></div>
-          <div class="att-cell"><div class="att-lbl">Yaw</div><div class="att-val" id="attYaw">—</div></div>
-          <div class="att-cell"><div class="att-lbl">Roll Rate</div><div class="att-val" style="font-size:0.62rem;color:var(--green)" id="attRollR">—</div></div>
-          <div class="att-cell"><div class="att-lbl">Pitch Rate</div><div class="att-val" style="font-size:0.62rem;color:var(--green)" id="attPitchR">—</div></div>
-          <div class="att-cell"><div class="att-lbl">Gyro Δ</div><div class="att-val" style="font-size:0.62rem;color:var(--teal)" id="attGyro">—</div></div>
-        </div>
+      <div class="t-row">
+        <span class="t-lbl">G-Force</span>
+        <span class="t-arrow" style="color:var(--green)">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bG" style="background:var(--green);width:1%"></div></div></div>
+        <span class="t-val v-green" id="vG">~0 g</span>
+      </div>
+      <div class="t-section-hdr">Position</div>
+      <div class="t-row">
+        <span class="t-lbl">Alt</span>
+        <span class="t-arrow" style="color:var(--green)">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bAlt" style="background:var(--green);width:0%"></div></div></div>
+        <span class="t-val v-green" id="vAlt">—</span>
+      </div>
+      <div class="t-row">
+        <span class="t-lbl">Earth Dist</span>
+        <span class="t-arrow">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bEarth" style="background:var(--cyan);width:0%"></div></div></div>
+        <span class="t-val v-cyan" id="vEarth">—</span>
+      </div>
+      <div class="t-row">
+        <span class="t-lbl">Moon Dist</span>
+        <span class="t-arrow" style="color:var(--amber)">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bMoon" style="background:var(--amber);width:0%"></div></div></div>
+        <span class="t-val v-amber" id="vMoon">—</span>
+      </div>
+      <div class="t-section-hdr">Orbit Elements</div>
+      <div class="t-row"><span class="t-lbl">Periapsis</span><div class="t-bar-wrap"></div><span class="t-val v-teal" id="vPeri">—<span class="t-unit">km</span></span></div>
+      <div class="t-row"><span class="t-lbl">Apoapsis</span><div class="t-bar-wrap"></div><span class="t-val v-teal" id="vApo">—<span class="t-unit">km</span></span></div>
+      <div class="t-section-hdr">Comms · DSN</div>
+      <div class="t-row">
+        <span class="t-lbl">Signal 1-way</span>
+        <span class="t-arrow" style="color:var(--teal)">▶</span>
+        <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bSig" style="background:var(--teal);width:0%"></div></div></div>
+        <span class="t-val v-teal" id="vSig">—</span>
+      </div>
+      <div class="t-row"><span class="t-lbl">Round-trip</span><div class="t-bar-wrap"></div><span class="t-val v-teal" id="vSigRt">—<span class="t-unit">sec</span></span></div>
+      <div class="t-row"><span class="t-lbl">Path Flown</span><div class="t-bar-wrap"></div><span class="t-val" style="color:var(--pink)" id="vPath">—<span class="t-unit">km</span></span></div>
+      <div class="t-section-hdr">Attitude</div>
+      <div class="att-grid">
+        <div class="att-cell"><div class="att-c-lbl">Roll</div><div class="att-c-val" id="aRoll">—</div></div>
+        <div class="att-cell"><div class="att-c-lbl">Pitch</div><div class="att-c-val" id="aPitch">—</div></div>
+        <div class="att-cell"><div class="att-c-lbl">Yaw</div><div class="att-c-val" id="aYaw">—</div></div>
+        <div class="att-cell"><div class="att-c-lbl">Roll Rate</div><div class="att-c-val green" id="aRR">—</div></div>
+        <div class="att-cell"><div class="att-c-lbl">Pitch Rate</div><div class="att-c-val green" id="aPR">—</div></div>
+        <div class="att-cell"><div class="att-c-lbl">Gyro Δ</div><div class="att-c-val teal" id="aGyro">—</div></div>
       </div>
     </div>
   </div>
 
-  <!-- CENTER -->
-  <div class="center-panel">
-    <!-- Current Activity -->
-    <div class="cp-activity">
-      <div class="cpa-hdr">
-        <span class="cpa-hdr-icon">⚡</span>
-        <span class="cpa-hdr-title">Current Activity</span>
-        <span class="cpa-type-badge badge-science" id="actBadge">SCIENCE</span>
+  <!-- ── CENTER ── -->
+  <div id="center">
+    <!-- Activity -->
+    <div id="actBlock">
+      <div class="act-top">
+        <span class="act-icon">⚡</span>
+        <span class="act-label">Current Activity</span>
+        <span class="act-type-badge b-sci" id="actBadge">SCIENCE</span>
       </div>
-      <div class="cpa-activity-name" id="actName">Loading activity…</div>
-      <div class="cpa-desc" id="actDesc">Computing mission state…</div>
-      <div class="cpa-meta-grid">
-        <div class="cpa-meta-cell"><span class="cpa-meta-lbl">Start (MET)</span><span class="cpa-meta-val" id="actStart">—</span></div>
-        <div class="cpa-meta-cell"><span class="cpa-meta-lbl">End (MET)</span><span class="cpa-meta-val" id="actEnd">—</span></div>
-        <div class="cpa-meta-cell"><span class="cpa-meta-lbl">Duration</span><span class="cpa-meta-val" id="actDur">—</span></div>
-        <div class="cpa-meta-cell"><span class="cpa-meta-lbl">Mission Phase</span><span class="cpa-meta-val" id="actPhase">—</span></div>
+      <div class="act-name" id="actName">Loading…</div>
+      <div class="act-desc" id="actDesc">Computing mission state…</div>
+      <div class="act-meta">
+        <div class="act-meta-row"><span class="act-meta-lbl">Start (MET)</span><span class="act-meta-val" id="actStart">—</span></div>
+        <div class="act-meta-row"><span class="act-meta-lbl">End (MET)</span><span class="act-meta-val" id="actEnd">—</span></div>
+        <div class="act-meta-row"><span class="act-meta-lbl">Duration</span><span class="act-meta-val" id="actDur">—</span></div>
+        <div class="act-meta-row"><span class="act-meta-lbl">Progress</span><span class="act-meta-val" id="actProgPct">—</span></div>
       </div>
-      <div class="progress-wrap">
-        <div class="progress-track"><div class="progress-fill" id="actProgress" style="width:0%"></div></div>
-        <span class="progress-pct" id="actProgressPct">0%</span>
+      <div class="act-prog-row">
+        <div class="act-prog-track"><div class="act-prog-fill" id="actProgBar" style="width:0%"></div></div>
+      </div>
+      <div class="act-att-row" style="margin-top:5px">
+        <div><span class="act-att-lbl">Attitude Mode</span> <span class="act-att-val" id="actAttMode">—</span></div>
+        <div><span class="act-att-lbl">Mission Phase –</span> <span class="act-att-val" id="actMPhase">—</span></div>
       </div>
     </div>
 
-    <!-- Next Milestone -->
-    <div class="cp-milestone">
-      <span class="ms-icon" id="msIcon">🎯</span>
+    <!-- Next milestone -->
+    <div id="msBlock">
+      <span class="ms-ico" id="msIco">🎯</span>
       <div class="ms-body">
         <div class="ms-label">🔴 Next Milestone</div>
         <div class="ms-name" id="msName">—</div>
-        <div class="ms-desc" id="msDesc">—</div>
+        <div class="ms-desc" id="msDescText">—</div>
       </div>
-      <div class="ms-countdown" id="msCountdown">—</div>
+      <div class="ms-cd" id="msCd">—</div>
     </div>
 
-    <!-- Stream -->
-    <div class="cp-stream">
-      <div class="cps-hdr">
-        <span class="cpa-hdr-icon" style="font-size:0.7rem">📺</span>
-        <span class="cps-hdr-title">Live Stream</span>
-        <div class="stream-tabs">
-          <button class="stream-tab active" onclick="setStream('official')">Official Broadcast</button>
-          <button class="stream-tab" onclick="setStream('orion')">Orion Views</button>
-          <button class="stream-tab" onclick="setStream('links')">All Sources</button>
+    <!-- Stream (compact) -->
+    <div id="streamBlock">
+      <div class="stream-hdr">
+        <span>📺</span>
+        <span class="stream-hdr-title">Live Stream</span>
+        <div class="stream-tabs-row">
+          <button class="s-tab active" onclick="setSrc('official')">Official Broadcast</button>
+          <button class="s-tab" onclick="setSrc('orion')">Orion Views</button>
+          <button class="s-tab" onclick="setSrc('links')">All Sources</button>
         </div>
       </div>
-      <div class="stream-body" id="streamBody">
-        <iframe id="streamFrame"
-          src="https://www.youtube.com/embed/z-j1uxBmis0?si=RejuScoI-kq3T2DP&autoplay=0&mute=1"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen title="NASA TV Live">
+      <div class="stream-embed" id="streamEmbed">
+        <iframe
+          src="https://www.youtube.com/live/z-j1uxBmis0?si=i_PyxTNIPzwFvR8b&autoplay=0"
+          title="NASA Artemis II Live Mission Coverage"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen>
         </iframe>
       </div>
     </div>
 
     <!-- Apollo comparison -->
-    <div class="apollo-card">
-      <div class="ac-header">
-        <span class="ac-year">🚀 APOLLO 8 · 1968</span>
-        <span class="ac-title">Historical Context</span>
-        <span class="ac-met" id="apolloMet">MET —</span>
+    <div id="apolloBlock">
+      <div class="apollo-hdr">
+        <span class="apollo-year">🚀 APOLLO 8 · 1968</span>
+        <span style="font-size:.48rem;color:var(--muted)">Historical Context</span>
+        <span class="apollo-met" id="apolloMet"></span>
       </div>
-      <div class="ac-text" id="apolloText">57 years ago, Borman, Lovell, and Anders were on the first crewed mission to orbit the Moon. Artemis II is the first time humans have ventured this far from Earth since Apollo 17 in December 1972.</div>
+      <div class="apollo-text" id="apolloTxt">57 years ago, Borman, Lovell, and Anders were on the first crewed mission to orbit the Moon. At this point in their mission…</div>
+      <div class="apollo-event-box">
+        <div class="aeb-label">Last Event · <span id="aebMet">—</span></div>
+        <div class="aeb-name" id="aebName">—</div>
+        <div class="aeb-desc" id="aebDesc">—</div>
+        <div class="aeb-next" id="aebNext">—</div>
+      </div>
     </div>
   </div>
 
-  <!-- RIGHT: Upcoming + Milestones -->
-  <div class="right-panel">
-    <div class="rp-section">
-      <div class="rp-hdr">
-        <div class="rp-hdr-dot" style="background:var(--cyan)"></div>
-        <span class="rp-hdr-title">Current Activity</span>
-        <span class="rp-hdr-badge" id="rpCurBadge">—</span>
-      </div>
-      <div style="padding:8px 10px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:3px;" id="rpCurName">—</div>
-        <div style="font-size:0.54rem;color:var(--muted);">Attitude Mode: <span style="color:var(--text)" id="rpAttMode">—</span></div>
-        <div style="font-size:0.54rem;color:var(--muted);">Mission Phase: <span class="phase-badge pb-trans" id="rpPhase" style="padding:1px 5px;font-size:0.44rem;">—</span></div>
-      </div>
+  <!-- ── RIGHT ── -->
+  <div id="right">
+    <div class="rp-hdr">
+      <div class="rp-hdr-dot" style="background:var(--cyan)"></div>
+      <span class="rp-hdr-title">Current Activity</span>
+    </div>
+    <div class="cur-act-mini">
+      <div class="cam-name" id="rpName">—</div>
+      <div class="cam-row"><span class="cam-lbl">Attitude Mode</span><span class="cam-val" id="rpAtt">—</span></div>
+      <div class="cam-row"><span class="cam-lbl">Mission Phase</span><span class="cam-val"><span class="ph-badge ph-trans" id="rpPhase" style="font-size:.42rem;padding:1px 4px">—</span></span></div>
     </div>
 
-    <div class="rp-section" style="flex-shrink:0">
-      <div class="rp-hdr">
-        <div class="rp-hdr-dot" style="background:var(--amber)"></div>
-        <span class="rp-hdr-title">Upcoming</span>
-        <span class="rp-hdr-badge" id="upcomingBadge">next 8</span>
-      </div>
-      <div class="upcoming-list" id="upcomingList"></div>
+    <div class="rp-hdr">
+      <div class="rp-hdr-dot" style="background:var(--amber)"></div>
+      <span class="rp-hdr-title">Upcoming</span>
+      <span class="rp-hdr-ct">next 8</span>
     </div>
+    <div id="upcomingList"></div>
 
-    <div class="rp-hdr" style="flex-shrink:0">
+    <div class="rp-hdr">
       <div class="rp-hdr-dot" style="background:var(--green)"></div>
       <span class="rp-hdr-title">Milestones</span>
-      <span class="rp-hdr-badge" id="msBadge">—</span>
+      <span class="rp-hdr-ct" id="msCt">—</span>
     </div>
-    <div class="milestones-list" id="milestonesList" style="flex:1;overflow-y:auto;"></div>
+    <div id="msList"></div>
   </div>
 
 </div><!-- /main -->
 
-<!-- FOOTER -->
-<div class="footer">
-  <div>OurNightSky · Artemis II Mission Control · Not affiliated with NASA · Telemetry modeled from published mission profile</div>
-  <div class="footer-links">
-    <a href="https://www.nasa.gov/blogs/artemis/" target="_blank">NASA Blog</a>
-    <a href="https://eyes.nasa.gov/dsn/" target="_blank">DSN Now</a>
-    <a href="https://www.nasa.gov/mission/artemis-ii/" target="_blank">NASA Official</a>
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<div id="footer">
+  <div class="footer-left">
+    <span>ARTEMIS II · ORION "INTEGRITY" · LAUNCHED APR 1 2026 · NOT AFFILIATED WITH NASA · TELEMETRY MODELED FROM PUBLISHED MISSION PROFILE</span>
   </div>
-  <div class="footer-coffee"><a href="https://buymeacoffee.com/ournightsky" target="_blank">☕ Support OurNightSky</a></div>
+  <div class="footer-center">
+    <a href="https://ournightsky.us" target="_blank" rel="noopener">OurNightSky.US</a>
+    <a href="https://nagohcreative.com" target="_blank" rel="noopener">Dev: Nagoh Creative</a>
+    <a href="https://www.nasa.gov/blogs/artemis/" target="_blank" rel="noopener">NASA Blog</a>
+    <a href="https://eyes.nasa.gov/dsn/" target="_blank" rel="noopener">DSN Now</a>
+    <a href="https://www.nasa.gov/mission/artemis-ii/" target="_blank" rel="noopener">NASA Official</a>
+  </div>
+  <div class="footer-right"><a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener">☕ Support OurNightSky</a></div>
 </div>
 
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
 <script>
-// ══════════════════════════════════════════════════════
-// MISSION DATA
-// ══════════════════════════════════════════════════════
+// ─── CONSTANTS ────────────────────────────────────
 const LAUNCH = new Date('2026-04-01T22:35:00Z');
-const MISSION_MS = 10*24*3600*1000, MOON_KM = 384400, C = 299792;
+const MISS_MS = 10*24*3600*1000, MOON_KM = 384400, C = 299792;
 
-// Mission activities (hours from launch)
-const ACTIVITIES = [
-  {h0:0,   h1:0.5, name:'Launch & Ascent',                 type:'systems', badge:'badge-systems', desc:'SLS lifts off from LC-39B. ICPS inserts Orion into initial Earth parking orbit.', att:'Ascent', phase:'LAUNCH'},
-  {h0:0.5, h1:6,   name:'Earth Orbit Checkout',             type:'systems', badge:'badge-systems', desc:'Proximity operations demo with ICPS. Apogee & perigee raise burns. Systems verification.', att:'Inertial', phase:'EARTH-ORBIT'},
-  {h0:6,   h1:8,   name:'Translunar Injection Burn',        type:'systems', badge:'badge-systems', desc:'Orion main engine fires for ~5 minutes. Crew monitors burn. Setting trajectory to Moon.', att:'TLI Attitude', phase:'TLI'},
-  {h0:8,   h1:24,  name:'Post-TLI Checkout & Crew Meal',    type:'meal',    badge:'badge-meal',    desc:'Crew settles into deep space cruise. Meals, medical checks. Mission control monitors trajectory.', att:'Barbecue Roll', phase:'TRANS-LUNAR'},
-  {h0:24,  h1:48,  name:'Outbound Science Observations',    type:'science', badge:'badge-science', desc:'Earth photography, zodiacal light observations. Crew conducts CPR training and medical kit checkout.', att:'Inertial', phase:'TRANS-LUNAR'},
-  {h0:48,  h1:72,  name:'Mid-Course Correction 1–3',        type:'systems', badge:'badge-systems', desc:'Three small trajectory correction burns fine-tune path to Moon. Crew tests emergency comms.', att:'Burn Attitude', phase:'TRANS-LUNAR'},
-  {h0:72,  h1:96,  name:'Deep Space Science & Exercise',    type:'exercise',badge:'badge-exercise',desc:'Crew exercise on resistance device. Crew observes growing Moon. Spacesuit checks performed.', att:'Barbecue Roll', phase:'TRANS-LUNAR'},
-  {h0:96,  h1:112, name:'Lunar Approach & Flyby Prep',      type:'science', badge:'badge-science', desc:'Crew meal & flyby preparation. Science briefings. Photography targets assigned for lunar flyby.', att:'Bias -XSI', phase:'TRANS-LUNAR'},
-  {h0:112, h1:126, name:'Lunar Flyby – Photography & Obs.', type:'science', badge:'badge-science', desc:'Closest approach ~8,900 km above lunar surface. Crew photographs and observes the Moon up close.', att:'Observation', phase:'TRANS-LUNAR'},
-  {h0:126, h1:130, name:'Solar Eclipse Observation',        type:'science', badge:'badge-science', desc:'Rare solar eclipse visible from Orion. Crew photographs Earth eclipsing the Sun.', att:'Observation', phase:'TRANS-LUNAR'},
-  {h0:130, h1:144, name:'Far-Side Transit – Loss of Signal', type:'other',  badge:'badge-other',   desc:'Loss of signal – Orion passes behind the Moon. ~30 minutes blackout. No comms with Earth.', att:'Passive', phase:'LUNAR-FLYBY'},
-  {h0:144, h1:156, name:'Post-Flyby Science & Observation', type:'science', badge:'badge-science', desc:'Crew observations immediately after far-side. Unique vantage point. Distance record broken.', att:'Inertial', phase:'RETURN'},
-  {h0:156, h1:180, name:'Return Transit – Exercise & Meals', type:'exercise',badge:'badge-exercise',desc:'Return cruise. Daily exercise, meals, crew rest rotations. Prepare reentry systems.', att:'Barbecue Roll', phase:'RETURN'},
-  {h0:180, h1:216, name:'Video Downlink & PAO Events',      type:'pao',    badge:'badge-pao',     desc:'Crew conducts live video downlinks. Press conference. Crew reads from lunar milestone.', att:'Inertial', phase:'RETURN'},
-  {h0:216, h1:226, name:'Sleep Period',                     type:'sleep',  badge:'badge-sleep',   desc:'Rest period. Two-shift sleep schedule. Mission control maintains watch.', att:'Barbecue Roll', phase:'RETURN'},
-  {h0:226, h1:230, name:'Wake & Meal',                      type:'meal',   badge:'badge-meal',    desc:'Crew wake-up, meal, final system preparations before reentry.', att:'Inertial', phase:'RETURN'},
-  {h0:230, h1:238, name:'Crew Reentry Prep & Briefing',     type:'systems',badge:'badge-systems', desc:'Crew dons orange OCSS suits. Final system checks. CM/SM separation. Reentry brief.', att:'Entry Attitude', phase:'RETURN'},
-  {h0:238, h1:240, name:'Atmospheric Reentry & Splashdown', type:'systems',badge:'badge-systems', desc:'Skip reentry at ~40,000 km/h. Heat shield tested. Pacific Ocean splashdown. Recovery.', att:'Entry', phase:'SPLASHDOWN'},
+const ACTS = [
+  {h0:0,   h1:0.5, n:'Launch & Ascent',                t:'sys', b:'b-sys', d:'SLS lifts off. ICPS inserts Orion into Earth parking orbit.', att:'Ascent',      ph:'LAUNCH'},
+  {h0:0.5, h1:6,   n:'Earth Orbit Checkout',           t:'sys', b:'b-sys', d:'Proximity ops demo. Apogee/perigee burns. Systems checks.', att:'Inertial',     ph:'EARTH-ORBIT'},
+  {h0:6,   h1:8,   n:'Translunar Injection Burn',      t:'sys', b:'b-sys', d:'Main engine fires ~5 min. Free-return trajectory set.',      att:'TLI Attitude', ph:'TLI'},
+  {h0:8,   h1:24,  n:'Post-TLI Checkout & Crew Meal',  t:'meal',b:'b-meal',d:'Crew settles into deep space cruise. Meals, medical checks.',att:'Barbecue Roll',ph:'TRANS-LUNAR'},
+  {h0:24,  h1:48,  n:'Outbound Science Observations',  t:'sci', b:'b-sci', d:'Earth photography, zodiacal light obs. CPR training.',      att:'Inertial',     ph:'TRANS-LUNAR'},
+  {h0:48,  h1:72,  n:'Mid-Course Corrections 1–3',     t:'sys', b:'b-sys', d:'Three small trajectory correction burns. Emergency comms test.', att:'Burn Att.', ph:'TRANS-LUNAR'},
+  {h0:72,  h1:96,  n:'Deep Space Science & Exercise',  t:'ex',  b:'b-ex',  d:'Crew exercise. Observe Moon growing. Spacesuit checks.',    att:'Barbecue Roll',ph:'TRANS-LUNAR'},
+  {h0:96,  h1:112, n:'Lunar Approach & Flyby Prep',    t:'sci', b:'b-sci', d:'Crew meal & flyby prep. Photography targets briefed.',      att:'Bias -XSI',    ph:'TRANS-LUNAR'},
+  {h0:112, h1:126, n:'Lunar Flyby – Photography & Obs',t:'sci', b:'b-sci', d:'Closest approach ~8,900 km. Crew photographs Moon up close.',att:'Observation',  ph:'TRANS-LUNAR'},
+  {h0:126, h1:130, n:'Solar Eclipse Observation',      t:'sci', b:'b-sci', d:'Rare solar eclipse. Crew photographs Earth eclipsing Sun.', att:'Observation',  ph:'TRANS-LUNAR'},
+  {h0:130, h1:144, n:'Far-Side Transit – Loss of Signal',t:'oth',b:'b-oth',d:'Orion behind Moon. ~30 min radio blackout.',               att:'Passive',      ph:'LUNAR-FLYBY'},
+  {h0:144, h1:156, n:'Post-Flyby Science',             t:'sci', b:'b-sci', d:'Unique vantage post-flyby. Distance record broken.',        att:'Inertial',     ph:'RETURN'},
+  {h0:156, h1:180, n:'Return Transit – Exercise',      t:'ex',  b:'b-ex',  d:'Return cruise. Daily exercise, meals, crew rest.',          att:'Barbecue Roll',ph:'RETURN'},
+  {h0:180, h1:216, n:'Video Downlink & PAO Events',    t:'pao', b:'b-pao', d:'Live video downlinks. Press conference.',                   att:'Inertial',     ph:'RETURN'},
+  {h0:216, h1:226, n:'Sleep Period',                   t:'slp', b:'b-slp', d:'Rest period. Two-shift sleep schedule.',                   att:'Barbecue Roll',ph:'RETURN'},
+  {h0:226, h1:230, n:'Wake & Meal',                    t:'meal',b:'b-meal',d:'Wake-up, meal, final system prep.',                         att:'Inertial',     ph:'RETURN'},
+  {h0:230, h1:238, n:'Reentry Prep & Briefing',        t:'sys', b:'b-sys', d:'Crew dons suits. CM/SM separation. Reentry brief.',         att:'Entry Att.',   ph:'RETURN'},
+  {h0:238, h1:240, n:'Reentry & Splashdown',           t:'sys', b:'b-sys', d:'Skip reentry ~40,000 km/h. Pacific Ocean splashdown.',      att:'Entry',        ph:'SPLASHDOWN'},
 ];
 
-const MILESTONES = [
-  {name:'SLS Liftoff',            h:0,    done:true,  cur:false, desc:'Space Launch System launched April 1, 2026 18:35 EDT'},
-  {name:'Solar Array Deployment', h:0.4,  done:true,  cur:false, desc:'4 solar array wings confirmed deployed'},
-  {name:'Proximity Ops Demo',     h:3,    done:true,  cur:false, desc:'Manual maneuvering demo with ICPS complete'},
-  {name:'Apogee Raise Burn',      h:4,    done:true,  cur:false, desc:'Apogee raise burn successfully completed'},
-  {name:'TLI Burn Complete',      h:7,    done:true,  cur:false, desc:'5-min burn set Orion on free-return trajectory'},
-  {name:'Lunar SOI Entry',        h:106,  done:false, cur:false, desc:'Orion enters lunar sphere of influence'},
-  {name:'Flyby Coverage Begins',  h:111,  done:false, cur:false, desc:'NASA begins live flyby broadcast coverage'},
-  {name:'Far-Side Blackout',      h:130,  done:false, cur:false, desc:'Loss of signal — Orion passes behind Moon'},
-  {name:'Lunar Close Approach',   h:120,  done:false, cur:false, desc:'Closest approach ~8,900 km above surface'},
-  {name:'Max Earth Distance',     h:126,  done:false, cur:false, desc:'Farthest from Earth — distance record'},
-  {name:'Signal Reacquired',      h:131,  done:false, cur:false, desc:'Comms restored after far-side transit'},
-  {name:'Solar Eclipse',          h:128,  done:false, cur:false, desc:'Crew observes solar eclipse from deep space'},
-  {name:'Mid-Course Correction 5',h:192,  done:false, cur:false, desc:'Final trajectory correction before Earth entry'},
-  {name:'CM/SM Separation',       h:237,  done:false, cur:false, desc:'Crew module separates from service module'},
-  {name:'Reentry',                h:238,  done:false, cur:false, desc:'Skip reentry at ~40,000 km/h'},
-  {name:'Splashdown',             h:240,  done:false, cur:false, desc:'Pacific Ocean recovery'},
+const MLS = [
+  {n:'SLS Liftoff',           h:0,    done:true,  d:'Launched April 1, 2026 · 18:35 EDT'},
+  {n:'Solar Array Deploy',    h:0.4,  done:true,  d:'4 wings confirmed deployed'},
+  {n:'Proximity Ops Demo',    h:3,    done:true,  d:'Manual maneuvering with ICPS complete'},
+  {n:'Apogee Raise Burn',     h:4,    done:true,  d:'Apogee raise completed successfully'},
+  {n:'TLI Burn Complete',     h:7,    done:true,  d:'Free-return trajectory set'},
+  {n:'Lunar SOI Entry',       h:106,  done:false, d:'Orion enters lunar sphere of influence'},
+  {n:'Flyby Coverage Begins', h:111,  done:false, d:'NASA begins live flyby broadcast'},
+  {n:'Lunar Close Approach',  h:120,  done:false, d:'Closest approach ~8,900 km above surface'},
+  {n:'Far-Side Blackout',     h:130,  done:false, d:'Loss of signal behind the Moon'},
+  {n:'Max Earth Distance',    h:126,  done:false, d:'Farthest from Earth — distance record'},
+  {n:'Signal Reacquired',     h:131,  done:false, d:'Comms restored post far-side'},
+  {n:'Solar Eclipse',         h:128,  done:false, d:'Crew observes solar eclipse from deep space'},
+  {n:'Mid-Course Correction 5',h:192, done:false, d:'Final trajectory correction before entry'},
+  {n:'CM/SM Separation',      h:237,  done:false, d:'Crew module separates from service module'},
+  {n:'Reentry',               h:238,  done:false, d:'Skip reentry at ~40,000 km/h'},
+  {n:'Splashdown',            h:240,  done:false, d:'Pacific Ocean recovery'},
 ];
 
-const PHASE_COLORS = {
-  'LAUNCH':     'pb-launch',
-  'EARTH-ORBIT':'pb-orbit',
-  'TLI':        'pb-tli',
-  'TRANS-LUNAR':'pb-trans',
-  'LUNAR-FLYBY':'pb-flyby',
-  'RETURN':     'pb-return',
-  'SPLASHDOWN': 'pb-launch',
+const MS_ICONS = {
+  'Lunar SOI Entry':'🌑','Flyby Coverage Begins':'📺','Far-Side Blackout':'📡',
+  'Lunar Close Approach':'🌕','Max Earth Distance':'📏','Signal Reacquired':'✅',
+  'Solar Eclipse':'☀️','Mid-Course Correction 5':'🔥','CM/SM Separation':'⚙️',
+  'Reentry':'🔴','Splashdown':'🌊',
 };
 
-// ══════════════════════════════════════════════════════
-// MATH
-// ══════════════════════════════════════════════════════
-function pad(n){return String(n).padStart(2,'0');}
-function fmt(n){return Math.round(n).toLocaleString();}
-function getMET(now){
-  const ms=now-LAUNCH;if(ms<0)return null;
-  const s=Math.floor(ms/1000);
-  return{ms,hrs:ms/3600000,
-    d:Math.floor(s/86400),h:Math.floor(s%86400/3600),
-    m:Math.floor(s%3600/60),sec:s%60};
+const PHASE_CLS = {
+  'LAUNCH':'ph-launch','EARTH-ORBIT':'ph-trans','TLI':'ph-trans',
+  'TRANS-LUNAR':'ph-trans','LUNAR-FLYBY':'ph-flyby',
+  'RETURN':'ph-return','SPLASHDOWN':'ph-launch',
+};
+
+const TC = {sci:'#00d4ff',sys:'#1de9b6',ex:'#00e676',slp:'#b388ff',pao:'#ff4081',meal:'#ffb300',oth:'#6070a0'};
+
+const APOLLO_CTX = [
+  {mh:24,  txt:"Apollo 8 launched December 21, 1968 — first crewed mission to the Moon's vicinity. Artemis II is the first human return to deep space since Apollo 17 in 1972."},
+  {mh:72,  txt:"Apollo 8 crew transmitted the first live TV from deep space at this point. Astronauts Borman, Lovell, and Anders were 3 days from Earth, heading toward lunar orbit."},
+  {mh:112, txt:"57 years ago Borman, Lovell, and Anders were preparing for lunar orbit insertion. Artemis II approaches on a safer free-return path — a bolder, more elegant trajectory."},
+  {mh:130, txt:"Apollo 8 disappeared behind the Moon on December 24, 1968, in radio silence. Artemis II is moments from its own far-side blackout — alone behind the Moon."},
+  {mh:144, txt:"On Christmas Eve 1968, Apollo 8 astronauts read from Genesis in lunar orbit. Artemis II crew has just completed the farthest human journey since Apollo 17."},
+  {mh:240, txt:"Apollo 8 splashed down December 27, 1968. Artemis II returns on free-return trajectory — same physics, 57 years later, four humans who've made history."},
+];
+
+// ─── MATH ─────────────────────────────────────────
+const pad = n => String(n).padStart(2,'0');
+const fmt = n => Math.round(n).toLocaleString();
+
+function getMET(now) {
+  const ms = now - LAUNCH; if (ms < 0) return null;
+  const s = Math.floor(ms / 1000);
+  return { ms, hrs: ms/3600000,
+    d: Math.floor(s/86400), h: Math.floor(s%86400/3600),
+    m: Math.floor(s%3600/60), sec: s%60 };
 }
-function metStr(met){return`${met.d}:${pad(met.h)}:${pad(met.m)}:${pad(met.sec)}`;}
-function hrsToMet(h){
-  const s=Math.round(h*3600),d=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60);
-  return`${d}:${pad(hh)}:${pad(mm)}:00`;
+function metStr(met) { return `${met.d}:${pad(met.h)}:${pad(met.m)}:${pad(met.sec)}`; }
+function hToMet(h) {
+  const s=Math.round(h*3600), d=Math.floor(s/86400),
+        hh=Math.floor(s%86400/3600), mm=Math.floor(s%3600/60);
+  return `${d}:${pad(hh)}:${pad(mm)}:00`;
 }
 
-function getPos(hrs){
-  const h=Math.min(hrs,240);let dist,vel;
-  if(h<.3){dist=6371+h*1e3;vel=25e3+h*3e4;}
-  else if(h<6){dist=6971;vel=28e3;}
-  else if(h<8){const t=(h-6)/2;dist=6971+t*5e3;vel=28e3+t*11e3;}
-  else if(h<120){const t=(h-8)/112;dist=12e3+t*t*(392e3-12e3);vel=39e3*(1-t)+3400*t;}
-  else if(h<144){const t=(h-120)/24;const pk=Math.sin(t*Math.PI);dist=392e3-pk*4e3;vel=3400+pk*1200;}
-  else if(h<228){const t=(h-144)/84;dist=392e3*(1-t*t)+6600*t*t;vel=3400+t*t*(36e3-3400);}
-  else{const t=(h-228)/12;dist=6600*(1-t)+6371*t;vel=4e4*(1-t)+500*t;}
-  return{alt:Math.max(0,dist-6371),dc:dist,dm:Math.abs(MOON_KM+6371-dist),vel:Math.round(vel)};
+function getPos(hrs) {
+  const h = Math.min(hrs, 240); let dist, vel;
+  if (h<.3)      { dist=6371+h*1e3; vel=25e3+h*3e4; }
+  else if (h<6)  { dist=6971; vel=28e3; }
+  else if (h<8)  { const t=(h-6)/2; dist=6971+t*5e3; vel=28e3+t*11e3; }
+  else if (h<120){ const t=(h-8)/112; dist=12e3+t*t*(392e3-12e3); vel=39e3*(1-t)+3400*t; }
+  else if (h<144){ const t=(h-120)/24; const pk=Math.sin(t*Math.PI); dist=392e3-pk*4e3; vel=3400+pk*1200; }
+  else if (h<228){ const t=(h-144)/84; dist=392e3*(1-t*t)+6600*t*t; vel=3400+t*t*(36e3-3400); }
+  else           { const t=(h-228)/12; dist=6600*(1-t)+6371*t; vel=4e4*(1-t)+500*t; }
+  return { alt: Math.max(0,dist-6371), dc: dist, dm: Math.abs(MOON_KM+6371-dist), vel: Math.round(vel) };
 }
 
-function getCurrentActivity(hrs){
-  for(let i=ACTIVITIES.length-1;i>=0;i--)if(hrs>=ACTIVITIES[i].h0)return i;
+function getActIdx(hrs) {
+  for (let i=ACTS.length-1; i>=0; i--) if (hrs >= ACTS[i].h0) return i;
   return 0;
 }
 
-// ══════════════════════════════════════════════════════
-// TRAJECTORY CANVAS
-// ══════════════════════════════════════════════════════
-function drawMap(hrs){
-  const cv=document.getElementById('mapCanvas');if(!cv)return;
-  const dpr=devicePixelRatio||1,W=cv.parentElement.clientWidth,H=200;
-  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
-  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,W,H);
-
-  // star field
-  const seed=42;for(let i=0;i<60;i++){
-    const x=(((seed*i*7919)%W)+W)%W,y=(((seed*i*6271)%H)+H)%H;
-    const r=Math.random()*0.8+0.2;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(200,210,255,${0.1+Math.random()*0.25})`;ctx.fill();}
-
-  const ex=W*.18,ey=H*.52,mx=W*.82,my=H*.4;
-
-  // Earth
-  const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,22);eg.addColorStop(0,'#1a6bb5');eg.addColorStop(0.6,'#0a2a5e');eg.addColorStop(1,'#050e22');
-  ctx.beginPath();ctx.arc(ex,ey,22,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();
-  ctx.beginPath();ctx.arc(ex,ey,28,0,Math.PI*2);ctx.strokeStyle='rgba(68,138,255,0.18)';ctx.lineWidth=8;ctx.stroke();
-  ctx.fillStyle='rgba(170,200,255,0.55)';ctx.font='500 8px JetBrains Mono';ctx.textAlign='center';ctx.fillText('Earth',ex,ey+36);
-
-  // Moon
-  const mg=ctx.createRadialGradient(mx,my,2,mx,my,14);mg.addColorStop(0,'#8a8fa8');mg.addColorStop(1,'#1c1e2c');
-  ctx.beginPath();ctx.arc(mx,my,14,0,Math.PI*2);ctx.fillStyle=mg;ctx.fill();
-  ctx.beginPath();ctx.arc(mx,my,20,0,Math.PI*2);ctx.strokeStyle='rgba(179,136,255,0.12)';ctx.lineWidth=7;ctx.stroke();
-  ctx.fillStyle='rgba(179,136,255,0.55)';ctx.font='500 7px JetBrains Mono';ctx.textAlign='center';ctx.fillText('Moon',mx,my+27);
-
-  // Path
-  const STEPS=300,pts=[];
-  for(let i=0;i<=STEPS;i++){const h=(i/STEPS)*240;let px,py;
-    if(h<120){const t=h/120,cmx=ex+(mx-ex)*.42,cmy=ey-55;px=(1-t)*(1-t)*ex+2*(1-t)*t*cmx+t*t*mx;py=(1-t)*(1-t)*ey+2*(1-t)*t*cmy+t*t*my;}
-    else if(h<144){const t=(h-120)/24,ang=-Math.PI/3+t*Math.PI*1.1;px=mx+Math.cos(ang)*(14+12);py=my+Math.sin(ang)*(14+12);}
-    else{const t=(h-144)/96,cmx=ex+(mx-ex)*.54,cmy=ey+72;px=(1-t)*(1-t)*mx+2*(1-t)*t*cmx+t*t*ex;py=(1-t)*(1-t)*my+2*(1-t)*t*cmy+t*t*ey;}
-    pts.push({px,py});}
-
-  // future dashed
-  ctx.setLineDash([3,5]);ctx.lineWidth=1;ctx.strokeStyle='rgba(100,120,180,0.2)';
-  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();ctx.setLineDash([]);
-
-  // flown — gradient cyan
-  const cut=Math.min(Math.floor((hrs/240)*STEPS),STEPS);
-  if(cut>1){
-    const gl=ctx.createLinearGradient(ex,ey,pts[cut].px,pts[cut].py);
-    gl.addColorStop(0,'rgba(0,153,204,0.5)');gl.addColorStop(1,'rgba(0,212,255,1)');
-    ctx.lineWidth=2;ctx.strokeStyle=gl;
-    ctx.beginPath();pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();
-    // glow
-    ctx.lineWidth=6;ctx.strokeStyle='rgba(0,212,255,0.1)';
-    ctx.beginPath();pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();
-  }
-
-  // Craft
-  const cp=pts[Math.min(cut,STEPS-1)];
-  ctx.beginPath();ctx.arc(cp.px,cp.py,10,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,0.12)';ctx.fill();
-  ctx.beginPath();ctx.arc(cp.px,cp.py,4,0,Math.PI*2);
-  const cg2=ctx.createRadialGradient(cp.px,cp.py,0,cp.px,cp.py,4);cg2.addColorStop(0,'#fff');cg2.addColorStop(1,'#00d4ff');
-  ctx.fillStyle=cg2;ctx.fill();
-  ctx.fillStyle='rgba(0,212,255,0.9)';ctx.font='700 7px JetBrains Mono';ctx.textAlign='left';
-  ctx.fillText('Orion',cp.px+7,cp.py-3);
+// periapsis/apoapsis model
+function getOrbit(hrs) {
+  const pos = getPos(hrs);
+  if (hrs < 6) return { peri: 300, apo: 700 };
+  if (hrs < 8) return { peri: 300 + (hrs-6)/2*200, apo: 700 + (hrs-6)/2*2e4 };
+  const t = Math.min((hrs-8)/112, 1);
+  const peri = 300 + t * 4200;
+  const apo  = 700 + t * 437000;
+  return { peri: Math.round(peri*10)/10, apo: Math.round(apo*10)/10 };
 }
 
-// ══════════════════════════════════════════════════════
-// TIMELINE CANVAS
-// ══════════════════════════════════════════════════════
-const TYPE_COLORS={
-  science:'#00d4ff', systems:'#1de9b6', exercise:'#00e676',
-  sleep:'#b388ff', pao:'#ff4081', meal:'#ffb300', other:'#7080a8'
-};
-const PHASE_STRIP_COLORS={
-  'LAUNCH':'#ff6b35','EARTH-ORBIT':'#448aff','TLI':'#ff4081',
-  'TRANS-LUNAR':'#00d4ff','LUNAR-FLYBY':'#b388ff','RETURN':'#00e676','SPLASHDOWN':'#ffb300'
-};
+// ─── TRAJECTORY CANVAS ───────────────────────────
+function drawMap(hrs) {
+  const cv = document.getElementById('mapCanvas');
+  if (!cv) return;
+  const W = cv.parentElement.clientWidth, H = 196;
+  const dpr = devicePixelRatio || 1;
+  cv.width = W*dpr; cv.height = H*dpr;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
 
-function drawTimeline(hrs){
-  const cv=document.getElementById('tlCanvas');if(!cv)return;
-  const dpr=devicePixelRatio||1,W=cv.parentElement.clientWidth,H=52;
-  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
-  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,W,H);
-
-  // visible window: ±6 hours around current
-  const winH=12, startH=Math.max(0,hrs-4), endH=Math.min(240,hrs+8);
-  const hToX=h=>(h-startH)/(endH-startH)*W;
-
-  // time tick labels
-  ctx.fillStyle='rgba(112,128,168,0.7)';ctx.font='500 7px JetBrains Mono';ctx.textAlign='center';
-  for(let tick=Math.ceil(startH);tick<=endH;tick++){
-    if(tick%2!==0)continue;
-    const x=hToX(tick);
-    ctx.fillStyle='rgba(30,40,64,0.6)';ctx.fillRect(x-.5,0,.5,H);
-    ctx.fillStyle='rgba(112,128,168,0.7)';
-    const d=Math.floor(tick/24),hh=tick%24;
-    ctx.fillText(`T+${d*24+hh}h`,x,8);
+  // stars
+  for (let i=0; i<70; i++) {
+    const x=(i*7919%W+W)%W, y=(i*6271%H+H)%H, r=Math.random()*0.8+0.2;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(180,200,255,${.08+Math.random()*.2})`; ctx.fill();
   }
 
-  // ROW 1: Crew activities (y=12, h=14)
-  const R1Y=10,R1H=14;
-  ACTIVITIES.forEach(act=>{
-    if(act.h1<startH||act.h0>endH)return;
-    const x1=Math.max(0,hToX(act.h0)),x2=Math.min(W,hToX(act.h1)),w=x2-x1;if(w<1)return;
-    const col=TYPE_COLORS[act.type]||'#7080a8';
-    ctx.fillStyle=col+'28';ctx.fillRect(x1,R1Y,w,R1H);
-    ctx.strokeStyle=col+'80';ctx.lineWidth=1;ctx.strokeRect(x1+.5,R1Y+.5,w-1,R1H-1);
-    // label
-    if(w>40){ctx.fillStyle=col;ctx.font='600 7px JetBrains Mono';ctx.textAlign='left';
-      const label=act.name.length>22?act.name.slice(0,20)+'…':act.name;
-      ctx.fillText(label,x1+3,R1Y+9);}
-  });
-  // ROW 1 label
-  ctx.fillStyle='rgba(112,128,168,0.5)';ctx.font='500 6px JetBrains Mono';ctx.textAlign='left';ctx.fillText('CREW',2,R1Y+10);
+  const ex=W*.18, ey=H*.52, mx=W*.82, my=H*.4;
 
-  // ROW 2: Phase strip (y=28, h=8)
-  const R2Y=27,R2H=9;
-  ACTIVITIES.forEach(act=>{
-    if(act.h1<startH||act.h0>endH)return;
-    const x1=Math.max(0,hToX(act.h0)),x2=Math.min(W,hToX(act.h1)),w=x2-x1;if(w<1)return;
-    const col=PHASE_STRIP_COLORS[act.phase]||'#7080a8';
-    ctx.fillStyle=col+'35';ctx.fillRect(x1,R2Y,w,R2H);
-    if(w>50){ctx.fillStyle=col+'cc';ctx.font='600 6px JetBrains Mono';ctx.textAlign='left';ctx.fillText(act.phase,x1+3,R2Y+7);}
-  });
-  ctx.fillStyle='rgba(112,128,168,0.5)';ctx.font='500 6px JetBrains Mono';ctx.textAlign='left';ctx.fillText('PHASE',2,R2Y+7);
+  // Earth
+  const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,22); eg.addColorStop(0,'#1a6bb5'); eg.addColorStop(.6,'#0a2660'); eg.addColorStop(1,'#040e22');
+  ctx.beginPath(); ctx.arc(ex,ey,22,0,Math.PI*2); ctx.fillStyle=eg; ctx.fill();
+  ctx.beginPath(); ctx.arc(ex,ey,28,0,Math.PI*2); ctx.strokeStyle='rgba(68,138,255,.16)'; ctx.lineWidth=7; ctx.stroke();
+  ctx.fillStyle='rgba(160,200,255,.55)'; ctx.font='500 7px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('Earth',ex,ey+35);
 
-  // ROW 3: Milestone diamonds (y=38)
-  const R3Y=38;
-  MILESTONES.forEach(ms=>{
-    if(ms.h<startH||ms.h>endH)return;
-    const x=hToX(ms.h);
-    const col=ms.done?'#00e676':ms.cur?'#ffb300':'#448aff';
+  // Moon
+  const mg=ctx.createRadialGradient(mx,my,2,mx,my,14); mg.addColorStop(0,'#8a8fa8'); mg.addColorStop(1,'#1a1c2c');
+  ctx.beginPath(); ctx.arc(mx,my,14,0,Math.PI*2); ctx.fillStyle=mg; ctx.fill();
+  ctx.beginPath(); ctx.arc(mx,my,20,0,Math.PI*2); ctx.strokeStyle='rgba(179,136,255,.1)'; ctx.lineWidth=7; ctx.stroke();
+  ctx.fillStyle='rgba(179,136,255,.55)'; ctx.font='500 7px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('Moon',mx,my+27);
+
+  // TLI label
+  const tliX = ex+(mx-ex)*.15, tliY = ey-12;
+  ctx.fillStyle='rgba(255,64,129,.7)'; ctx.font='600 6px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('TLI',tliX,tliY-4);
+  ctx.beginPath(); ctx.arc(tliX,tliY,3,0,Math.PI*2); ctx.fillStyle='rgba(255,64,129,.5)'; ctx.fill();
+
+  // Path
+  const STEPS=300, pts=[];
+  for (let i=0; i<=STEPS; i++) {
+    const h=(i/STEPS)*240; let px, py;
+    if (h<120) { const t=h/120, cmx=ex+(mx-ex)*.42, cmy=ey-56; px=(1-t)*(1-t)*ex+2*(1-t)*t*cmx+t*t*mx; py=(1-t)*(1-t)*ey+2*(1-t)*t*cmy+t*t*my; }
+    else if (h<144) { const t=(h-120)/24, ang=-Math.PI/3+t*Math.PI*1.1; px=mx+Math.cos(ang)*(14+12); py=my+Math.sin(ang)*(14+12); }
+    else { const t=(h-144)/96, cmx=ex+(mx-ex)*.54, cmy=ey+72; px=(1-t)*(1-t)*mx+2*(1-t)*t*cmx+t*t*ex; py=(1-t)*(1-t)*my+2*(1-t)*t*cmy+t*t*ey; }
+    pts.push({px, py});
+  }
+  // future
+  ctx.setLineDash([3,5]); ctx.lineWidth=1; ctx.strokeStyle='rgba(80,100,160,.22)';
+  ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py)); ctx.stroke(); ctx.setLineDash([]);
+  // flown
+  const cut=Math.min(Math.floor((hrs/240)*STEPS),STEPS);
+  if (cut>1) {
+    const gl=ctx.createLinearGradient(ex,ey,pts[cut].px,pts[cut].py);
+    gl.addColorStop(0,'rgba(0,136,187,.5)'); gl.addColorStop(1,'rgba(0,212,255,1)');
+    ctx.lineWidth=2.5; ctx.strokeStyle=gl;
+    ctx.beginPath(); pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py)); ctx.stroke();
+    // glow
+    ctx.lineWidth=7; ctx.strokeStyle='rgba(0,212,255,.08)';
+    ctx.beginPath(); pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py)); ctx.stroke();
+  }
+  // craft
+  const cp = pts[Math.min(cut,STEPS-1)];
+  ctx.beginPath(); ctx.arc(cp.px,cp.py,9,0,Math.PI*2); ctx.fillStyle='rgba(0,212,255,.1)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cp.px,cp.py,3.5,0,Math.PI*2);
+  const cg=ctx.createRadialGradient(cp.px,cp.py,0,cp.px,cp.py,3.5); cg.addColorStop(0,'#fff'); cg.addColorStop(1,'#00d4ff');
+  ctx.fillStyle=cg; ctx.fill();
+  ctx.fillStyle='rgba(0,212,255,.85)'; ctx.font='700 7px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('Orion',cp.px+6,cp.py-2);
+
+  // "← to Earth" label if near moon
+  if (hrs > 120 && hrs < 160) {
+    ctx.fillStyle='rgba(0,212,255,.4)'; ctx.font='500 6px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('← to Earth',ex+28,ey+28);
+  }
+}
+
+// ─── WIREFRAME SPACECRAFT ────────────────────────
+let _roll=0, _pitch=0, _yaw=0;
+
+function drawWireframe(roll, pitch, yaw) {
+  const cv = document.getElementById('attCanvas');
+  if (!cv) return;
+  const W = cv.parentElement.clientWidth, H = 100;
+  const dpr = devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr;
+  cv.style.width=W+'px'; cv.style.height=H+'px';
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const cx=W*.38, cy=H*.52;
+  const r = roll*Math.PI/180, p = pitch*Math.PI/180, y = yaw*Math.PI/180;
+
+  // rotation matrices combined
+  function rot(x,y,z) {
+    // Rx * Ry * Rz
+    const cy2=Math.cos(y),sy=Math.sin(y), cp=Math.cos(p),sp=Math.sin(p), cr=Math.cos(r),sr=Math.sin(r);
+    return {
+      x: cy2*cr*x + (sr*sp*cy2 - sy*cp)*y + (sr*cp*cy2 + sy*sp)*z,
+      y: sy*cr*x  + (sr*sp*sy  + cy2*cp)*y + (sr*cp*sy  - cy2*sp)*z,
+      z: -sr*x    + sp*cr*y               + cp*cr*z
+    };
+  }
+
+  function proj(v, s=28) {
+    const fov=1.6, zOff=3;
+    const perspective = fov/(v.z+zOff);
+    return { x: cx + v.x*s*perspective, y: cy - v.y*s*perspective };
+  }
+
+  // Orion capsule vertices (simplified cone+cylinder)
+  const verts = [
+    // command module cone (front)
+    {x:0,y:0,z:1.2},   // nose 0
+    {x:.7,y:0,z:.4},   // rim fr R 1
+    {x:0,y:.7,z:.4},   // rim fr T 2
+    {x:-.7,y:0,z:.4},  // rim fr L 3
+    {x:0,y:-.7,z:.4},  // rim fr B 4
+    // mid cylinder
+    {x:.7,y:0,z:-.4},  // rim bk R 5
+    {x:0,y:.7,z:-.4},  // rim bk T 6
+    {x:-.7,y:0,z:-.4}, // rim bk L 7
+    {x:0,y:-.7,z:-.4}, // rim bk B 8
+    // service module back
+    {x:.5,y:0,z:-1.2}, // sm R 9
+    {x:0,y:.5,z:-1.2}, // sm T 10
+    {x:-.5,y:0,z:-1.2},// sm L 11
+    {x:0,y:-.5,z:-1.2},// sm B 12
+    // solar array points (ESA wings)
+    {x:2.2,y:0,z:-.4}, // wing1 tip 13
+    {x:2.2,y:0,z:.1},  // wing1 tip inner 14
+    {x:-2.2,y:0,z:-.4},// wing2 tip 15
+    {x:-2.2,y:0,z:.1}, // wing2 tip inner 16
+  ];
+
+  const edges = [
+    // cone to rim
+    [0,1],[0,2],[0,3],[0,4],
+    // front rim
+    [1,2],[2,3],[3,4],[4,1],
+    // front to back
+    [1,5],[2,6],[3,7],[4,8],
+    // back rim
+    [5,6],[6,7],[7,8],[8,5],
+    // SM
+    [5,9],[6,10],[7,11],[8,12],
+    [9,10],[10,11],[11,12],[12,9],
+    // solar arrays
+    [5,13],[13,14],[14,1],  // wing1
+    [7,15],[15,16],[16,3],  // wing2
+  ];
+
+  const rVerts = verts.map(v => rot(v.x,v.y,v.z));
+  const pVerts = rVerts.map(v => proj(v));
+
+  // draw shadow first
+  ctx.strokeStyle='rgba(179,136,255,.08)'; ctx.lineWidth=4;
+  edges.forEach(([a,b])=>{
+    ctx.beginPath();ctx.moveTo(pVerts[a].x+3,pVerts[a].y+3);ctx.lineTo(pVerts[b].x+3,pVerts[b].y+3);ctx.stroke();
+  });
+  // draw edges
+  edges.forEach(([a,b])=>{
+    const zA=(rVerts[a].z+rVerts[b].z)/2;
+    const brightness=Math.max(0.25,Math.min(1,(zA+1.5)/3));
+    // solar arrays get teal
+    const isSolar=a>=13||b>=13;
+    const col=isSolar?`rgba(29,233,182,${brightness*.75})`:`rgba(179,136,255,${brightness*.8})`;
+    ctx.strokeStyle=col; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pVerts[a].x,pVerts[a].y);ctx.lineTo(pVerts[b].x,pVerts[b].y);ctx.stroke();
+  });
+  // nose dot
+  ctx.beginPath(); ctx.arc(pVerts[0].x,pVerts[0].y,2,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,212,255,.8)'; ctx.fill();
+
+  // attitude readout overlay on right side
+  const rx=W*.67;
+  ctx.font='700 7px JetBrains Mono';
+  ctx.fillStyle='rgba(179,136,255,.6)'; ctx.textAlign='left';
+  ctx.fillText(`R: ${roll}°`, rx, H*.3);
+  ctx.fillText(`P: ${pitch}°`, rx, H*.5);
+  ctx.fillText(`Y: ${yaw}°`, rx, H*.7);
+}
+
+// ─── TIMELINE CANVAS ─────────────────────────────
+function drawTimeline(hrs) {
+  const cv=document.getElementById('tlCanvas'); if(!cv) return;
+  const W=cv.parentElement.clientWidth, H=52;
+  const dpr=devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const startH=Math.max(0,hrs-4), endH=Math.min(240,hrs+8);
+  const hToX = h => (h-startH)/(endH-startH)*W;
+
+  // tick lines + labels
+  for (let tick=Math.ceil(startH); tick<=endH; tick++) {
+    if (tick%2!==0) continue;
+    const x=hToX(tick);
+    ctx.fillStyle='rgba(28,34,56,.7)'; ctx.fillRect(x-.5,0,1,H);
+    ctx.fillStyle='rgba(96,112,160,.65)'; ctx.font='500 6.5px JetBrains Mono'; ctx.textAlign='center';
+    const d=Math.floor(tick/24);
+    ctx.fillText(`T+${d>0?d+'d+':''}${tick%24}h`,x,8);
+  }
+
+  // ROW 1: Activities y=10,h=16
+  ACTS.forEach(act=>{
+    if (act.h1<startH||act.h0>endH) return;
+    const x1=Math.max(0,hToX(act.h0)), x2=Math.min(W,hToX(act.h1)), w=x2-x1; if(w<1)return;
+    const col=TC[act.t]||'#6070a0';
+    ctx.fillStyle=col+'20'; ctx.fillRect(x1,10,w,16);
+    ctx.strokeStyle=col+'70'; ctx.lineWidth=.8; ctx.strokeRect(x1+.5,10.5,w-1,15);
+    if (w>45) { ctx.fillStyle=col; ctx.font='600 6.5px JetBrains Mono'; ctx.textAlign='left';
+      ctx.fillText(act.n.length>24?act.n.slice(0,22)+'…':act.n, x1+3, 21); }
+  });
+  ctx.fillStyle='rgba(96,112,160,.4)'; ctx.font='500 5.5px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('CREW',2,20);
+
+  // ROW 2: Phase y=29,h=9
+  ACTS.forEach(act=>{
+    if(act.h1<startH||act.h0>endH) return;
+    const x1=Math.max(0,hToX(act.h0)),x2=Math.min(W,hToX(act.h1)),w=x2-x1; if(w<1)return;
+    const phCols={'LAUNCH':'#ff6b35','EARTH-ORBIT':'#448aff','TLI':'#ff4081','TRANS-LUNAR':'#00d4ff','LUNAR-FLYBY':'#b388ff','RETURN':'#00e676','SPLASHDOWN':'#ffb300'};
+    const col=phCols[act.ph]||'#6070a0';
+    ctx.fillStyle=col+'28'; ctx.fillRect(x1,29,w,9);
+    if(w>55){ctx.fillStyle=col+'bb';ctx.font='600 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText(act.ph,x1+3,37);}
+  });
+  ctx.fillStyle='rgba(96,112,160,.4)';ctx.font='500 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText('PHASE',2,37);
+
+  // ROW 3: Milestones diamonds y=41
+  MLS.forEach(ms=>{
+    if(ms.h<startH||ms.h>endH) return;
+    const x=hToX(ms.h), col=ms.done?'#00e676':'#448aff';
     ctx.fillStyle=col;
-    ctx.beginPath();ctx.moveTo(x,R3Y-4);ctx.lineTo(x+4,R3Y);ctx.lineTo(x,R3Y+4);ctx.lineTo(x-4,R3Y);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(x,39);ctx.lineTo(x+4,43);ctx.lineTo(x,47);ctx.lineTo(x-4,43);ctx.closePath();ctx.fill();
   });
-  ctx.fillStyle='rgba(112,128,168,0.5)';ctx.font='500 6px JetBrains Mono';ctx.textAlign='left';ctx.fillText('MILES.',2,R3Y+3);
+  ctx.fillStyle='rgba(96,112,160,.4)';ctx.font='500 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText('MILES.',2,45);
 
   // Now line
   const nowX=hToX(hrs);
-  ctx.strokeStyle='rgba(255,82,82,0.9)';ctx.lineWidth=1.5;
+  ctx.strokeStyle='rgba(255,82,82,.9)';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(nowX,0);ctx.lineTo(nowX,H);ctx.stroke();
-  ctx.fillStyle='#ff5252';ctx.beginPath();ctx.moveTo(nowX-4,0);ctx.lineTo(nowX+4,0);ctx.lineTo(nowX,6);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ff5252';ctx.beginPath();ctx.moveTo(nowX-4,0);ctx.lineTo(nowX+4,0);ctx.lineTo(nowX,7);ctx.closePath();ctx.fill();
 }
 
-// ══════════════════════════════════════════════════════
-// RENDER LISTS
-// ══════════════════════════════════════════════════════
-function renderUpcoming(hrs){
-  const upcoming=ACTIVITIES.filter(a=>a.h0>hrs).slice(0,8);
-  document.getElementById('upcomingList').innerHTML=upcoming.map(act=>{
-    const diffH=act.h0-hrs,h=Math.floor(diffH),m=Math.floor((diffH-h)*60);
-    const timeStr=diffH<24?`${h}h ${m}m`:`${Math.floor(diffH/24)}d ${Math.floor(diffH%24)}h`;
-    const col=TYPE_COLORS[act.type]||'#7080a8';
-    return`<div class="upcoming-item">
-      <div class="ui-type-bar" style="background:${col}"></div>
-      <div class="ui-body">
-        <div class="ui-name">${act.name}</div>
-        <span class="ui-badge ${act.badge}">${act.type.toUpperCase()}</span>
+// ─── RENDER LISTS ────────────────────────────────
+function renderUpcoming(hrs) {
+  const upcoming = ACTS.filter(a=>a.h0>hrs).slice(0,8);
+  document.getElementById('upcomingList').innerHTML = upcoming.map(act=>{
+    const dH=act.h0-hrs, h=Math.floor(dH), m=Math.round((dH-h)*60);
+    const t = dH<24 ? `${h}h ${m}m` : `${Math.floor(dH/24)}d ${Math.floor(dH%24)}h`;
+    const col=TC[act.t]||'#6070a0';
+    return `<div class="up-item">
+      <div class="up-bar" style="background:${col}"></div>
+      <div class="up-body">
+        <div class="up-name">${act.n}</div>
+        <span class="up-badge ${act.b}">${act.t.toUpperCase()}</span>
       </div>
-      <div class="ui-time">${timeStr}</div>
+      <div class="up-time">${t}</div>
     </div>`;
   }).join('');
 }
 
-function renderMilestones(hrs){
-  const done=MILESTONES.filter(m=>m.h<=hrs).length;
-  document.getElementById('msBadge').textContent=`${done}/${MILESTONES.length}`;
-  document.getElementById('milestonesList').innerHTML=MILESTONES.map(ms=>{
-    const done=ms.h<=hrs,cur=!done&&ms.h<=(hrs+2);
-    const dotCls=done?'done':cur?'cur':'future';
-    const nameCls=done?'done':cur?'cur':'future';
-    return`<div class="ms-item">
-      <div class="ms-item-dot ${dotCls}"></div>
-      <div class="ms-item-body">
-        <div class="ms-item-name ${nameCls}">${ms.name}</div>
-        <div class="ms-item-desc">${ms.desc}</div>
-        <div class="ms-item-met">MET ${hrsToMet(ms.h)}</div>
+function renderMilestones(hrs) {
+  const done = MLS.filter(m=>m.h<=hrs).length;
+  document.getElementById('msCt').textContent = `${done}/${MLS.length}`;
+  document.getElementById('msList').innerHTML = MLS.map(ms=>{
+    const isDone=ms.h<=hrs, isCur=!isDone&&ms.h<=(hrs+2);
+    const dc=isDone?'done':isCur?'cur':'fut';
+    return `<div class="ms-it">
+      <div class="ms-dot ${dc}"></div>
+      <div class="ms-bd">
+        <div class="ms-nm ${dc}">${ms.n}</div>
+        <div class="ms-dd">${ms.d}</div>
+        <div class="ms-met">MET ${hToMet(ms.h)}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════════════════
-// TABS / STREAMS
-// ══════════════════════════════════════════════════════
-function setTab(tab){
-  document.querySelectorAll('.hdr-tab').forEach((b,i)=>{
-    const tabs=['track','crew','media','history'];
-    b.classList.toggle('active',tabs[i]===tab);
+// ─── STREAM ──────────────────────────────────────
+function setSrc(src) {
+  document.querySelectorAll('.s-tab').forEach((b,i)=>{
+    b.classList.toggle('active', ['official','orion','links'][i]===src);
   });
-}
-
-function setStream(src){
-  document.querySelectorAll('.stream-tab').forEach((b,i)=>{
-    const srcs=['official','orion','links'];
-    b.classList.toggle('active',srcs[i]===src);
-  });
-  const body=document.getElementById('streamBody');
-  if(src==='official'){
-    body.innerHTML=`<iframe src="https://www.youtube.com/embed/live_stream?channel=UCVTomc35agH1muPB33f7zCw&autoplay=0&mute=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-  } else if(src==='orion'){
-    body.innerHTML=`<iframe src="https://www.youtube.com/embed/xNLqxBNE_hY?autoplay=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  const el = document.getElementById('streamEmbed');
+  if (src==='official') {
+    el.innerHTML=`<iframe src="https://www.youtube.com/embed/z-j1uxBmis0?si=RejuScoI-kq3T2DP&autoplay=0" title="NASA Artemis II Live" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  } else if (src==='orion') {
+    el.innerHTML=`<iframe src="https://www.youtube.com/embed/z-j1uxBmis0?si=RejuScoI-kq3T2DP&autoplay=0" title="Orion Views" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
   } else {
-    body.innerHTML=`<div class="stream-static">
-      <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">All Live Sources</div>
-      <div class="stream-links">
-        <a class="stream-link" href="https://www.youtube.com/@NASA/live" target="_blank" rel="noopener"><span class="sl-icon">▶️</span><div class="sl-info"><div class="sl-name">NASA YouTube · Official</div><div class="sl-sub">Mission control audio · 24/7 coverage</div></div><span class="sl-arr">→</span></a>
-        <a class="stream-link" href="https://plus.nasa.gov" target="_blank" rel="noopener"><span class="sl-icon">🛰️</span><div class="sl-info"><div class="sl-name">NASA+ · Free Streaming</div><div class="sl-sub">Ad-free · No subscription required</div></div><span class="sl-arr">→</span></a>
-        <a class="stream-link" href="https://www.youtube.com/watch?v=xNLqxBNE_hY" target="_blank" rel="noopener"><span class="sl-icon">🌍</span><div class="sl-info"><div class="sl-name">Orion Exterior Camera</div><div class="sl-sub">Live views of Earth & Moon · No audio</div></div><span class="sl-arr">→</span></a>
-        <a class="stream-link" href="https://www.nasa.gov/live/" target="_blank" rel="noopener"><span class="sl-icon">📅</span><div class="sl-info"><div class="sl-name">NASA Live Schedule</div><div class="sl-sub">Upcoming events · Press conferences</div></div><span class="sl-arr">→</span></a>
-      </div>
+    el.innerHTML=`<div style="padding:8px;display:flex;flex-direction:column;gap:4px;">
+      <a class="s-link" href="https://www.youtube.com/@NASA/live" target="_blank" rel="noopener"><span>▶️</span><div><div class="s-link-name">NASA YouTube · Official</div><div class="s-link-sub">Mission control audio · 24/7</div></div><span style="color:var(--muted);margin-left:auto">→</span></a>
+      <a class="s-link" href="https://plus.nasa.gov" target="_blank" rel="noopener"><span>🛰️</span><div><div class="s-link-name">NASA+ · Free</div><div class="s-link-sub">Ad-free · No subscription</div></div><span style="color:var(--muted);margin-left:auto">→</span></a>
+      <a class="s-link" href="https://www.nasa.gov/live/" target="_blank" rel="noopener"><span>📅</span><div><div class="s-link-name">NASA Live Schedule</div><div class="s-link-sub">Upcoming events</div></div><span style="color:var(--muted);margin-left:auto">→</span></a>
     </div>`;
   }
 }
 
-// ══════════════════════════════════════════════════════
-// ATTITUDE (simulated barbecue roll)
-// ══════════════════════════════════════════════════════
-function getAttitude(hrs){
-  const t=hrs*3600;
-  const roll=(-43+Math.sin(t*0.0003)*8).toFixed(1);
-  const pitch=(75+Math.sin(t*0.0002)*5).toFixed(1);
-  const yaw=(-32+Math.cos(t*0.00025)*6).toFixed(1);
-  return{roll,pitch,yaw,rRate:(-0.71+Math.random()*0.02).toFixed(2),pRate:(-0.71+Math.random()*0.02).toFixed(2),gyro:(0.490+Math.random()*0.005).toFixed(3)};
+function setTab(t) {
+  document.querySelectorAll('.tb-tab').forEach((b,i)=>{
+    b.classList.toggle('active',['track','crew','history'][i]===t);
+  });
 }
 
-// ══════════════════════════════════════════════════════
-// APOLLO CONTEXT
-// ══════════════════════════════════════════════════════
-const APOLLO_CONTEXT=[
-  {maxH:24, text:"Apollo 8 launched December 21, 1968 — first crewed mission to orbit the Moon. Artemis II is humanity's first return to the lunar vicinity since Apollo 17 in 1972."},
-  {maxH:72, text:"At this point in Apollo 8, the crew had performed their first TV broadcast from deep space — the first humans to transmit live from beyond Earth orbit. Artemis II carries on this tradition."},
-  {maxH:112,text:"57 years ago, Borman, Lovell, and Anders were preparing for lunar orbit insertion. Artemis II approaches the Moon on a free-return trajectory — a safer, bolder path than orbit."},
-  {maxH:130,text:"Apollo 8 reached its closest approach behind the Moon on December 24, 1968. The Artemis II crew is about to experience far-side blackout — 30 minutes of radio silence, alone behind the Moon."},
-  {maxH:144,text:"On Christmas Eve 1968, Apollo 8 astronauts read from Genesis while orbiting the Moon. Today, Artemis II crew has just completed the farthest human journey since Apollo 17 in 1972."},
-  {maxH:240,text:"Apollo 8 splashed down December 27, 1968. Artemis II continues home on the free-return trajectory — the same physics, 57 years later, with four people who've made history."},
-];
-
-// ══════════════════════════════════════════════════════
-// NEXT MILESTONE COUNTDOWN
-// ══════════════════════════════════════════════════════
-function getNextMilestone(hrs){
-  const ms=MILESTONES.filter(m=>m.h>hrs).sort((a,b)=>a.h-b.h)[0];
-  if(!ms)return{name:'Splashdown',desc:'Mission complete',countdown:'—',icon:'🌊'};
-  const diffH=ms.h-hrs,d=Math.floor(diffH/24),h=Math.floor(diffH%24),m=Math.floor((diffH%1)*60);
-  let cnt='';
-  if(d>0)cnt=`T-${d}d ${h}h ${m}m`;
-  else if(h>0)cnt=`T-${h}h ${m}m`;
-  else cnt=`T-${m}m`;
-  const icons={
-    'Lunar SOI Entry':'🌑','Flyby Coverage Begins':'📺','Far-Side Blackout':'📡',
-    'Lunar Close Approach':'🌕','Max Earth Distance':'📏','Signal Reacquired':'✅',
-    'Solar Eclipse':'☀️','Mid-Course Correction 5':'🔥','CM/SM Separation':'⚙️',
-    'Reentry':'🔴','Splashdown':'🌊'
+// ─── ATTITUDE SIM ─────────────────────────────────
+function getAtt(hrs) {
+  const t = hrs*3600;
+  return {
+    roll:  ((-43 + Math.sin(t*.0003)*8)).toFixed(1),
+    pitch: ((75  + Math.sin(t*.0002)*5)).toFixed(1),
+    yaw:   ((-32 + Math.cos(t*.00025)*6)).toFixed(1),
+    rr:    ((-0.71+Math.random()*.02)).toFixed(2),
+    pr:    ((-0.71+Math.random()*.02)).toFixed(2),
+    gyro:  ((0.490+Math.random()*.005)).toFixed(3),
   };
-  return{name:ms.name,desc:ms.desc,countdown:cnt,icon:icons[ms.name]||'🎯'};
 }
 
-// ══════════════════════════════════════════════════════
-// MAIN UPDATE
-// ══════════════════════════════════════════════════════
-function update(){
-  const met=getMET(new Date());if(!met)return;
-  const h=met.hrs,pos=getPos(h),pct=Math.min(100,met.ms/MISSION_MS*100);
-  const fd=Math.floor(h/24)+1;
-  const actIdx=getCurrentActivity(h);const act=ACTIVITIES[actIdx];
-  const pathKm=h<120?h/120*5e5:h<144?5e5+(h-120)/24*6e4:5.6e5+(h-144)/96*4.8e5;
+// ─── NEXT MILESTONE ──────────────────────────────
+function getNextMS(hrs) {
+  const ms = MLS.filter(m=>m.h>hrs).sort((a,b)=>a.h-b.h)[0];
+  if (!ms) return {n:'Splashdown',d:'Mission complete',cd:'—',ico:'🌊'};
+  const dH=ms.h-hrs, d=Math.floor(dH/24), h=Math.floor(dH%24), m=Math.floor((dH%1)*60);
+  const cd = dH>24?`T-${d}d ${h}h`:dH>1?`T-${h}h ${m}m`:`T-${m}m`;
+  return {n:ms.n, d:ms.d, cd, ico: MS_ICONS[ms.n]||'🎯'};
+}
 
-  // Header
-  document.getElementById('hMet').textContent=metStr(met);
-  document.getElementById('hPhase').textContent=act.phase;
-  document.getElementById('hPhase').className='phase-badge '+(PHASE_COLORS[act.phase]||'pb-trans');
-  document.getElementById('hDay').textContent='FD'+String(fd).padStart(2,'0');
-  document.getElementById('hVel').textContent=fmt(pos.vel);
-  document.getElementById('hAlt').textContent=fmt(pos.alt);
-  document.getElementById('hMoon').textContent=fmt(pos.dm);
-  document.getElementById('hProg').textContent=pct.toFixed(1)+'%';
+// ─── MAIN UPDATE ─────────────────────────────────
+function update() {
+  const met = getMET(new Date()); if (!met) return;
+  const h = met.hrs, pos = getPos(h), pct = Math.min(100,met.ms/MISS_MS*100);
+  const fd = Math.floor(h/24)+1;
+  const ai = getActIdx(h), act = ACTS[ai];
+  const att = getAtt(h);
+  const orb = getOrbit(h);
+  const pathKm = h<120?h/120*5e5:h<144?5e5+(h-120)/24*6e4:5.6e5+(h-144)/96*4.8e5;
+  const nm = getNextMS(h);
+  const mStr = metStr(met);
+  const phCls = PHASE_CLS[act.ph]||'ph-trans';
 
-  // Left telem
+  // Top bar
+  document.getElementById('hMet').textContent  = mStr;
+  document.getElementById('hPhase').textContent = act.ph;
+  document.getElementById('hPhase').className   = 'ph-badge '+phCls;
+  document.getElementById('hDay').textContent   = 'FD'+pad(fd);
+  document.getElementById('hVel').textContent   = fmt(pos.vel);
+  document.getElementById('hAlt').textContent   = fmt(pos.alt);
+  document.getElementById('hMoon').textContent  = fmt(pos.dm);
+  document.getElementById('hSig').textContent   = (pos.dc/C).toFixed(3);
+  document.getElementById('hProg').textContent  = pct.toFixed(1)+'%';
+
+  // Left panel badges
+  const mb = document.getElementById('mapPhaseBadge');
+  mb.textContent = act.ph; mb.className = 'p-hdr-badge '+phCls;
+  const tp = document.getElementById('telemPhase');
+  tp.textContent = act.ph; tp.className = 'ph-badge '+phCls;
+
+  // Telem rows
   const maxV=39000;
-  document.getElementById('tvSpeed').textContent=fmt(pos.vel)+' km/h';
-  document.getElementById('barSpeed').style.width=Math.min(100,(pos.vel/maxV)*100)+'%';
-  const moonRel=Math.abs(pos.vel-1000);
-  document.getElementById('tvMoonSpeed').textContent=fmt(moonRel)+' km/h';
-  document.getElementById('barMoonSpeed').style.width=Math.min(100,(moonRel/5000)*100)+'%';
-  document.getElementById('tvG').textContent='~0.000 g';
-  document.getElementById('barG').style.width='1%';
-  document.getElementById('tvAlt').textContent=fmt(pos.alt)+' km';
-  document.getElementById('barAlt').style.width=Math.min(100,(pos.alt/400000)*100)+'%';
-  document.getElementById('tvEarth').textContent=fmt(pos.alt)+' km';
-  document.getElementById('barEarth').style.width=Math.min(100,(pos.alt/400000)*100)+'%';
-  document.getElementById('tvMoon').textContent=fmt(pos.dm)+' km';
-  document.getElementById('barMoon').style.width=Math.max(0,Math.min(100,100-(pos.dm/400000)*100))+'%';
-  document.getElementById('tvSig').textContent=(pos.dc/C).toFixed(3)+' sec';
-  document.getElementById('barSig').style.width=Math.min(100,(pos.dc/C/1.5)*100)+'%';
-  document.getElementById('tvProg').textContent=pct.toFixed(1)+'%';
-  document.getElementById('barProg').style.width=pct+'%';
+  const setBar=(id,pct)=>{ const el=document.getElementById(id); if(el) el.style.width=Math.max(1,Math.min(100,pct))+'%'; };
+  document.getElementById('vSpeed').innerHTML  = fmt(pos.vel)+'<span class="t-unit">km/h</span>';
+  setBar('bSpeed', (pos.vel/maxV)*100);
+  const mrel = Math.abs(pos.vel - 800);
+  document.getElementById('vMoonSpd').innerHTML= fmt(mrel)+'<span class="t-unit">km/h</span>';
+  setBar('bMoonSpd', (mrel/5000)*100);
+  document.getElementById('vG').textContent    = '~0.000 g';
+  setBar('bG', 1);
+  document.getElementById('vAlt').innerHTML    = fmt(pos.alt)+'<span class="t-unit">km</span>';
+  setBar('bAlt', (pos.alt/400000)*100);
+  document.getElementById('vEarth').innerHTML  = fmt(pos.alt)+'<span class="t-unit">km</span>';
+  setBar('bEarth', (pos.alt/400000)*100);
+  document.getElementById('vMoon').innerHTML   = fmt(pos.dm)+'<span class="t-unit">km</span>';
+  setBar('bMoon', Math.max(0, 100-(pos.dm/400000)*100));
+  document.getElementById('vPeri').innerHTML   = fmt(orb.peri*10)/10+'<span class="t-unit">km</span>';
+  document.getElementById('vApo').innerHTML    = fmt(orb.apo)+'<span class="t-unit">km</span>';
+  document.getElementById('vSig').innerHTML    = (pos.dc/C).toFixed(3)+'<span class="t-unit">sec</span>';
+  setBar('bSig', (pos.dc/C/1.5)*100);
+  document.getElementById('vSigRt').innerHTML  = ((pos.dc/C)*2).toFixed(3)+'<span class="t-unit">sec</span>';
+  document.getElementById('vPath').innerHTML   = fmt(pathKm)+'<span class="t-unit">km</span>';
 
   // Attitude
-  const att=getAttitude(h);
-  document.getElementById('attRoll').textContent=att.roll+'°';
-  document.getElementById('attPitch').textContent=att.pitch+'°';
-  document.getElementById('attYaw').textContent=att.yaw+'°';
-  document.getElementById('attRollR').textContent=att.rRate+'°/s';
-  document.getElementById('attPitchR').textContent=att.pRate+'°/s';
-  document.getElementById('attGyro').textContent=att.gyro+'°/s';
+  document.getElementById('aRoll').textContent = att.roll+'°';
+  document.getElementById('aPitch').textContent= att.pitch+'°';
+  document.getElementById('aYaw').textContent  = att.yaw+'°';
+  document.getElementById('aRR').textContent   = att.rr+'°/s';
+  document.getElementById('aPR').textContent   = att.pr+'°/s';
+  document.getElementById('aGyro').textContent = att.gyro+'°/s';
+  document.getElementById('attModeLabel').textContent = act.att;
+  drawWireframe(parseFloat(att.roll), parseFloat(att.pitch), parseFloat(att.yaw));
 
-  // Activity
-  document.getElementById('actName').textContent=act.name;
-  document.getElementById('actDesc').textContent=act.desc;
-  document.getElementById('actBadge').className='cpa-type-badge '+act.badge;
-  document.getElementById('actBadge').textContent=act.type.toUpperCase();
-  document.getElementById('actStart').textContent='MET '+hrsToMet(act.h0);
-  document.getElementById('actEnd').textContent='MET '+hrsToMet(act.h1);
-  const durH=act.h1-act.h0,durHr=Math.floor(durH),durM=Math.round((durH-durHr)*60);
-  document.getElementById('actDur').textContent=durHr+'h '+durM+'m';
-  document.getElementById('actPhase').textContent=act.phase;
-  const actProg=Math.min(100,Math.max(0,((h-act.h0)/(act.h1-act.h0))*100));
-  document.getElementById('actProgress').style.width=actProg.toFixed(1)+'%';
-  document.getElementById('actProgressPct').textContent=actProg.toFixed(1)+'%';
+  // Activity block
+  document.getElementById('actBadge').textContent = act.t.toUpperCase();
+  document.getElementById('actBadge').className   = 'act-type-badge '+act.b;
+  document.getElementById('actName').textContent  = act.n;
+  document.getElementById('actDesc').textContent  = act.d;
+  document.getElementById('actStart').textContent = 'MET '+hToMet(act.h0);
+  document.getElementById('actEnd').textContent   = 'MET '+hToMet(act.h1);
+  const dH=act.h1-act.h0, dHr=Math.floor(dH), dM=Math.round((dH-dHr)*60);
+  document.getElementById('actDur').textContent   = dHr+'h '+dM+'m';
+  const ap2 = Math.min(100,Math.max(0,((h-act.h0)/(act.h1-act.h0))*100));
+  document.getElementById('actProgPct').textContent = ap2.toFixed(1)+'%';
+  document.getElementById('actProgBar').style.width = ap2.toFixed(1)+'%';
+  document.getElementById('actAttMode').textContent  = act.att;
+  document.getElementById('actMPhase').textContent   = act.ph;
 
-  // Right panel cur activity
-  document.getElementById('rpCurName').textContent=act.name;
-  document.getElementById('rpCurBadge').textContent=act.type.toUpperCase();
-  document.getElementById('rpCurBadge').className='rp-hdr-badge '+act.badge;
-  document.getElementById('rpAttMode').textContent=act.att;
-  document.getElementById('rpPhase').textContent=act.phase;
-  document.getElementById('rpPhase').className='phase-badge '+(PHASE_COLORS[act.phase]||'pb-trans')+' ms-countdown';
-  document.getElementById('mapPhase').textContent=act.phase;
+  // Milestone
+  document.getElementById('msIco').textContent   = nm.ico;
+  document.getElementById('msName').textContent  = nm.n;
+  document.getElementById('msDescText').textContent = nm.d;
+  document.getElementById('msCd').textContent    = nm.cd;
 
-  // Next milestone
-  const nm=getNextMilestone(h);
-  document.getElementById('msIcon').textContent=nm.icon;
-  document.getElementById('msName').textContent=nm.name;
-  document.getElementById('msDesc').textContent=nm.desc;
-  document.getElementById('msCountdown').textContent=nm.countdown;
+  // Right panel
+  document.getElementById('rpName').textContent  = act.n;
+  document.getElementById('rpAtt').textContent   = act.att;
+  const rp = document.getElementById('rpPhase');
+  rp.textContent = act.ph; rp.className = 'ph-badge '+phCls;
 
-  // Apollo context
-  const ap=APOLLO_CONTEXT.find(a=>h<=a.maxH)||APOLLO_CONTEXT[APOLLO_CONTEXT.length-1];
-  document.getElementById('apolloText').textContent=ap.text;
-  document.getElementById('apolloMet').textContent='MET '+metStr(met);
+  // Apollo
+  const ap = APOLLO_CTX.find(a=>h<=a.mh)||APOLLO_CTX[APOLLO_CTX.length-1];
+  document.getElementById('apolloTxt').textContent  = ap.txt;
+  document.getElementById('apolloMet').textContent  = 'MET '+mStr;
+  // Last event
+  const pastActs = ACTS.filter(a=>a.h0<=h);
+  if (pastActs.length) {
+    const last = pastActs[pastActs.length-1];
+    document.getElementById('aebMet').textContent  = 'MET '+hToMet(last.h0);
+    document.getElementById('aebName').textContent = last.n;
+    document.getElementById('aebDesc').textContent = last.d;
+  }
+  // Next event
+  const nextAct = ACTS.find(a=>a.h0>h);
+  if (nextAct) {
+    const dHN = nextAct.h0-h, hN=Math.floor(dHN), mN=Math.round((dHN-hN)*60);
+    document.getElementById('aebNext').textContent = `NEXT · MET ${hToMet(nextAct.h0)} · IN ${dHN.toFixed(1)}H — ${nextAct.n}`;
+  }
 
   // Canvases
-  drawTimeline(h);
   drawMap(h);
+  drawTimeline(h);
   renderUpcoming(h);
   renderMilestones(h);
+
+  // Smooth attitude rotation for wireframe
+  _roll  = parseFloat(att.roll);
+  _pitch = parseFloat(att.pitch);
+  _yaw   = parseFloat(att.yaw);
 }
 
-// Init
 update();
-setInterval(update,1000);
-window.addEventListener('resize',()=>{const m=getMET(new Date());if(m){drawTimeline(m.hrs);drawMap(m.hrs);}});
+setInterval(update, 1000);
+window.addEventListener('resize', ()=>{
+  const m=getMET(new Date()); if(m){drawMap(m.hrs);drawTimeline(m.hrs);drawWireframe(_roll,_pitch,_yaw);}
+});
 </script>
 </body>
 </html>
