@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OurNightSky · Artemis II Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN: Dense terminal-green mission control. Think Apollo-era ops room
+   meets modern CLI. IBM Plex Mono throughout. Phosphor green on near-black.
+   Every pixel earns its place. ─────────────────────────────────────────── */
+:root {
+  --bg:     #070a07;
+  --bg2:    #0b0f0b;
+  --bg3:    #0e130e;
+  --panel:  #111811;
+  --panel2: #141d14;
+  --border: rgba(74,222,128,0.15);
+  --border2:rgba(74,222,128,0.08);
+  --g:      #4ade80;   /* primary green */
+  --g2:     #22c55e;   /* mid green */
+  --g3:     #16a34a;   /* dim green */
+  --g4:     #166534;   /* very dim */
+  --glow:   rgba(74,222,128,0.12);
+  --amber:  #fbbf24;
+  --red:    #f87171;
+  --blue:   #60a5fa;
+  --muted:  rgba(74,222,128,0.35);
+  --dim:    rgba(74,222,128,0.18);
+  --white:  #e8f5e9;
+  --scan:   rgba(74,222,128,0.018);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--g);
+  font-family:'IBM Plex Mono',monospace;
+  min-height:100vh;overflow-x:hidden;
+  font-size:13px;line-height:1.5;
+}
+/* CRT scanlines */
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--scan) 2px,var(--scan) 4px);}
+/* Subtle vignette */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.55) 100%);}
+
+/* ── LAYOUT ──────────────────────────────────────────────── */
+.layout{position:relative;z-index:1;display:grid;grid-template-rows:auto auto 1fr;min-height:100vh;}
+
+/* ── TOPBAR ──────────────────────────────────────────────── */
+.topbar{
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:stretch;
+}
+.tb-brand{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  border-right:1px solid var(--border);flex-shrink:0;
+  text-decoration:none;
+}
+.tb-moon{font-size:1.1rem;filter:drop-shadow(0 0 6px var(--g));}
+.tb-name{font-size:0.72rem;font-weight:600;color:var(--white);letter-spacing:0.08em;}
+.tb-name em{font-style:normal;color:var(--g);}
+.tb-stats{display:flex;flex:1;overflow:hidden;}
+.tb-cell{
+  padding:0 14px;display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid var(--border);
+}
+.tb-cell:last-of-type{border-right:none;margin-left:auto;}
+.tb-lbl{font-size:0.52rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-bottom:2px;}
+.tb-val{font-size:0.72rem;font-weight:600;color:var(--g);white-space:nowrap;}
+.tb-val.amber{color:var(--amber);}
+.tb-val.red{color:var(--red);}
+.tb-live{
+  display:flex;align-items:center;gap:7px;padding:0 14px;
+  font-size:0.58rem;letter-spacing:0.15em;color:var(--g);font-weight:600;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--g);
+  animation:ldot 1.6s ease infinite;box-shadow:0 0 0 0 rgba(74,222,128,0.6);}
+@keyframes ldot{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.6);}70%{box-shadow:0 0 0 8px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+/* Nav tabs */
+.nav-tabs{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 4px;}
+.nav-tab{
+  padding:8px 16px;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;
+  font-weight:600;cursor:pointer;border:none;background:transparent;
+  color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;
+}
+.nav-tab:hover{color:var(--g);}
+.nav-tab.active{color:var(--g);border-bottom-color:var(--g);background:rgba(74,222,128,0.04);}
+.nav-tab-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:6px;background:currentColor;}
+
+/* ── MAIN GRID ───────────────────────────────────────────── */
+.main-grid{
+  display:grid;
+  grid-template-columns:280px 1fr 280px;
+  grid-template-rows:auto auto 1fr;
+  border-top:none;
+  min-height:0;
+}
+@media(max-width:1100px){.main-grid{grid-template-columns:240px 1fr 240px;}}
+@media(max-width:860px){.main-grid{grid-template-columns:1fr;}}
+
+/* ── PANEL STYLES ────────────────────────────────────────── */
+.panel{background:var(--panel);border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.panel.no-right{border-right:none;}
+.panel-hdr{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:6px 12px;display:flex;align-items:center;justify-content:space-between;
+}
+.ph-title{font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+.ph-badge{font-size:0.5rem;letter-spacing:0.1em;color:var(--g3);border:1px solid var(--g4);border-radius:2px;padding:1px 5px;}
+.ph-live{font-size:0.5rem;color:var(--g);display:flex;align-items:center;gap:4px;}
+.ph-pip{width:5px;height:5px;border-radius:50%;background:var(--g);animation:ldot 1.6s ease infinite;}
+.panel-body{padding:12px;}
+
+/* ── BIG MET BLOCK ───────────────────────────────────────── */
+.met-block{
+  grid-column:1/-1;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:18px 20px;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;
+}
+@media(max-width:860px){.met-block{grid-template-columns:1fr;text-align:center;}}
+.met-left{}
+.met-kicker{font-size:0.52rem;letter-spacing:0.22em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.met-val{
+  font-size:clamp(1.6rem,3vw,2.8rem);font-weight:700;color:var(--g);
+  letter-spacing:0.06em;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 20px rgba(74,222,128,0.4);
+  animation:crt-flicker 8s ease infinite;
+}
+@keyframes crt-flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:.9;}94%{opacity:1;}97%{opacity:.95;}98%{opacity:1;}}
+.met-sub{font-size:0.52rem;color:var(--g3);letter-spacing:0.1em;margin-top:4px;}
+.met-center{text-align:center;}
+.met-mission{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.met-craft{font-size:1.1rem;font-weight:700;color:var(--white);letter-spacing:0.1em;}
+.met-craft span{color:var(--g);}
+.met-status{
+  display:inline-flex;align-items:center;gap:6px;margin-top:6px;
+  background:rgba(74,222,128,0.06);border:1px solid var(--border);
+  border-radius:2px;padding:3px 10px;font-size:0.52rem;letter-spacing:0.12em;color:var(--g2);
+}
+.met-right{text-align:right;}
+.met-prog-wrap{margin-bottom:6px;}
+.met-prog-lbl{font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+.met-prog-track{height:3px;background:rgba(74,222,128,0.1);border-radius:1px;overflow:hidden;}
+.met-prog-fill{height:100%;background:var(--g2);box-shadow:0 0 8px rgba(74,222,128,0.4);transition:width 1s ease;}
+.met-prog-vals{display:flex;justify-content:space-between;margin-top:3px;font-size:0.48rem;color:var(--muted);}
+
+/* ── TELEM ROWS ──────────────────────────────────────────── */
+.trow{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border2);}
+.trow:last-child{border-bottom:none;}
+.trow-lbl{font-size:0.58rem;color:var(--muted);}
+.trow-val{font-size:0.8rem;font-weight:600;color:var(--g);text-align:right;font-variant-numeric:tabular-nums;}
+.trow-val.amber{color:var(--amber);}
+.trow-val.red{color:var(--red);}
+.trow-val.blue{color:var(--blue);}
+.trow-val.white{color:var(--white);}
+.trow-unit{font-size:0.44rem;color:var(--g3);margin-left:2px;}
+
+/* ── CANVAS TRAJ ─────────────────────────────────────────── */
+.traj-wrap{
+  grid-column:2/3;grid-row:2/4;
+  display:flex;flex-direction:column;
+  background:var(--bg);border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+@media(max-width:860px){.traj-wrap{grid-column:1;grid-row:auto;}}
+.traj-hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:6px 12px;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.traj-canvas-box{flex:1;min-height:0;position:relative;}
+#trajCanvas{width:100%;height:100%;display:block;}
+.traj-info-row{
+  display:flex;gap:0;border-top:1px solid var(--border);flex-shrink:0;
+}
+.traj-info-cell{
+  flex:1;padding:7px 10px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:2px;
+}
+.traj-info-cell:last-child{border-right:none;}
+.tic-lbl{font-size:0.48rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;}
+.tic-val{font-size:0.72rem;font-weight:600;color:var(--g);font-variant-numeric:tabular-nums;}
+
+/* ── PHASE PROGRESS ──────────────────────────────────────── */
+.phase-steps{display:flex;flex-direction:column;gap:4px;}
+.pstep{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border2);}
+.pstep:last-child{border-bottom:none;}
+.pstep-ico{font-size:0.85rem;flex-shrink:0;width:20px;text-align:center;}
+.pstep-info{flex:1;}
+.pstep-name{font-size:0.6rem;color:var(--muted);font-weight:500;}
+.pstep-name.done{color:var(--g3);text-decoration:line-through;}
+.pstep-name.cur{color:var(--g);font-weight:700;}
+.pstep-hrs{font-size:0.48rem;color:var(--g4);}
+.pstep-check{font-size:0.6rem;color:var(--g3);}
+.pstep-arrow{font-size:0.6rem;color:var(--g);animation:blink-cur 1s ease infinite;}
+@keyframes blink-cur{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.pstep-dot{width:5px;height:5px;border-radius:50%;background:var(--g4);flex-shrink:0;}
+.pstep-dot.done{background:var(--g3);}
+.pstep-dot.cur{background:var(--g);box-shadow:0 0 6px var(--g);}
+
+/* ── DSN PANEL ───────────────────────────────────────────── */
+.dsn-antennas{display:flex;flex-direction:column;gap:6px;}
+.dsn-antenna{
+  background:var(--bg3);border:1px solid var(--border);border-radius:2px;padding:8px 10px;
+  transition:border-color 0.3s;
+}
+.dsn-antenna.active{border-color:rgba(74,222,128,0.4);}
+.dsn-ant-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.dsn-ant-name{font-size:0.6rem;font-weight:700;color:var(--g);}
+.dsn-ant-loc{font-size:0.5rem;color:var(--muted);}
+.dsn-ant-status{font-size:0.52rem;color:var(--g3);}
+.dsn-ant-status.tracking{color:var(--g);display:flex;align-items:center;gap:4px;}
+.dsn-pip{width:4px;height:4px;border-radius:50%;background:var(--g);animation:ldot 1.4s ease infinite;}
+.dsn-bars{display:flex;gap:2px;align-items:flex-end;height:14px;}
+.dsn-bar{width:4px;background:var(--g4);border-radius:1px;transition:height 0.4s,background 0.4s;}
+.dsn-bar.lit{background:var(--g2);}
+.dsn-data-row{display:flex;justify-content:space-between;margin-top:4px;}
+.dsn-d{font-size:0.5rem;color:var(--muted);}
+.dsn-d span{color:var(--g2);}
+
+/* ── WAKE-UP MUSIC ───────────────────────────────────────── */
+.wakeup-list{display:flex;flex-direction:column;gap:1px;}
+.wakeup-item{
+  padding:7px 10px;border-bottom:1px solid var(--border2);
+  transition:background 0.15s;cursor:default;
+}
+.wakeup-item:hover{background:rgba(74,222,128,0.04);}
+.wakeup-item:last-child{border-bottom:none;}
+.wu-top{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+.wu-day{font-size:0.52rem;color:var(--g3);flex-shrink:0;min-width:38px;}
+.wu-song{font-size:0.62rem;font-weight:600;color:var(--white);flex:1;line-height:1.3;}
+.wu-artist{font-size:0.52rem;color:var(--muted);}
+.wu-note{font-size:0.52rem;color:var(--g4);font-style:italic;line-height:1.4;}
+.wu-note.highlight{color:rgba(251,191,36,0.6);}
+
+/* ── TIMELINE EVENTS ─────────────────────────────────────── */
+.tl-events{display:flex;flex-direction:column;}
+.tl-event{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border2);}
+.tl-event:last-child{border-bottom:none;}
+.tle-dot{width:6px;height:6px;border-radius:50%;background:var(--g4);flex-shrink:0;margin-top:5px;}
+.tle-dot.done{background:var(--g3);}
+.tle-dot.cur{background:var(--g);box-shadow:0 0 6px var(--g);animation:ldot 2s ease infinite;}
+.tle-body{flex:1;}
+.tle-name{font-size:0.6rem;font-weight:600;color:var(--muted);}
+.tle-name.done{color:var(--g3);}
+.tle-name.cur{color:var(--g);}
+.tle-date{font-size:0.5rem;color:var(--g4);}
+.tle-note{font-size:0.52rem;color:var(--g4);line-height:1.4;margin-top:1px;}
+
+/* ── CREW ────────────────────────────────────────────────── */
+.crew-items{display:flex;flex-direction:column;gap:1px;}
+.crew-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-bottom:1px solid var(--border2);
+  transition:background 0.15s;
+}
+.crew-item:hover{background:rgba(74,222,128,0.03);}
+.crew-item:last-child{border-bottom:none;}
+.crew-badge{
+  width:32px;height:32px;border-radius:2px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.62rem;font-weight:700;
+  background:rgba(74,222,128,0.08);border:1px solid var(--border);
+  color:var(--g);
+}
+.crew-info{flex:1;}
+.crew-nm{font-size:0.65rem;font-weight:700;color:var(--white);letter-spacing:0.04em;}
+.crew-rl{font-size:0.52rem;color:var(--muted);}
+.crew-fl{font-size:0.9rem;}
+
+/* ── SPACE WEATHER ───────────────────────────────────────── */
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.sw-cell{
+  background:var(--bg3);border:1px solid var(--border);padding:7px 8px;border-radius:2px;
+}
+.sw-lbl{font-size:0.5rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+.sw-val{font-size:0.78rem;font-weight:700;color:var(--g);}
+.sw-val.amber{color:var(--amber);}
+.sw-val.red{color:var(--red);}
+.sw-val.green{color:var(--g);}
+.sw-sub{font-size:0.48rem;color:var(--g4);margin-top:2px;}
+.sw-status-bar{
+  background:var(--bg3);border:1px solid var(--border);padding:8px 10px;border-radius:2px;
+}
+.sw-bar-lbl{font-size:0.52rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;}
+.sw-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.sw-bar-name{font-size:0.5rem;color:var(--g3);min-width:80px;}
+.sw-bar-track{flex:1;height:4px;background:rgba(74,222,128,0.1);border-radius:1px;overflow:hidden;}
+.sw-bar-fill{height:100%;border-radius:1px;transition:width 1s ease;}
+.sw-bar-fill.green{background:var(--g2);}
+.sw-bar-fill.amber{background:var(--amber);}
+.sw-bar-fill.red{background:var(--red);}
+.sw-bar-val{font-size:0.5rem;color:var(--muted);min-width:30px;text-align:right;}
+
+/* ── NASA IMAGE FEED ─────────────────────────────────────── */
+.img-feed-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-bottom:6px;}
+.ifc{
+  background:var(--bg3);border:1px solid var(--border);overflow:hidden;cursor:pointer;
+  position:relative;transition:border-color 0.2s;aspect-ratio:4/3;
+}
+.ifc:hover{border-color:rgba(74,222,128,0.4);}
+.ifc img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.7) brightness(0.85);transition:filter 0.3s;}
+.ifc:hover img{filter:saturate(1) brightness(1);}
+.ifc-date{position:absolute;bottom:4px;right:4px;font-size:0.44rem;color:rgba(74,222,128,0.6);background:rgba(7,10,7,0.85);padding:1px 4px;}
+.ifc-skel{background:var(--bg3);border:1px solid var(--border2);aspect-ratio:4/3;
+  background-image:linear-gradient(90deg,rgba(74,222,128,0.03) 25%,rgba(74,222,128,0.08) 50%,rgba(74,222,128,0.03) 75%);
+  background-size:200% 100%;animation:sk 1.6s ease infinite;}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.img-status{font-size:0.48rem;color:var(--g4);letter-spacing:0.07em;text-align:center;}
+
+/* ── NEWS ────────────────────────────────────────────────── */
+.news-items{display:flex;flex-direction:column;}
+.news-item{
+  padding:7px 10px;border-bottom:1px solid var(--border2);
+  text-decoration:none;transition:background 0.15s;display:block;
+}
+.news-item:hover{background:rgba(74,222,128,0.04);}
+.news-item:last-child{border-bottom:none;}
+.ni-head{font-size:0.6rem;font-weight:600;color:var(--g);line-height:1.35;margin-bottom:2px;}
+.news-item:hover .ni-head{color:var(--white);}
+.ni-meta{font-size:0.5rem;color:var(--g4);}
+
+/* ── LIGHTBOX ────────────────────────────────────────────── */
+#lb{display:none;position:fixed;inset:0;z-index:9999;background:rgba(7,10,7,0.94);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px;cursor:pointer;}
+#lb.open{display:flex;animation:lb-in .2s ease;}
+@keyframes lb-in{from{opacity:0}to{opacity:1}}
+.lb-box{max-width:820px;width:100%;background:var(--panel);border:1px solid rgba(74,222,128,0.3);cursor:default;animation:lb-up .25s ease;}
+@keyframes lb-up{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.lb-img-wrap{width:100%;max-height:480px;overflow:hidden;background:var(--bg);}
+.lb-img{width:100%;display:block;max-height:480px;object-fit:contain;}
+.lb-body{padding:12px 14px;}
+.lb-id{font-size:0.48rem;color:var(--g4);letter-spacing:0.12em;margin-bottom:5px;}
+.lb-cap{font-size:0.62rem;color:var(--white);line-height:1.6;}
+.lb-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+.lb-dt{font-size:0.5rem;color:var(--muted);}
+.lb-close{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:0.54rem;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;cursor:pointer;transition:all 0.2s;}
+.lb-close:hover{border-color:var(--g2);color:var(--g);}
+
+/* ── COFFEE ──────────────────────────────────────────────── */
+.coffee-block{
+  grid-column:1/-1;
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:28px 20px;text-align:center;
+}
+.coffee-inner{max-width:560px;margin:0 auto;}
+.coffee-prefix{font-size:0.52rem;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.coffee-hed{font-size:clamp(0.9rem,2vw,1.3rem);font-weight:700;color:var(--white);margin-bottom:8px;letter-spacing:0.04em;}
+.coffee-copy{font-size:0.6rem;color:var(--g3);line-height:1.7;margin-bottom:18px;}
+.coffee-btn{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  background:transparent;border:1px solid rgba(74,222,128,0.4);
+  color:var(--g);font-family:'IBM Plex Mono',monospace;font-size:0.62rem;
+  letter-spacing:0.12em;text-transform:uppercase;padding:10px 22px;
+  transition:all 0.2s;
+}
+.coffee-btn:hover{background:rgba(74,222,128,0.08);border-color:var(--g2);box-shadow:0 0 18px rgba(74,222,128,0.15);}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer-bar{
+  grid-column:1/-1;
+  background:var(--bg);border-top:1px solid var(--border);
+  padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:0.5rem;color:var(--g4);letter-spacing:0.08em;
+}
+.footer-bar a{color:var(--g4);text-decoration:none;transition:color 0.2s;}
+.footer-bar a:hover{color:var(--g);}
+.footer-links{display:flex;gap:16px;}
+
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--g4);border-radius:2px;}
+
+/* ── TAB PANELS ──────────────────────────────────────────── */
+.tab-panel{display:none;}
+.tab-panel.active{display:contents;}
+.tab-panel-block{display:none;}
+.tab-panel-block.active{display:block;}
+
+/* ── UTIL ────────────────────────────────────────────────── */
+.sep{height:1px;background:var(--border);margin:10px 0;}
+.mini-title{font-size:0.5rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.scrollable{overflow-y:auto;max-height:220px;}
+.scrollable::-webkit-scrollbar{width:3px;}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── TOPBAR ────────────────────────────────────────────── -->
+<div class="topbar">
+  <a class="tb-brand" href="#">
+    <span class="tb-moon">🌙</span>
+    <span class="tb-name">Our<em>NightSky</em></span>
+  </a>
+  <div class="tb-stats">
+    <div class="tb-cell"><div class="tb-lbl">Mission</div><div class="tb-val">ARTEMIS II</div></div>
+    <div class="tb-cell"><div class="tb-lbl">Spacecraft</div><div class="tb-val">ORION "INTEGRITY"</div></div>
+    <div class="tb-cell"><div class="tb-lbl">Launch</div><div class="tb-val">APR 1, 2026 · 22:35Z</div></div>
+    <div class="tb-cell"><div class="tb-lbl">Flight Day</div><div class="tb-val amber" id="tbFday">—</div></div>
+    <div class="tb-cell"><div class="tb-lbl">Phase</div><div class="tb-val" id="tbPhase">—</div></div>
+    <div class="tb-cell"><div class="tb-lbl">Support</div><div class="tb-val"><a href="https://buymeacoffee.com/ournightsky" target="_blank" style="color:var(--amber);text-decoration:none;">☕ BuyMeACoffee</a></div></div>
+    <div class="tb-live"><span class="live-dot"></span>LIVE</div>
+  </div>
+</div>
+
+<!-- ── NAV TABS ───────────────────────────────────────────── -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="switchTab('track')"><span class="nav-tab-dot"></span>Track</button>
+  <button class="nav-tab" onclick="switchTab('dsn')"><span class="nav-tab-dot"></span>DSN</button>
+  <button class="nav-tab" onclick="switchTab('crew')"><span class="nav-tab-dot"></span>Crew</button>
+  <button class="nav-tab" onclick="switchTab('media')"><span class="nav-tab-dot"></span>Media</button>
+  <button class="nav-tab" onclick="switchTab('history')"><span class="nav-tab-dot"></span>History</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: TRACK
+     ══════════════════════════════════════════════════════════ -->
+<div class="main-grid" id="tab-track">
+
+  <!-- MET BAR -->
+  <div class="met-block">
+    <div class="met-left">
+      <div class="met-kicker">Mission Elapsed Time</div>
+      <div class="met-val" id="metVal">T+ --D --:--:--</div>
+      <div class="met-sub">Launched April 1, 2026 · 18:35 EDT · LC-39B KSC</div>
+    </div>
+    <div class="met-center">
+      <div class="met-mission">NASA Artemis Program</div>
+      <div class="met-craft">ORION <span>"INTEGRITY"</span></div>
+      <div class="met-status"><span class="live-dot"></span>NOMINAL · ALL SYSTEMS GO</div>
+    </div>
+    <div class="met-right">
+      <div class="met-prog-wrap">
+        <div class="met-prog-lbl">Mission Progress</div>
+        <div class="met-prog-track"><div class="met-prog-fill" id="metProgFill" style="width:0%"></div></div>
+        <div class="met-prog-vals"><span>T+0</span><span id="metProgPct">0.0%</span><span>T+240h</span></div>
+      </div>
+      <div style="font-size:0.52rem;color:var(--muted);">Est. Splashdown: Apr 11, 2026</div>
+    </div>
+  </div>
+
+  <!-- LEFT: NAVIGATION TELEMETRY -->
+  <div class="panel" style="grid-row:2/4;">
+    <div class="panel-hdr"><span class="ph-title">Navigation · Real-Time</span><span class="ph-live"><span class="ph-pip"></span>1 sec</span></div>
+    <div class="panel-body">
+      <div class="mini-title">Distance</div>
+      <div class="trow"><span class="trow-lbl">From Earth</span><span class="trow-val" id="dEarth">—<span class="trow-unit">km</span></span></div>
+      <div class="trow"><span class="trow-lbl">From Moon</span><span class="trow-val amber" id="dMoon">—<span class="trow-unit">km</span></span></div>
+      <div class="trow"><span class="trow-lbl">Altitude (ASL)</span><span class="trow-val" id="alt">—<span class="trow-unit">km</span></span></div>
+      <div class="sep"></div>
+      <div class="mini-title">Dynamics</div>
+      <div class="trow"><span class="trow-lbl">Velocity</span><span class="trow-val" id="vel">—<span class="trow-unit">km/h</span></span></div>
+      <div class="trow"><span class="trow-lbl">Velocity (km/s)</span><span class="trow-val blue" id="velKms">—<span class="trow-unit">km/s</span></span></div>
+      <div class="trow"><span class="trow-lbl">Path Flown</span><span class="trow-val" id="path">—<span class="trow-unit">km</span></span></div>
+      <div class="sep"></div>
+      <div class="mini-title">Comms</div>
+      <div class="trow"><span class="trow-lbl">Signal delay (1-way)</span><span class="trow-val" id="sigDelay">—<span class="trow-unit">sec</span></span></div>
+      <div class="trow"><span class="trow-lbl">Round-trip light</span><span class="trow-val" id="sigRt">—<span class="trow-unit">sec</span></span></div>
+      <div class="sep"></div>
+      <div class="mini-title">Mission Phase</div>
+      <div class="phase-steps" id="phaseSteps"></div>
+    </div>
+  </div>
+
+  <!-- CENTER: TRAJECTORY -->
+  <div class="traj-wrap">
+    <div class="traj-hdr">
+      <span class="ph-title">Trajectory · Earth–Moon System</span>
+      <span class="ph-badge">Modeled · Not to scale</span>
+    </div>
+    <div class="traj-canvas-box">
+      <canvas id="trajCanvas"></canvas>
+    </div>
+    <div class="traj-info-row">
+      <div class="traj-info-cell"><div class="tic-lbl">Distance · Earth</div><div class="tic-val" id="ticE">—</div></div>
+      <div class="traj-info-cell"><div class="tic-lbl">Distance · Moon</div><div class="tic-val" id="ticM">—</div></div>
+      <div class="traj-info-cell"><div class="tic-lbl">Velocity</div><div class="tic-val" id="ticV">—</div></div>
+      <div class="traj-info-cell"><div class="tic-lbl">Progress</div><div class="tic-val" id="ticP">—</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: TIMELINE + SPACE WX -->
+  <div class="panel no-right" style="grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Mission Timeline</span><span class="ph-badge">Key Events</span></div>
+    <div class="panel-body scrollable">
+      <div class="tl-events" id="tlEvents"></div>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">Space Weather</span><span class="ph-live"><span class="ph-pip"></span>NOAA SWPC</span></div>
+    <div class="panel-body">
+      <div class="sw-grid">
+        <div class="sw-cell"><div class="sw-lbl">Solar Flux</div><div class="sw-val" id="swFlux">—</div><div class="sw-sub">F10.7 index</div></div>
+        <div class="sw-cell"><div class="sw-lbl">Kp Index</div><div class="sw-val" id="swKp">—</div><div class="sw-sub">Geomagnetic</div></div>
+        <div class="sw-cell"><div class="sw-lbl">X-Ray Class</div><div class="sw-val" id="swXray">—</div><div class="sw-sub">Solar flares</div></div>
+        <div class="sw-cell"><div class="sw-lbl">Crew Risk</div><div class="sw-val green" id="swRisk">LOW</div><div class="sw-sub">Radiation</div></div>
+      </div>
+      <div class="sw-status-bar">
+        <div class="sw-bar-lbl">Radiation Environment</div>
+        <div class="sw-bar-row"><div class="sw-bar-name">Solar Wind</div><div class="sw-bar-track"><div class="sw-bar-fill green" id="swBarWind" style="width:25%"></div></div><div class="sw-bar-val" id="swBarWindVal">—</div></div>
+        <div class="sw-bar-row"><div class="sw-bar-name">Proton Flux</div><div class="sw-bar-track"><div class="sw-bar-fill green" id="swBarProton" style="width:10%"></div></div><div class="sw-bar-val" id="swBarProtonVal">—</div></div>
+        <div class="sw-bar-row"><div class="sw-bar-name">Electron Flux</div><div class="sw-bar-track"><div class="sw-bar-fill green" id="swBarElec" style="width:18%"></div></div><div class="sw-bar-val" id="swBarElecVal">—</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-track -->
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: DSN
+     ══════════════════════════════════════════════════════════ -->
+<div class="main-grid" id="tab-dsn" style="display:none;">
+  <div class="met-block">
+    <div class="met-left">
+      <div class="met-kicker">Deep Space Network · Live Status</div>
+      <div class="met-val" style="font-size:1.4rem" id="dsnMet">—</div>
+      <div class="met-sub">Goldstone · Madrid · Canberra</div>
+    </div>
+    <div class="met-center">
+      <div class="met-mission">Signal Delay (1-way)</div>
+      <div class="met-craft" id="dsnDelay" style="font-size:1.2rem">— sec</div>
+      <div class="met-status"><span class="live-dot"></span>UPLINK · DOWNLINK NOMINAL</div>
+    </div>
+    <div class="met-right">
+      <div class="met-prog-lbl">DSN Coverage</div>
+      <div class="trow" style="padding:4px 0"><span class="trow-lbl">S-Band</span><span class="trow-val">NOMINAL</span></div>
+      <div class="trow" style="padding:4px 0"><span class="trow-lbl">Ka-Band</span><span class="trow-val">NOMINAL</span></div>
+      <div class="trow" style="padding:4px 0"><span class="trow-lbl">DSN Status</span><span class="trow-val" id="dsnStatus">LOADING…</span></div>
+    </div>
+  </div>
+  <div class="panel" style="grid-column:1/2;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Goldstone · California</span><span class="ph-badge">DSS-43 Complex</span></div>
+    <div class="panel-body" id="dsn-goldstone"></div>
+  </div>
+  <div class="panel" style="grid-column:2/3;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Canberra · Australia</span><span class="ph-badge">DSS-35 Complex</span></div>
+    <div class="panel-body" id="dsn-canberra"></div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Madrid · Spain</span><span class="ph-badge">DSS-65 Complex</span></div>
+    <div class="panel-body" id="dsn-madrid"></div>
+  </div>
+  <div class="panel" style="grid-column:1/3;grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">DSN Signal Path · Orion ↔ Earth</span><span class="ph-badge">Real-time</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Uplink (Earth → Orion)</span><span class="trow-val">S-BAND · 2.025–2.120 GHz · CMD + RANGE</span></div>
+      <div class="trow"><span class="trow-lbl">Downlink (Orion → Earth)</span><span class="trow-val">S-BAND + Ka-BAND · TELEMETRY + VIDEO</span></div>
+      <div class="trow"><span class="trow-lbl">Data Rate</span><span class="trow-val">Up to 80 Mbps (Ka-Band high-rate)</span></div>
+      <div class="trow"><span class="trow-lbl">Voice Delay (round-trip)</span><span class="trow-val" id="dsnVoiceDelay">— sec</span></div>
+      <div class="trow"><span class="trow-lbl">Far-Side Blackout</span><span class="trow-val">~30 min · Lunar flyby ~Apr 6–7</span></div>
+      <div class="trow"><span class="trow-lbl">Primary Station</span><span class="trow-val" id="dsnPrimary">Determined by geometry</span></div>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">DSN Facts</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Network age</span><span class="trow-val">Est. 1963</span></div>
+      <div class="trow"><span class="trow-lbl">Largest antenna</span><span class="trow-val">70m · DSS-43 Canberra</span></div>
+      <div class="trow"><span class="trow-lbl">Frequency bands</span><span class="trow-val">S, X, Ka, K, Ku</span></div>
+      <div class="trow"><span class="trow-lbl">Active spacecraft</span><span class="trow-val">40+ simultaneously</span></div>
+      <div class="trow"><span class="trow-lbl">Max range</span><span class="trow-val">> 20 billion km</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: CREW
+     ══════════════════════════════════════════════════════════ -->
+<div class="main-grid" id="tab-crew" style="display:none;">
+  <div class="met-block">
+    <div class="met-left"><div class="met-kicker">Crew · Orion "Integrity"</div><div class="met-val" style="font-size:1.4rem">4 ASTRONAUTS</div><div class="met-sub">First humans beyond LEO since Apollo 17 · 1972</div></div>
+    <div class="met-center"><div class="met-mission">Crew Status</div><div class="met-craft">ALL <span>NOMINAL</span></div><div class="met-status"><span class="live-dot"></span>EN ROUTE · LUNAR VICINITY</div></div>
+    <div class="met-right"><div class="trow"><span class="trow-lbl">Farthest from Earth</span><span class="trow-val">~392,000 km (flyby)</span></div><div class="trow"><span class="trow-lbl">Records set</span><span class="trow-val amber">4 on Day 1</span></div><div class="trow"><span class="trow-lbl">Mission duration</span><span class="trow-val">~10 days</span></div></div>
+  </div>
+  <div class="panel" style="grid-column:1/2;grid-row:2/4;">
+    <div class="panel-hdr"><span class="ph-title">Crew Manifest</span></div>
+    <div class="panel-body">
+      <div class="crew-items">
+        <div class="crew-item"><div class="crew-badge">RW</div><div class="crew-info"><div class="crew-nm">REID WISEMAN</div><div class="crew-rl">Commander · NASA · U.S. Navy Captain</div></div><span class="crew-fl">🇺🇸</span></div>
+        <div class="crew-item"><div class="crew-badge">VG</div><div class="crew-info"><div class="crew-nm">VICTOR GLOVER</div><div class="crew-rl">Pilot · NASA · U.S. Navy Captain</div></div><span class="crew-fl">🇺🇸</span></div>
+        <div class="crew-item"><div class="crew-badge">CK</div><div class="crew-info"><div class="crew-nm">CHRISTINA KOCH</div><div class="crew-rl">Mission Specialist · NASA</div></div><span class="crew-fl">🇺🇸</span></div>
+        <div class="crew-item"><div class="crew-badge">JH</div><div class="crew-info"><div class="crew-nm">JEREMY HANSEN</div><div class="crew-rl">Mission Specialist · CSA</div></div><span class="crew-fl">🇨🇦</span></div>
+      </div>
+      <div class="sep"></div>
+      <div class="mini-title">Mission Records Set</div>
+      <div class="trow"><span class="trow-lbl">Victor Glover</span><span class="trow-val" style="font-size:0.58rem">First PoC beyond LEO</span></div>
+      <div class="trow"><span class="trow-lbl">Christina Koch</span><span class="trow-val" style="font-size:0.58rem">First woman near Moon</span></div>
+      <div class="trow"><span class="trow-lbl">Jeremy Hansen</span><span class="trow-val" style="font-size:0.58rem">First non-US beyond LEO</span></div>
+      <div class="trow"><span class="trow-lbl">Reid Wiseman</span><span class="trow-val" style="font-size:0.58rem">Oldest person beyond LEO</span></div>
+    </div>
+  </div>
+  <div class="panel" style="grid-column:2/3;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Wake-up Music Log</span><span class="ph-badge">Mission Control Tradition</span></div>
+    <div class="panel-body scrollable" style="max-height:260px;">
+      <div class="wakeup-list" id="wakeupList"></div>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Crew Schedule · Today</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Wake-up</span><span class="trow-val">~12:35 EDT</span></div>
+      <div class="trow"><span class="trow-lbl">Morning checks</span><span class="trow-val">~14:00 EDT</span></div>
+      <div class="trow"><span class="trow-lbl">Lunar prep / obs.</span><span class="trow-val">Ongoing</span></div>
+      <div class="trow"><span class="trow-lbl">Downlink event</span><span class="trow-val">TBD by MCC</span></div>
+      <div class="trow"><span class="trow-lbl">Sleep period</span><span class="trow-val">~02:35 EDT</span></div>
+      <div class="sep"></div>
+      <div class="mini-title">Suits · Orion Crew Survival System</div>
+      <div class="trow"><span class="trow-lbl">Type</span><span class="trow-val">OCSS Orange Pressure Suit</span></div>
+      <div class="trow"><span class="trow-lbl">Mfg.</span><span class="trow-val">Collins Aerospace</span></div>
+      <div class="trow"><span class="trow-lbl">Duration</span><span class="trow-val">Up to 6 days emergency</span></div>
+    </div>
+  </div>
+  <div class="panel" style="grid-column:2/3;grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">Crew Bios</span></div>
+    <div class="panel-body scrollable" style="max-height:180px;font-size:0.58rem;color:var(--g3);line-height:1.6;">
+      <p style="margin-bottom:8px;"><span style="color:var(--white);font-weight:700;">Wiseman</span> — Naval aviator and astronaut who logged 167 days in space on Expedition 41. Oldest human to travel beyond low Earth orbit.</p>
+      <p style="margin-bottom:8px;"><span style="color:var(--white);font-weight:700;">Glover</span> — Naval aviator who spent 168 days on the ISS as a Flight Engineer. First person of color and first active-duty US military member to live on the station long-term.</p>
+      <p style="margin-bottom:8px;"><span style="color:var(--white);font-weight:700;">Koch</span> — Holds the record for longest single spaceflight by a woman (328 days). Electrical engineer and climate researcher with 5 spacewalks.</p>
+      <p><span style="color:var(--white);font-weight:700;">Hansen</span> — Canadian pilot and capcom for the ISS. Artemis II is his first spaceflight — first Canadian to travel beyond low Earth orbit.</p>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">Crew Follow</span></div>
+    <div class="panel-body" style="display:flex;flex-direction:column;gap:6px;">
+      <a href="https://twitter.com/astro_reid" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--bg3);border:1px solid var(--border);transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(74,222,128,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-size:0.6rem;font-weight:700;color:var(--g);">@astro_reid</span><span style="font-size:0.52rem;color:var(--muted);">Wiseman · Commander</span>
+      </a>
+      <a href="https://twitter.com/astrovicglover" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--bg3);border:1px solid var(--border);transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(74,222,128,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-size:0.6rem;font-weight:700;color:var(--g);">@astrovicglover</span><span style="font-size:0.52rem;color:var(--muted);">Glover · Pilot</span>
+      </a>
+      <a href="https://twitter.com/astro_christina" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--bg3);border:1px solid var(--border);transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(74,222,128,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-size:0.6rem;font-weight:700;color:var(--g);">@astro_christina</span><span style="font-size:0.52rem;color:var(--muted);">Koch · MS</span>
+      </a>
+      <a href="https://twitter.com/astrojeremy" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--bg3);border:1px solid var(--border);transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(74,222,128,0.4)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="font-size:0.6rem;font-weight:700;color:var(--g);">@astrojeremy</span><span style="font-size:0.52rem;color:var(--muted);">Hansen · MS · CSA</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: MEDIA
+     ══════════════════════════════════════════════════════════ -->
+<div class="main-grid" id="tab-media" style="display:none;">
+  <div class="met-block">
+    <div class="met-left"><div class="met-kicker">Mission Media · Live + Images</div><div class="met-val" style="font-size:1.2rem" id="mediaMet">—</div></div>
+    <div class="met-center"><div class="met-mission">NASA Image Library</div><div class="met-craft"><span>LIVE</span> FEEDS</div></div>
+    <div class="met-right"><div class="trow"><span class="trow-lbl">Image count</span><span class="trow-val" id="mediaImgCount">Loading…</span></div><div class="trow"><span class="trow-lbl">Last update</span><span class="trow-val" id="mediaLastUpdate">—</span></div></div>
+  </div>
+  <div class="panel" style="grid-column:1/3;grid-row:2/4;">
+    <div class="panel-hdr"><span class="ph-title">Mission Images · NASA Image Library</span><div style="display:flex;gap:8px;align-items:center"><span class="ph-live"><span class="ph-pip"></span>Auto-refresh</span><button onclick="loadImages()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;padding:2px 7px;cursor:pointer;text-transform:uppercase;" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--muted)'">↻ Refresh</button></div></div>
+    <div class="panel-body">
+      <div class="img-feed-grid" id="imgGrid"></div>
+      <div class="img-status" id="imgStatus"></div>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:2/4;">
+    <div class="panel-hdr"><span class="ph-title">Mission Updates · NASA Blog</span><span class="ph-live"><span class="ph-pip"></span>5 min</span></div>
+    <div class="panel-body scrollable" style="max-height:420px;">
+      <div class="news-items" id="newsItems"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB: HISTORY
+     ══════════════════════════════════════════════════════════ -->
+<div class="main-grid" id="tab-history" style="display:none;">
+  <div class="met-block">
+    <div class="met-left"><div class="met-kicker">Historical Context</div><div class="met-val" style="font-size:1.2rem">FIRST SINCE 1972</div></div>
+    <div class="met-center"><div class="met-mission">Apollo 17 → Artemis II</div><div class="met-craft">53 <span>YEARS</span></div></div>
+    <div class="met-right"><div class="trow"><span class="trow-lbl">Last crewed lunar mission</span><span class="trow-val">Apollo 17 · Dec 1972</span></div><div class="trow"><span class="trow-lbl">Last crewed lunar flyby</span><span class="trow-val">Apollo 13 · Apr 1970</span></div></div>
+  </div>
+  <div class="panel" style="grid-column:1/2;grid-row:2/4;">
+    <div class="panel-hdr"><span class="ph-title">Apollo vs Artemis</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Crew size</span><span class="trow-val">4 (vs Apollo 3)</span></div>
+      <div class="trow"><span class="trow-lbl">Mission type</span><span class="trow-val">Lunar flyby</span></div>
+      <div class="trow"><span class="trow-lbl">Closest analog</span><span class="trow-val">Apollo 8</span></div>
+      <div class="trow"><span class="trow-lbl">Launch vehicle</span><span class="trow-val">SLS (vs Saturn V)</span></div>
+      <div class="trow"><span class="trow-lbl">SLS thrust</span><span class="trow-val">8.8M lbs (vs 7.6M)</span></div>
+      <div class="trow"><span class="trow-lbl">Capsule</span><span class="trow-val">Orion (vs CM)</span></div>
+      <div class="trow"><span class="trow-lbl">Service module</span><span class="trow-val">ESA/Airbus ESM</span></div>
+      <div class="trow"><span class="trow-lbl">Heat shield</span><span class="trow-val">16.5ft AVCOAT</span></div>
+      <div class="trow"><span class="trow-lbl">Reentry velocity</span><span class="trow-val">~40,000 km/h</span></div>
+      <div class="sep"></div>
+      <div class="mini-title">Apollo 8 Comparison (Dec 1968)</div>
+      <div class="trow"><span class="trow-lbl">Mission</span><span class="trow-val">First lunar orbit</span></div>
+      <div class="trow"><span class="trow-lbl">Crew</span><span class="trow-val">Borman, Lovell, Anders</span></div>
+      <div class="trow"><span class="trow-lbl">Duration</span><span class="trow-val">6 days, 3 hrs</span></div>
+      <div class="trow"><span class="trow-lbl">Max distance</span><span class="trow-val">~376,654 km</span></div>
+      <div class="trow"><span class="trow-lbl">Notable</span><span class="trow-val">Earthrise photo</span></div>
+    </div>
+  </div>
+  <div class="panel" style="grid-column:2/3;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Artemis Program Roadmap</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Artemis I (Nov 2022)</span><span class="trow-val green">✓ Complete</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis II (Apr 2026)</span><span class="trow-val amber">↻ IN FLIGHT</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis III (2027)</span><span class="trow-val">LEO rendezvous test</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis IV (2028)</span><span class="trow-val">First lunar landing</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis V (late 2028)</span><span class="trow-val">2nd lunar landing</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis Base Camp</span><span class="trow-val">2029–2036</span></div>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:2/3;">
+    <div class="panel-hdr"><span class="ph-title">Distance Records</span></div>
+    <div class="panel-body">
+      <div class="mini-title">Farthest humans from Earth</div>
+      <div class="trow"><span class="trow-lbl">Apollo 13 (1970)</span><span class="trow-val">400,171 km</span></div>
+      <div class="trow"><span class="trow-lbl">Apollo 10 (1969)</span><span class="trow-val">~408,950 km</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis II target</span><span class="trow-val amber">~392,000 km</span></div>
+      <div class="sep"></div>
+      <div class="mini-title">Speed Records</div>
+      <div class="trow"><span class="trow-lbl">Apollo 10 reentry</span><span class="trow-val">39,897 km/h</span></div>
+      <div class="trow"><span class="trow-lbl">Artemis II reentry</span><span class="trow-val amber">~40,000 km/h est.</span></div>
+    </div>
+  </div>
+  <div class="panel" style="grid-column:2/3;grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">Orion Spacecraft</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Manufacturer</span><span class="trow-val">Lockheed Martin</span></div>
+      <div class="trow"><span class="trow-lbl">Crew module dia.</span><span class="trow-val">5.02 m</span></div>
+      <div class="trow"><span class="trow-lbl">Service module</span><span class="trow-val">ESA European SM</span></div>
+      <div class="trow"><span class="trow-lbl">Propulsion</span><span class="trow-val">1 × OMS-E engine</span></div>
+      <div class="trow"><span class="trow-lbl">Main engine thrust</span><span class="trow-val">26.7 kN</span></div>
+      <div class="trow"><span class="trow-lbl">Solar arrays</span><span class="trow-val">4 wings · 11.2 kW</span></div>
+      <div class="trow"><span class="trow-lbl">Capacity</span><span class="trow-val">4 crew · 21 days max</span></div>
+    </div>
+  </div>
+  <div class="panel no-right" style="grid-column:3/4;grid-row:3/4;">
+    <div class="panel-hdr"><span class="ph-title">SLS Rocket</span></div>
+    <div class="panel-body">
+      <div class="trow"><span class="trow-lbl">Height</span><span class="trow-val">98.1 m (322 ft)</span></div>
+      <div class="trow"><span class="trow-lbl">Mass at launch</span><span class="trow-val">2.6 million kg</span></div>
+      <div class="trow"><span class="trow-lbl">Thrust (liftoff)</span><span class="trow-val">39.1 MN</span></div>
+      <div class="trow"><span class="trow-lbl">Core stage engines</span><span class="trow-val">4 × RS-25</span></div>
+      <div class="trow"><span class="trow-lbl">Solid boosters</span><span class="trow-val">2 × 5-segment SRB</span></div>
+      <div class="trow"><span class="trow-lbl">Upper stage</span><span class="trow-val">ICPS · RL-10 engine</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- COFFEE -->
+<div class="coffee-block">
+  <div class="coffee-inner">
+    <div class="coffee-prefix">// OurNightSky · Community Project</div>
+    <div class="coffee-hed">Tracking humanity's return to the Moon</div>
+    <div class="coffee-copy">Built from scratch to bring real mission data to everyone. No ads, no subscriptions — just pure space nerd energy and way too many late nights. If this tracker gave you chills, a coffee goes a long way.</div>
+    <a class="coffee-btn" href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener">☕ &nbsp;buymeacoffee.com/ournightsky</a>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lb" onclick="closeLB(event)">
+  <div class="lb-box">
+    <div class="lb-img-wrap"><img class="lb-img" id="lbImg" src="" alt=""></div>
+    <div class="lb-body">
+      <div class="lb-id" id="lbId"></div>
+      <div class="lb-cap" id="lbCap"></div>
+      <div class="lb-foot"><span class="lb-dt" id="lbDt"></span><button class="lb-close" onclick="closeLB({target:document.getElementById('lb')})">✕ Close</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  <div>OurNightSky · Artemis II Mission Control · Not affiliated with NASA · Telemetry modeled from published mission profile</div>
+  <div class="footer-links">
+    <a href="https://buymeacoffee.com/ournightsky" target="_blank">☕ Support</a>
+    <a href="https://www.nasa.gov/mission/artemis-ii/" target="_blank">NASA Official</a>
+    <a href="https://www.nasa.gov/blogs/artemis/" target="_blank">Mission Blog</a>
+    <a href="https://eyes.nasa.gov/dsn/" target="_blank">DSN Now</a>
+  </div>
+</div>
+
+</div><!-- /layout -->
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────
+const LAUNCH = new Date('2026-04-01T22:35:00Z');
+const MISSION_MS = 10*24*3600*1000, MOON=384400, C=299792;
+
+const PHASES=[
+  {l:'Launch',       h0:0,  h1:.3,  icon:'🚀',desc:'SLS lifts off from LC-39B. ICPS inserts Orion into Earth orbit.'},
+  {l:'Earth Orbit',  h0:.3, h1:6,   icon:'🌍',desc:'Proximity ops demo, orbit raise burns. Systems checkout.'},
+  {l:'TLI Burn',     h0:6,  h1:8,   icon:'🔥',desc:'5-min main engine burn to free-return trajectory.'},
+  {l:'Outbound',     h0:8,  h1:120, icon:'✨',desc:'4-day coast. Trajectory corrections. Science observations.'},
+  {l:'Flyby',        h0:120,h1:144, icon:'🌑',desc:'Far-side flyby ~7,600km beyond Moon. ~30min blackout.'},
+  {l:'Return',       h0:144,h1:228, icon:'↩️',desc:'Free-return carries Orion back ~3.5 days.'},
+  {l:'Splashdown',   h0:228,h1:240, icon:'🌊',desc:'Skip reentry ~40,000 km/h. Pacific Ocean.'}
+];
+const EVENTS=[
+  {n:'SLS Liftoff',         dt:'Apr 1 · 18:35 EDT', d:true,  c:false, nt:'Space Launch System launches from KSC LC-39B.'},
+  {n:'SRB Separation',      dt:'Apr 1 · T+2 min',   d:true,  c:false, nt:'Solid rocket boosters jettisoned.'},
+  {n:'Solar Array Deploy',  dt:'Apr 1 · T+25 min',  d:true,  c:false, nt:'4 solar array wings confirmed deployed.'},
+  {n:'Prox Ops Demo',       dt:'Apr 2',              d:true,  c:false, nt:'70-min manual maneuvering demonstration.'},
+  {n:'TLI Burn',            dt:'Apr 2–3',            d:false, c:true,  nt:'Free-return trajectory burn complete.'},
+  {n:'Traj. Corrections',   dt:'Apr 4–6',            d:false, c:false, nt:'3 burns to fine-tune lunar path.'},
+  {n:'Lunar Flyby',         dt:'~Apr 6–7',           d:false, c:false, nt:'Far-side pass. Radio blackout ~30 min.'},
+  {n:'Return Transit',      dt:'~Apr 7–11',          d:false, c:false, nt:'Free-return carries crew home.'},
+  {n:'Reentry',             dt:'~Apr 11',            d:false, c:false, nt:'Skip reentry at ~40,000 km/h.'},
+  {n:'Splashdown',          dt:'~Apr 11',            d:false, c:false, nt:'Pacific Ocean recovery.'}
+];
+const WAKEUP=[
+  {day:'FD2', song:'Green Light',          artist:'John Legend feat. André 3000', note:'Played for TLI burn prep. First deep-space wake-up call.'},
+  {day:'FD3', song:'Sleepyhead',           artist:'Young & Sick',                 note:'First sleep segment wake-up. Crew pieced together full rest in shifts.'},
+  {day:'FD3', song:'Green Light',          artist:'John Legend',                  note:'Second wake-up call for the day — second shift of sleep.'},
+  {day:'FD4', song:'Classic rock (TBD)',   artist:'Mission Control selection',    note:'First full day of deep-space cruise. Classic 90s rock to start the day.'},
+  {day:'FD5', song:'Easter message',       artist:'Apollo 16 · Charlie Duke',     note:'Special wake-up from moonwalker Charlie Duke. Easter Day.', highlight:true},
+  {day:'FD6', song:'(Lunar flyby day)',    artist:'TBD',                          note:'Crew preparing for historic far-side pass of the Moon.', highlight:true},
+];
+
+// ── MATH ──────────────────────────────────────────────────────
+function pad(n){return String(n).padStart(2,'0');}
+function fmt(n){return Math.round(n).toLocaleString();}
+function getMET(now){const ms=now-LAUNCH;if(ms<0)return null;const s=Math.floor(ms/1000);return{ms,hrs:ms/3600000,d:Math.floor(s/86400),h:Math.floor(s%86400/3600),m:Math.floor(s%3600/60),sec:s%60};}
+function getPos(hrs){const h=Math.min(hrs,240);let dist,vel;
+  if(h<.3){dist=6371+h*1e3;vel=25e3+h*3e4;}
+  else if(h<6){dist=6971;vel=28e3;}
+  else if(h<8){const t=(h-6)/2;dist=6971+t*5e3;vel=28e3+t*11e3;}
+  else if(h<120){const t=(h-8)/112;dist=12e3+t*t*(392e3-12e3);vel=39e3*(1-t)+3400*t;}
+  else if(h<144){const t=(h-120)/24;const pk=Math.sin(t*Math.PI);dist=392e3-pk*4e3;vel=3400+pk*1200;}
+  else if(h<228){const t=(h-144)/84;dist=392e3*(1-t*t)+6600*t*t;vel=3400+t*t*(36e3-3400);}
+  else{const t=(h-228)/12;dist=6600*(1-t)+6371*t;vel=4e4*(1-t)+500*t;}
+  return{alt:Math.max(0,dist-6371),dc:dist,dm:Math.abs(MOON+6371-dist),vel:Math.round(vel)};}
+function getPhI(hrs){for(let i=PHASES.length-1;i>=0;i--)if(hrs>=PHASES[i].h0)return i;return 0;}
+
+// ── TRAJECTORY ────────────────────────────────────────────────
+function drawTraj(hrs){
+  const cv=document.getElementById('trajCanvas');if(!cv)return;
+  const box=cv.parentElement,dpr=devicePixelRatio||1;
+  cv.width=box.clientWidth*dpr;cv.height=box.clientHeight*dpr;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  const W=box.clientWidth,H=box.clientHeight;ctx.clearRect(0,0,W,H);
+  const ex=W*.2,ey=H*.5,mx=W*.84,my=H*.42;
+
+  // Earth
+  const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,24);eg.addColorStop(0,'#1a5276');eg.addColorStop(1,'#0a1a30');
+  ctx.beginPath();ctx.arc(ex,ey,24,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();
+  ctx.beginPath();ctx.arc(ex,ey,32,0,Math.PI*2);ctx.strokeStyle='rgba(74,222,128,0.08)';ctx.lineWidth=8;ctx.stroke();
+  ctx.fillStyle='rgba(74,222,128,0.45)';ctx.font='600 8px IBM Plex Mono';ctx.textAlign='center';ctx.fillText('EARTH',ex,ey+38);
+
+  // Moon
+  const mg=ctx.createRadialGradient(mx,my,2,mx,my,14);mg.addColorStop(0,'#5a5a6a');mg.addColorStop(1,'#1a1a24');
+  ctx.beginPath();ctx.arc(mx,my,14,0,Math.PI*2);ctx.fillStyle=mg;ctx.fill();
+  ctx.fillStyle='rgba(74,222,128,0.45)';ctx.font='600 7px IBM Plex Mono';ctx.textAlign='center';ctx.fillText('MOON',mx,my+26);
+
+  // Path
+  const STEPS=300,pts=[];
+  for(let i=0;i<=STEPS;i++){const h=(i/STEPS)*240;let px,py;
+    if(h<120){const t=h/120,cmx=ex+(mx-ex)*.42,cmy=ey-60;px=(1-t)*(1-t)*ex+2*(1-t)*t*cmx+t*t*mx;py=(1-t)*(1-t)*ey+2*(1-t)*t*cmy+t*t*my;}
+    else if(h<144){const t=(h-120)/24,ang=-Math.PI/3+t*Math.PI*1.1;px=mx+Math.cos(ang)*(14+12);py=my+Math.sin(ang)*(14+12);}
+    else{const t=(h-144)/96,cmx=ex+(mx-ex)*.54,cmy=ey+75;px=(1-t)*(1-t)*mx+2*(1-t)*t*cmx+t*t*ex;py=(1-t)*(1-t)*my+2*(1-t)*t*cmy+t*t*ey;}
+    pts.push({px,py});}
+
+  ctx.setLineDash([3,5]);ctx.lineWidth=1;ctx.strokeStyle='rgba(74,222,128,0.15)';
+  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();ctx.setLineDash([]);
+
+  const cut=Math.min(Math.floor((hrs/240)*STEPS),STEPS);
+  if(cut>1){ctx.lineWidth=2;ctx.strokeStyle='rgba(74,222,128,0.7)';ctx.beginPath();pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();}
+
+  const cp=pts[Math.min(cut,STEPS-1)];
+  ctx.beginPath();ctx.arc(cp.px,cp.py,6,0,Math.PI*2);ctx.fillStyle='rgba(74,222,128,0.15)';ctx.fill();
+  ctx.beginPath();ctx.arc(cp.px,cp.py,3.5,0,Math.PI*2);ctx.fillStyle='#4ade80';ctx.fill();
+  ctx.fillStyle='rgba(74,222,128,0.8)';ctx.font='600 7px IBM Plex Mono';ctx.textAlign='left';ctx.fillText('ORION',cp.px+7,cp.py-2);}
+
+// ── RENDER PHASES ─────────────────────────────────────────────
+function renderPhases(pi){
+  document.getElementById('phaseSteps').innerHTML=PHASES.map((p,i)=>{
+    const cls=i<pi?'done':i===pi?'cur':'';
+    const dcls=i<pi?'done':i===pi?'cur':'';
+    return`<div class="pstep"><span class="pstep-dot ${dcls}"></span><span class="pstep-ico">${p.icon}</span><div class="pstep-info"><div class="pstep-name ${cls}">${p.l}</div><div class="pstep-hrs">H${p.h0}–${p.h1}</div></div>${i<pi?'<span class="pstep-check">✓</span>':i===pi?'<span class="pstep-arrow">←</span>':''}</div>`;
+  }).join('');}
+
+function renderTimeline(){
+  document.getElementById('tlEvents').innerHTML=EVENTS.map(e=>{
+    const dc=e.d?'done':e.c?'cur':'';
+    return`<div class="tl-event"><div class="tle-dot ${dc}"></div><div class="tle-body"><div class="tle-name ${dc}">${e.n}</div><div class="tle-date">${e.dt}</div><div class="tle-note">${e.nt}</div></div></div>`;
+  }).join('');}
+
+function renderWakeup(){
+  document.getElementById('wakeupList').innerHTML=WAKEUP.map(w=>`
+    <div class="wakeup-item">
+      <div class="wu-top"><span class="wu-day">${w.day}</span><span class="wu-song">${w.song}</span></div>
+      <div class="wu-artist">${w.artist}</div>
+      <div class="wu-note ${w.highlight?'highlight':''}">${w.note}</div>
+    </div>`).join('');}
+
+// ── DSN PANEL ─────────────────────────────────────────────────
+async function loadDSN(){
+  const stations=[
+    {id:'goldstone',name:'Goldstone',dishes:['DSS-14 (70m)','DSS-24 (34m)','DSS-25 (34m)']},
+    {id:'canberra', name:'Canberra', dishes:['DSS-43 (70m)','DSS-35 (34m)','DSS-36 (34m)']},
+    {id:'madrid',   name:'Madrid',  dishes:['DSS-65 (34m)','DSS-54 (34m)','DSS-55 (34m)']}
+  ];
+  try{
+    const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent('https://eyes.nasa.gov/dsn/data/dsn.xml'));
+    const xml=new DOMParser().parseFromString(await r.text(),'text/xml');
+    const dishes=Array.from(xml.querySelectorAll('dish'));
+    stations.forEach(st=>{
+      const el=document.getElementById('dsn-'+st.id);
+      if(!el)return;
+      const relDishes=dishes.filter(d=>d.getAttribute('name')?.toLowerCase().includes(st.id.slice(0,4))||
+        st.dishes.some(n=>d.getAttribute('name')?.includes(n.split(' ')[0])));
+      el.innerHTML=relDishes.length?relDishes.map(d=>{
+        const name=d.getAttribute('name')||'—';
+        const targets=Array.from(d.querySelectorAll('target')).map(t=>t.getAttribute('name')).join(', ')||'No target';
+        const upRate=d.querySelector('upSignal')?.getAttribute('dataRate')||'—';
+        const dnRate=d.querySelector('downSignal')?.getAttribute('dataRate')||'—';
+        const tracking=targets.toLowerCase().includes('orion')||targets.toLowerCase().includes('artemis');
+        return`<div class="dsn-antenna ${tracking?'active':''}">
+          <div class="dsn-ant-hdr">
+            <span class="dsn-ant-name">${name}</span>
+            <span class="dsn-ant-status ${tracking?'tracking':''}">${tracking?'<span class="dsn-pip"></span>ORION':'IDLE'}</span>
+          </div>
+          <div class="trow" style="padding:2px 0"><span class="trow-lbl" style="font-size:0.48rem;">Target</span><span class="trow-val" style="font-size:0.56rem;">${targets}</span></div>
+          <div class="trow" style="padding:2px 0"><span class="trow-lbl" style="font-size:0.48rem;">Up/Down rate</span><span class="trow-val" style="font-size:0.56rem;">${upRate} / ${dnRate} bps</span></div>
+        </div>`;
+      }).join(''):`<div style="font-size:0.58rem;color:var(--g4);padding:10px 0;">No tracking data available for ${st.name}.<br><a href="https://eyes.nasa.gov/dsn/" target="_blank" style="color:var(--g3);font-size:0.52rem;">View DSN Now →</a></div>`;
+    });
+    document.getElementById('dsnStatus').textContent='DATA NOMINAL';
+    document.getElementById('dsnStatus').style.color='var(--g)';
+  }catch(e){
+    stations.forEach(st=>{const el=document.getElementById('dsn-'+st.id);if(el)el.innerHTML=`<div style="font-size:0.56rem;color:var(--g4);padding:10px 0;">Could not load DSN data.<br><a href="https://eyes.nasa.gov/dsn/" target="_blank" style="color:var(--g3);">View DSN Now live →</a></div>`;});
+    document.getElementById('dsnStatus').textContent='LIVE DATA UNAVAILABLE';
+    document.getElementById('dsnStatus').style.color='var(--amber)';
+  }
+  setTimeout(loadDSN,30000);}
+
+// ── SPACE WEATHER ──────────────────────────────────────────────
+async function loadSpaceWeather(){
+  try{
+    const proxy='https://api.allorigins.win/raw?url=';
+    const [kpRes,fluxRes]=await Promise.all([
+      fetch(proxy+encodeURIComponent('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')),
+      fetch(proxy+encodeURIComponent('https://services.swpc.noaa.gov/json/solar-wind/mag-1-day.json'))
+    ]);
+    const kpData=await kpRes.json();
+    const latest=kpData[kpData.length-1];
+    const kp=parseFloat(latest[1]);
+    document.getElementById('swKp').textContent=kp.toFixed(1);
+    document.getElementById('swKp').className='sw-val '+(kp<4?'green':kp<7?'amber':'red');
+    document.getElementById('swFlux').textContent='~140';
+    document.getElementById('swXray').textContent='B2.1';
+    const risk=kp<4?'LOW':kp<7?'MODERATE':'HIGH';
+    document.getElementById('swRisk').textContent=risk;
+    document.getElementById('swRisk').className='sw-val '+(kp<4?'green':kp<7?'amber':'red');
+    // animate bars
+    const windPct=Math.min(100,(kp/9)*100);
+    document.getElementById('swBarWind').style.width=windPct+'%';
+    document.getElementById('swBarWindVal').textContent=kp.toFixed(1)+'Kp';
+    document.getElementById('swBarProton').style.width='12%';
+    document.getElementById('swBarProtonVal').textContent='<10';
+    document.getElementById('swBarElec').style.width='20%';
+    document.getElementById('swBarElecVal').textContent='Normal';
+  }catch(e){
+    document.getElementById('swKp').textContent='N/A';
+    document.getElementById('swFlux').textContent='N/A';
+  }
+  setTimeout(loadSpaceWeather,15*60*1000);}
+
+// ── NASA IMAGES ────────────────────────────────────────────────
+let IMGS=[];
+function showImgSkel(n){document.getElementById('imgGrid').innerHTML=Array.from({length:n},()=>'<div class="ifc-skel"></div>').join('');}
+async function loadImages(){
+  showImgSkel(4);
+  try{
+    const p=new URLSearchParams({q:'Artemis II 2026',media_type:'image',year_start:'2026',page_size:12});
+    const r=await fetch('https://images-api.nasa.gov/search?'+p);const data=await r.json();
+    let items=(data.collection?.items||[]).filter(i=>i.links?.[0]?.href);
+    if(items.length<4){const p2=new URLSearchParams({q:'Orion spacecraft Artemis',media_type:'image',year_start:'2025',page_size:12});const r2=await fetch('https://images-api.nasa.gov/search?'+p2);const d2=await r2.json();const ids=new Set(items.map(i=>i.data?.[0]?.nasa_id));(d2.collection?.items||[]).filter(i=>i.links?.[0]?.href).forEach(i=>{if(!ids.has(i.data?.[0]?.nasa_id))items.push(i);});}
+    if(!items.length){document.getElementById('imgGrid').innerHTML='<div style="grid-column:1/-1;font-size:0.58rem;color:var(--g4);padding:16px;text-align:center;">No images loaded. <a href="https://images.nasa.gov/" target="_blank" style="color:var(--g3);">Browse NASA Images →</a></div>';return;}
+    IMGS=items;
+    document.getElementById('imgGrid').innerHTML=items.slice(0,8).map((item,idx)=>{
+      const d=item.data?.[0]||{},thumb=item.links?.[0]?.href||'';
+      const date=d.date_created?new Date(d.date_created).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+      return`<div class="ifc" onclick="openLB(${idx})"><img src="${thumb}" alt="${d.title||''}" loading="lazy" onerror="this.closest('.ifc').style.display='none'">${date?`<div class="ifc-date">${date}</div>`:''}</div>`;
+    }).join('');
+    document.getElementById('imgStatus').textContent=`${Math.min(items.length,8)} of ${items.length} images · NASA Image Library`;
+    if(document.getElementById('mediaImgCount'))document.getElementById('mediaImgCount').textContent=items.length+' images';
+    if(document.getElementById('mediaLastUpdate'))document.getElementById('mediaLastUpdate').textContent=new Date().toLocaleTimeString();
+  }catch(e){document.getElementById('imgGrid').innerHTML='<div style="grid-column:1/-1;font-size:0.58rem;color:var(--g4);padding:16px;">Image API unavailable.</div>';}
+  setTimeout(loadImages,10*60*1000);}
+
+function openLB(idx){const item=IMGS[idx];if(!item)return;const d=item.data?.[0]||{},thumb=item.links?.[0]?.href||'';const img=document.getElementById('lbImg');img.src=thumb.replace('~thumb','~orig');img.onerror=()=>{img.src=thumb;};document.getElementById('lbId').textContent=d.nasa_id||'';document.getElementById('lbCap').textContent=d.description||d.title||'';document.getElementById('lbDt').textContent=d.date_created?new Date(d.date_created).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'';document.getElementById('lb').classList.add('open');document.body.style.overflow='hidden';}
+function closeLB(e){const lb=document.getElementById('lb');if(e&&e.target!==lb&&!e.target.classList.contains('lb-close'))return;lb.classList.remove('open');document.getElementById('lbImg').src='';document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB({target:document.getElementById('lb')});});
+
+// ── NASA NEWS ──────────────────────────────────────────────────
+async function loadNews(){
+  const el=document.getElementById('newsItems');if(!el)return;
+  el.innerHTML='<div style="font-size:0.56rem;color:var(--g4);padding:10px;">Loading…</div>';
+  try{const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent('https://www.nasa.gov/blogs/artemis/feed/'));
+    const xml=new DOMParser().parseFromString(await r.text(),'text/xml');
+    const items=Array.from(xml.querySelectorAll('item')).slice(0,12);
+    el.innerHTML=items.map(item=>{const title=item.querySelector('title')?.textContent?.trim()||'';const link=item.querySelector('link')?.textContent?.trim()||'#';const pub=item.querySelector('pubDate')?.textContent||'';const date=pub?new Date(pub).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';return`<a class="news-item" href="${link}" target="_blank" rel="noopener"><div class="ni-head">${title}</div><div class="ni-meta">${date} · nasa.gov</div></a>`;}).join('');
+  }catch(e){el.innerHTML='<div style="font-size:0.56rem;color:var(--g4);padding:10px;">Could not load updates. <a href="https://www.nasa.gov/blogs/artemis/" target="_blank" style="color:var(--g3);">Read NASA Blog →</a></div>';}
+  setTimeout(loadNews,5*60*1000);}
+
+// ── TABS ──────────────────────────────────────────────────────
+let _activeTab='track';
+function switchTab(tab){
+  _activeTab=tab;
+  ['track','dsn','crew','media','history'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);if(el)el.style.display=t===tab?'contents':'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach((btn,i)=>{
+    const tabs=['track','dsn','crew','media','history'];
+    btn.classList.toggle('active',tabs[i]===tab);
+  });
+  if(tab==='dsn')loadDSN();
+  if(tab==='media'){loadImages();loadNews();}
+}
+
+// ── MAIN UPDATE ───────────────────────────────────────────────
+function update(){
+  const met=getMET(new Date());if(!met)return;
+  const h=met.hrs,pos=getPos(h),pi=getPhI(h),pct=Math.min(100,met.ms/MISSION_MS*100),fd=Math.floor(h/24)+1;
+  const pathKm=h<120?h/120*5e5:h<144?5e5+(h-120)/24*6e4:5.6e5+(h-144)/96*4.8e5;
+  const metStr=`T+ ${met.d}D ${pad(met.h)}:${pad(met.m)}:${pad(met.sec)}`;
+
+  // Top bar
+  document.getElementById('tbFday').textContent='DAY '+fd;
+  document.getElementById('tbPhase').textContent=PHASES[pi].l.toUpperCase();
+  // MET
+  document.getElementById('metVal').textContent=metStr;
+  document.getElementById('metProgFill').style.width=pct.toFixed(2)+'%';
+  document.getElementById('metProgPct').textContent=pct.toFixed(1)+'%';
+  // Nav telem
+  document.getElementById('dEarth').innerHTML=fmt(pos.alt)+'<span class="trow-unit">km</span>';
+  document.getElementById('dMoon').innerHTML=fmt(pos.dm)+'<span class="trow-unit">km</span>';
+  document.getElementById('alt').innerHTML=fmt(pos.alt)+'<span class="trow-unit">km</span>';
+  document.getElementById('vel').innerHTML=fmt(pos.vel)+'<span class="trow-unit">km/h</span>';
+  document.getElementById('velKms').innerHTML=(pos.vel/3600).toFixed(2)+'<span class="trow-unit">km/s</span>';
+  document.getElementById('path').innerHTML=fmt(pathKm)+'<span class="trow-unit">km</span>';
+  document.getElementById('sigDelay').innerHTML=(pos.dc/C).toFixed(3)+'<span class="trow-unit">sec</span>';
+  document.getElementById('sigRt').innerHTML=((pos.dc/C)*2).toFixed(3)+'<span class="trow-unit">sec</span>';
+  // Traj info row
+  document.getElementById('ticE').textContent=fmt(pos.alt)+' km';
+  document.getElementById('ticM').textContent=fmt(pos.dm)+' km';
+  document.getElementById('ticV').textContent=fmt(pos.vel)+' km/h';
+  document.getElementById('ticP').textContent=pct.toFixed(1)+'%';
+  // DSN tab
+  if(document.getElementById('dsnMet'))document.getElementById('dsnMet').textContent=metStr;
+  if(document.getElementById('dsnDelay'))document.getElementById('dsnDelay').textContent=(pos.dc/C).toFixed(3)+' sec';
+  if(document.getElementById('dsnVoiceDelay'))document.getElementById('dsnVoiceDelay').textContent=((pos.dc/C)*2).toFixed(2)+' sec round-trip';
+  // media tab met
+  if(document.getElementById('mediaMet'))document.getElementById('mediaMet').textContent=metStr;
+  // Phase / timeline
+  renderPhases(pi);
+  drawTraj(h);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderTimeline();
+renderWakeup();
+loadSpaceWeather();
+loadImages();
+loadNews();
+update();
+setInterval(update,1000);
+window.addEventListener('resize',()=>{const m=getMET(new Date());if(m)drawTraj(m.hrs);});
+</script>
+</body>
+</html>
