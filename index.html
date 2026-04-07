@@ -177,6 +177,114 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .aeb-desc { font-size:0.54rem; color:var(--muted); }
 .aeb-next { font-size:0.5rem; color:var(--cyan); margin-top:5px; }
 
+  <!-- ════ IMAGE GALLERY BLOCK ════════════════════════════════ -->
+<div id="galleryBlock" style="flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border2);">
+  <div class="stream-hdr">
+    <span>🛰️</span>
+    <span class="stream-hdr-title">Mission Image Feed</span>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+      <span id="galleryCount" style="font-size:.46rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px">— images</span>
+      <button class="s-tab active" id="galleryRefreshBtn" onclick="loadGallery()" style="padding:2px 8px">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- Thumbnail strip -->
+  <div id="galleryStrip" style="display:flex;gap:4px;padding:6px 8px;overflow-x:auto;min-height:78px;align-items:center;scrollbar-width:thin;scrollbar-color:var(--dim) transparent">
+    <div style="font-size:.52rem;color:var(--muted);margin:auto">Loading images…</div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="galleryLightbox" style="display:none;padding:0 8px 8px">
+    <div style="position:relative;background:var(--bg);border:1px solid var(--border2);overflow:hidden">
+      <img id="galleryLBImg" src="" alt="" style="width:100%;max-height:240px;object-fit:contain;display:block;background:#000">
+      <div style="padding:7px 10px">
+        <div id="galleryLBTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:2px"></div>
+        <div id="galleryLBDate"  style="font-size:.46rem;color:var(--muted);margin-bottom:4px"></div>
+        <div id="galleryLBDesc"  style="font-size:.5rem;color:var(--muted);line-height:1.55;max-height:52px;overflow:hidden"></div>
+        <a  id="galleryLBLink"  href="" target="_blank" rel="noopener"
+            style="display:inline-block;margin-top:6px;font-size:.5rem;color:var(--cyan);border:1px solid rgba(0,212,255,.25);padding:2px 7px;text-decoration:none">
+          View full res on NASA ↗
+        </a>
+      </div>
+      <button onclick="document.getElementById('galleryLightbox').style.display='none'"
+              style="position:absolute;top:6px;right:8px;background:rgba(7,9,16,.75);border:1px solid var(--border2);color:var(--muted);cursor:pointer;font-size:.7rem;padding:1px 6px;font-family:'JetBrains Mono',monospace">✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const QUERY   = 'artemis II moon';
+  const API     = 'https://images-api.nasa.gov/search?q=artemis+II+moon&media_type=image&page_size=20';
+  const strip   = document.getElementById('galleryStrip');
+  const lb      = document.getElementById('galleryLightbox');
+  const lbImg   = document.getElementById('galleryLBImg');
+  const lbTitle = document.getElementById('galleryLBTitle');
+  const lbDate  = document.getElementById('galleryLBDate');
+  const lbDesc  = document.getElementById('galleryLBDesc');
+  const lbLink  = document.getElementById('galleryLBLink');
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+
+  function openLightbox(item) {
+    const d = item.data[0];
+    const thumb = item.links && item.links[0] ? item.links[0].href : '';
+    lbImg.src   = thumb;
+    lbTitle.textContent = d.title || '—';
+    lbDate.textContent  = fmtDate(d.date_created);
+    lbDesc.textContent  = d.description ? d.description.slice(0,220)+(d.description.length>220?'…':'') : '';
+    lbLink.href = 'https://images.nasa.gov/details/'+d.nasa_id;
+    lb.style.display = 'block';
+    lb.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  window.loadGallery = function() {
+    strip.innerHTML = '<div style="font-size:.52rem;color:var(--muted);margin:auto">Loading…</div>';
+    lb.style.display = 'none';
+    fetch(API)
+      .then(r=>r.json())
+      .then(json=>{
+        const items = (json.collection && json.collection.items) || [];
+        document.getElementById('galleryCount').textContent = items.length+' images';
+        if (!items.length) { strip.innerHTML='<div style="font-size:.52rem;color:var(--muted);margin:auto">No images found</div>'; return; }
+        strip.innerHTML = '';
+        items.forEach((item,i)=>{
+          const thumb = item.links && item.links[0] ? item.links[0].href : null;
+          if (!thumb) return;
+          const d = item.data[0];
+          const wrap = document.createElement('div');
+          wrap.style.cssText = 'flex-shrink:0;cursor:pointer;border:1px solid var(--border2);transition:border-color .15s;position:relative';
+          wrap.onmouseenter = ()=>wrap.style.borderColor='rgba(0,212,255,.5)';
+          wrap.onmouseleave = ()=>wrap.style.borderColor='var(--border2)';
+          wrap.onclick = ()=>openLightbox(item);
+          const img = document.createElement('img');
+          img.src = thumb; img.alt = d.title||'';
+          img.style.cssText = 'width:96px;height:64px;object-fit:cover;display:block;background:var(--bg)';
+          img.loading = 'lazy';
+          // date badge
+          const badge = document.createElement('div');
+          badge.style.cssText = 'position:absolute;bottom:2px;left:2px;font-size:.38rem;background:rgba(7,9,16,.8);color:var(--muted);padding:1px 3px;pointer-events:none';
+          badge.textContent = fmtDate(d.date_created);
+          wrap.appendChild(img); wrap.appendChild(badge);
+          strip.appendChild(wrap);
+        });
+      })
+      .catch(()=>{
+        strip.innerHTML='<div style="font-size:.52rem;color:var(--pink);margin:auto">Failed to load — check connection</div>';
+      });
+  };
+
+  // Auto-load on startup
+  loadGallery();
+
+  // Refresh every 10 minutes
+  setInterval(loadGallery, 10*60*1000);
+})();
+</script>
+  
 /* ── RIGHT PANEL ─────────────────────────────────── */
 #right { background:var(--panel); border-left:1px solid var(--border2); display:flex; flex-direction:column; overflow:hidden; }
 .rp-hdr { padding:5px 10px; background:var(--bg2); border-bottom:1px solid var(--border2); display:flex; align-items:center; gap:5px; flex-shrink:0; }
