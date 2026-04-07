@@ -1079,5 +1079,49 @@ window.addEventListener('resize', ()=>{
   const m=getMET(new Date()); if(m){drawMap(m.hrs);drawTimeline(m.hrs);drawWireframe(_roll,_pitch,_yaw);}
 });
 </script>
+  <!-- ═══ SUPPORT POPUP ═══════════════════════════════════════ -->
+<div id="sns-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(7,9,16,.72);align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;">
+  <div style="background:#111422;border:1px solid #1c2238;max-width:380px;width:calc(100% - 32px);border-radius:4px;overflow:hidden;">
+    <div style="background:#0b0d18;border-bottom:1px solid #1c2238;padding:9px 12px;display:flex;align-items:center;gap:8px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#00e676;animation:pip 1.6s ease infinite;flex-shrink:0"></div>
+      <span style="font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:#6070a0;font-weight:700;flex:1">OurNightSky · Support</span>
+      <button onclick="snsClose(false)" style="background:none;border:none;color:#6070a0;cursor:pointer;font-size:1.1rem;line-height:1;padding:0;transition:color .15s" onmouseover="this.style.color='#d8e0ff'" onmouseout="this.style.color='#6070a0'">×</button>
+    </div>
+    <div style="padding:18px 16px 14px">
+      <div style="font-size:1.5rem;margin-bottom:8px">🌙</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:800;color:#fff;line-height:1.15;margin-bottom:6px;letter-spacing:.01em">Help keep the <span style="color:#00d4ff">sky lights on.</span></div>
+      <div style="font-size:.56rem;color:#6070a0;line-height:1.65;margin-bottom:14px">This tracker — and all our projects — runs on coffee and passion. No ads, no subscriptions, just humans who love space. Your support keeps future missions like Artemis III tracking live.</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+        <a href="https://ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
+          <span style="font-size:.85rem">🌌</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">OurNightSky.us</div><div style="font-size:.46rem;color:#6070a0">ournightsky.us</div></div></a>
+        <a href="https://comets.ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
+          <span style="font-size:.85rem">☄️</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">Comets Tracker</div><div style="font-size:.46rem;color:#6070a0">comets.ournightsky.us</div></div></a>
+        <a href="https://live.ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
+          <span style="font-size:.85rem">📡</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">Live Sky Events</div><div style="font-size:.46rem;color:#6070a0">live.ournightsky.us</div></div></a>
+      </div>
+      <div style="display:flex;gap:7px">
+        <a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener" onclick="snsClose(true)" style="flex:1;background:#ffb300;border:none;color:#070910;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;cursor:pointer;border-radius:2px;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">☕ Buy us a coffee</a>
+        <button onclick="snsClose(false)" style="flex:1;background:transparent;border:1px solid #1c2238;color:#6070a0;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.08em;cursor:pointer;border-radius:2px">Maybe later</button>
+      </div>
+      <div onclick="snsDismiss()" style="font-size:.46rem;color:#2d3a5a;text-align:center;margin-top:9px;cursor:pointer">Don't show this again</div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  try { if (localStorage.getItem('sns-dismissed')) return; } catch(e) {}
+  setTimeout(function(){
+    const el = document.getElementById('sns-overlay');
+    el.style.display = 'flex';
+  }, 30000);
+})();
+function snsClose(supported) {
+  document.getElementById('sns-overlay').style.display = 'none';
+}
+function snsDismiss() {
+  try { localStorage.setItem('sns-dismissed','1'); } catch(e) {}
+  document.getElementById('sns-overlay').style.display = 'none';
+}
+</script>
 </body>
 </html>
