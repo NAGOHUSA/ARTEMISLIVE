@@ -53,10 +53,10 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .pip { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(0,230,118,.7); animation:pip 1.6s ease infinite; }
 @keyframes pip { 0%{box-shadow:0 0 0 0 rgba(0,230,118,.7)} 70%{box-shadow:0 0 0 8px rgba(0,230,118,0)} 100%{box-shadow:0 0 0 0 rgba(0,230,118,0)} }
 .ph-badge { padding:2px 7px; border-radius:2px; font-size:0.5rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
-.ph-trans { background:rgba(0,212,255,.15); color:var(--cyan); border:1px solid rgba(0,212,255,.3); }
-.ph-flyby { background:rgba(179,136,255,.15); color:var(--purple); border:1px solid rgba(179,136,255,.3); }
-.ph-return{ background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
-.ph-launch{ background:rgba(255,107,53,.15); color:#ff6b35; border:1px solid rgba(255,107,53,.3); }
+.ph-trans  { background:rgba(0,212,255,.15);  color:var(--cyan);   border:1px solid rgba(0,212,255,.3); }
+.ph-flyby  { background:rgba(179,136,255,.15);color:var(--purple); border:1px solid rgba(179,136,255,.3); }
+.ph-return { background:rgba(0,230,118,.15);  color:var(--green);  border:1px solid rgba(0,230,118,.3); }
+.ph-launch { background:rgba(255,107,53,.15); color:#ff6b35;       border:1px solid rgba(255,107,53,.3); }
 .tb-nav { display:flex; margin-left:auto; height:100%; }
 .tb-tab { padding:0 12px; height:100%; border:none; background:transparent; color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:0.56rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
 .tb-tab:hover { color:var(--text); }
@@ -91,8 +91,6 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 /* wireframe attitude spacecraft */
 #attitudeWrap { flex-shrink:0; border-top:1px solid var(--border2); background:var(--bg3); position:relative; height:100px; }
 #attCanvas { width:100%; height:100%; display:block; }
-.att-labels { position:absolute; top:6px; left:8px; display:flex; flex-direction:column; gap:1px; }
-.att-label { font-size:0.48rem; color:var(--muted); }
 
 /* telemetry */
 #telemScroll { flex:1; overflow-y:auto; }
@@ -116,7 +114,7 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .att-c-lbl { font-size:0.44rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1px; }
 .att-c-val { font-size:0.68rem; font-weight:700; color:var(--purple); font-variant-numeric:tabular-nums; }
 .att-c-val.green { color:var(--green); }
-.att-c-val.teal { color:var(--teal); }
+.att-c-val.teal  { color:var(--teal); }
 
 /* ── CENTER PANEL ───────────────────────────────── */
 #center { display:flex; flex-direction:column; overflow:hidden; background:var(--bg3); }
@@ -149,7 +147,7 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .ms-desc { font-size:0.5rem; color:var(--muted); }
 .ms-cd { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:800; color:var(--amber); white-space:nowrap; text-shadow:0 0 14px rgba(255,179,0,.4); flex-shrink:0; }
 
-/* stream — compact */
+/* stream */
 #streamBlock { flex-shrink:0; background:var(--panel); border-bottom:1px solid var(--border2); }
 .stream-hdr { padding:4px 10px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:6px; }
 .stream-hdr-title { font-size:0.5rem; letter-spacing:0.13em; text-transform:uppercase; color:var(--muted); font-weight:700; }
@@ -159,14 +157,13 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .s-tab.active { background:rgba(0,212,255,.1); border-color:rgba(0,212,255,.3); color:var(--cyan); }
 .stream-embed { position:relative; width:100%; padding-top:42%; background:#000; overflow:hidden; }
 .stream-embed iframe { position:absolute; inset:0; width:100%; height:100%; border:none; display:block; }
-.stream-links-compact { display:flex; gap:5px; padding:6px 10px; flex-wrap:wrap; }
 .s-link { display:flex; align-items:center; gap:5px; text-decoration:none; background:var(--bg3); border:1px solid var(--border); padding:5px 8px; transition:all .15s; flex:1; min-width:130px; }
 .s-link:hover { border-color:rgba(0,212,255,.3); background:rgba(0,212,255,.04); }
 .s-link-name { font-size:0.56rem; font-weight:700; color:var(--cyan); }
 .s-link-sub { font-size:0.46rem; color:var(--muted); }
 
 /* apollo card */
-#apolloBlock { flex:1; min-height:0; background:var(--panel); border-bottom:1px solid var(--border2); padding:8px 12px; overflow:hidden; display:flex; flex-direction:column; }
+#apolloBlock { flex-shrink:0; background:var(--panel); border-bottom:1px solid var(--border2); padding:8px 12px; overflow:hidden; display:flex; flex-direction:column; }
 .apollo-hdr { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
 .apollo-year { font-family:'Barlow Condensed',sans-serif; font-size:0.85rem; font-weight:800; color:var(--purple); }
 .apollo-met { font-size:0.5rem; color:var(--muted); margin-left:auto; }
@@ -177,114 +174,6 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .aeb-desc { font-size:0.54rem; color:var(--muted); }
 .aeb-next { font-size:0.5rem; color:var(--cyan); margin-top:5px; }
 
-  <!-- ════ IMAGE GALLERY BLOCK ════════════════════════════════ -->
-<div id="galleryBlock" style="flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border2);">
-  <div class="stream-hdr">
-    <span>🛰️</span>
-    <span class="stream-hdr-title">Mission Image Feed</span>
-    <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-      <span id="galleryCount" style="font-size:.46rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px">— images</span>
-      <button class="s-tab active" id="galleryRefreshBtn" onclick="loadGallery()" style="padding:2px 8px">↻ Refresh</button>
-    </div>
-  </div>
-
-  <!-- Thumbnail strip -->
-  <div id="galleryStrip" style="display:flex;gap:4px;padding:6px 8px;overflow-x:auto;min-height:78px;align-items:center;scrollbar-width:thin;scrollbar-color:var(--dim) transparent">
-    <div style="font-size:.52rem;color:var(--muted);margin:auto">Loading images…</div>
-  </div>
-
-  <!-- Lightbox -->
-  <div id="galleryLightbox" style="display:none;padding:0 8px 8px">
-    <div style="position:relative;background:var(--bg);border:1px solid var(--border2);overflow:hidden">
-      <img id="galleryLBImg" src="" alt="" style="width:100%;max-height:240px;object-fit:contain;display:block;background:#000">
-      <div style="padding:7px 10px">
-        <div id="galleryLBTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:2px"></div>
-        <div id="galleryLBDate"  style="font-size:.46rem;color:var(--muted);margin-bottom:4px"></div>
-        <div id="galleryLBDesc"  style="font-size:.5rem;color:var(--muted);line-height:1.55;max-height:52px;overflow:hidden"></div>
-        <a  id="galleryLBLink"  href="" target="_blank" rel="noopener"
-            style="display:inline-block;margin-top:6px;font-size:.5rem;color:var(--cyan);border:1px solid rgba(0,212,255,.25);padding:2px 7px;text-decoration:none">
-          View full res on NASA ↗
-        </a>
-      </div>
-      <button onclick="document.getElementById('galleryLightbox').style.display='none'"
-              style="position:absolute;top:6px;right:8px;background:rgba(7,9,16,.75);border:1px solid var(--border2);color:var(--muted);cursor:pointer;font-size:.7rem;padding:1px 6px;font-family:'JetBrains Mono',monospace">✕</button>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  const QUERY   = 'artemis II moon';
-  const API     = 'https://images-api.nasa.gov/search?q=artemis+II+moon&media_type=image&page_size=20';
-  const strip   = document.getElementById('galleryStrip');
-  const lb      = document.getElementById('galleryLightbox');
-  const lbImg   = document.getElementById('galleryLBImg');
-  const lbTitle = document.getElementById('galleryLBTitle');
-  const lbDate  = document.getElementById('galleryLBDate');
-  const lbDesc  = document.getElementById('galleryLBDesc');
-  const lbLink  = document.getElementById('galleryLBLink');
-
-  function fmtDate(iso) {
-    if (!iso) return '';
-    return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  }
-
-  function openLightbox(item) {
-    const d = item.data[0];
-    const thumb = item.links && item.links[0] ? item.links[0].href : '';
-    lbImg.src   = thumb;
-    lbTitle.textContent = d.title || '—';
-    lbDate.textContent  = fmtDate(d.date_created);
-    lbDesc.textContent  = d.description ? d.description.slice(0,220)+(d.description.length>220?'…':'') : '';
-    lbLink.href = 'https://images.nasa.gov/details/'+d.nasa_id;
-    lb.style.display = 'block';
-    lb.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
-
-  window.loadGallery = function() {
-    strip.innerHTML = '<div style="font-size:.52rem;color:var(--muted);margin:auto">Loading…</div>';
-    lb.style.display = 'none';
-    fetch(API)
-      .then(r=>r.json())
-      .then(json=>{
-        const items = (json.collection && json.collection.items) || [];
-        document.getElementById('galleryCount').textContent = items.length+' images';
-        if (!items.length) { strip.innerHTML='<div style="font-size:.52rem;color:var(--muted);margin:auto">No images found</div>'; return; }
-        strip.innerHTML = '';
-        items.forEach((item,i)=>{
-          const thumb = item.links && item.links[0] ? item.links[0].href : null;
-          if (!thumb) return;
-          const d = item.data[0];
-          const wrap = document.createElement('div');
-          wrap.style.cssText = 'flex-shrink:0;cursor:pointer;border:1px solid var(--border2);transition:border-color .15s;position:relative';
-          wrap.onmouseenter = ()=>wrap.style.borderColor='rgba(0,212,255,.5)';
-          wrap.onmouseleave = ()=>wrap.style.borderColor='var(--border2)';
-          wrap.onclick = ()=>openLightbox(item);
-          const img = document.createElement('img');
-          img.src = thumb; img.alt = d.title||'';
-          img.style.cssText = 'width:96px;height:64px;object-fit:cover;display:block;background:var(--bg)';
-          img.loading = 'lazy';
-          // date badge
-          const badge = document.createElement('div');
-          badge.style.cssText = 'position:absolute;bottom:2px;left:2px;font-size:.38rem;background:rgba(7,9,16,.8);color:var(--muted);padding:1px 3px;pointer-events:none';
-          badge.textContent = fmtDate(d.date_created);
-          wrap.appendChild(img); wrap.appendChild(badge);
-          strip.appendChild(wrap);
-        });
-      })
-      .catch(()=>{
-        strip.innerHTML='<div style="font-size:.52rem;color:var(--pink);margin:auto">Failed to load — check connection</div>';
-      });
-  };
-
-  // Auto-load on startup
-  loadGallery();
-
-  // Refresh every 10 minutes
-  setInterval(loadGallery, 10*60*1000);
-})();
-</script>
-  
 /* ── RIGHT PANEL ─────────────────────────────────── */
 #right { background:var(--panel); border-left:1px solid var(--border2); display:flex; flex-direction:column; overflow:hidden; }
 .rp-hdr { padding:5px 10px; background:var(--bg2); border-bottom:1px solid var(--border2); display:flex; align-items:center; gap:5px; flex-shrink:0; }
@@ -333,12 +222,12 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 .ms-met { font-size:0.46rem; color:var(--dim); margin-top:1px; }
 
 /* badges */
-.b-sci  { background:rgba(0,212,255,.12); color:var(--cyan); }
+.b-sci  { background:rgba(0,212,255,.12);  color:var(--cyan); }
 .b-sys  { background:rgba(29,233,182,.12); color:var(--teal); }
-.b-ex   { background:rgba(0,230,118,.12); color:var(--green); }
-.b-slp  { background:rgba(179,136,255,.12); color:var(--purple); }
+.b-ex   { background:rgba(0,230,118,.12);  color:var(--green); }
+.b-slp  { background:rgba(179,136,255,.12);color:var(--purple); }
 .b-pao  { background:rgba(255,64,129,.12); color:var(--pink); }
-.b-meal { background:rgba(255,179,0,.12); color:var(--amber); }
+.b-meal { background:rgba(255,179,0,.12);  color:var(--amber); }
 .b-oth  { background:rgba(96,112,160,.12); color:var(--muted); }
 
 /* ── FOOTER ─────────────────────────────────────── */
@@ -349,7 +238,7 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 }
 #footer a { color:var(--dim); text-decoration:none; transition:color .2s; }
 #footer a:hover { color:var(--cyan); }
-.footer-left { display:flex; align-items:center; gap:10px; }
+.footer-left   { display:flex; align-items:center; gap:10px; }
 .footer-center { display:flex; align-items:center; gap:14px; }
 .footer-right a { color:var(--amber) !important; }
 </style>
@@ -422,7 +311,6 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
     </div>
     <div id="mapWrap"><canvas id="mapCanvas"></canvas></div>
 
-    <!-- Wireframe attitude -->
     <div id="attitudeWrap">
       <div class="p-hdr" style="position:absolute;top:0;left:0;right:0;z-index:2">
         <span class="p-hdr-title">Attitude · Wireframe</span>
@@ -431,44 +319,37 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
       <canvas id="attCanvas"></canvas>
     </div>
 
-    <!-- Telemetry -->
     <div id="telemScroll">
       <div class="t-section-hdr" style="display:flex;justify-content:space-between"><span>Telemetry</span><span class="ph-trans ph-badge" id="telemPhase">—</span></div>
       <div class="t-section-hdr">Dynamics</div>
       <div class="t-row">
-        <span class="t-lbl">Speed</span>
-        <span class="t-arrow">▶</span>
+        <span class="t-lbl">Speed</span><span class="t-arrow">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bSpeed" style="background:var(--cyan);width:0%"></div></div></div>
         <span class="t-val v-cyan" id="vSpeed">—</span>
       </div>
       <div class="t-row">
-        <span class="t-lbl">Moon Rel. Speed</span>
-        <span class="t-arrow" style="color:var(--purple)">▶</span>
+        <span class="t-lbl">Moon Rel. Speed</span><span class="t-arrow" style="color:var(--purple)">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bMoonSpd" style="background:var(--purple);width:0%"></div></div></div>
         <span class="t-val v-purple" id="vMoonSpd">—</span>
       </div>
       <div class="t-row">
-        <span class="t-lbl">G-Force</span>
-        <span class="t-arrow" style="color:var(--green)">▶</span>
+        <span class="t-lbl">G-Force</span><span class="t-arrow" style="color:var(--green)">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bG" style="background:var(--green);width:1%"></div></div></div>
         <span class="t-val v-green" id="vG">~0 g</span>
       </div>
       <div class="t-section-hdr">Position</div>
       <div class="t-row">
-        <span class="t-lbl">Alt</span>
-        <span class="t-arrow" style="color:var(--green)">▶</span>
+        <span class="t-lbl">Alt</span><span class="t-arrow" style="color:var(--green)">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bAlt" style="background:var(--green);width:0%"></div></div></div>
         <span class="t-val v-green" id="vAlt">—</span>
       </div>
       <div class="t-row">
-        <span class="t-lbl">Earth Dist</span>
-        <span class="t-arrow">▶</span>
+        <span class="t-lbl">Earth Dist</span><span class="t-arrow">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bEarth" style="background:var(--cyan);width:0%"></div></div></div>
         <span class="t-val v-cyan" id="vEarth">—</span>
       </div>
       <div class="t-row">
-        <span class="t-lbl">Moon Dist</span>
-        <span class="t-arrow" style="color:var(--amber)">▶</span>
+        <span class="t-lbl">Moon Dist</span><span class="t-arrow" style="color:var(--amber)">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bMoon" style="background:var(--amber);width:0%"></div></div></div>
         <span class="t-val v-amber" id="vMoon">—</span>
       </div>
@@ -477,8 +358,7 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
       <div class="t-row"><span class="t-lbl">Apoapsis</span><div class="t-bar-wrap"></div><span class="t-val v-teal" id="vApo">—<span class="t-unit">km</span></span></div>
       <div class="t-section-hdr">Comms · DSN</div>
       <div class="t-row">
-        <span class="t-lbl">Signal 1-way</span>
-        <span class="t-arrow" style="color:var(--teal)">▶</span>
+        <span class="t-lbl">Signal 1-way</span><span class="t-arrow" style="color:var(--teal)">▶</span>
         <div class="t-bar-wrap"><div class="t-bar-track"><div class="t-bar-fill" id="bSig" style="background:var(--teal);width:0%"></div></div></div>
         <span class="t-val v-teal" id="vSig">—</span>
       </div>
@@ -494,10 +374,11 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
         <div class="att-cell"><div class="att-c-lbl">Gyro Δ</div><div class="att-c-val teal" id="aGyro">—</div></div>
       </div>
     </div>
-  </div>
+  </div><!-- /left -->
 
   <!-- ── CENTER ── -->
   <div id="center">
+
     <!-- Activity -->
     <div id="actBlock">
       <div class="act-top">
@@ -533,7 +414,7 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
       <div class="ms-cd" id="msCd">—</div>
     </div>
 
-    <!-- Stream (compact) -->
+    <!-- Stream -->
     <div id="streamBlock">
       <div class="stream-hdr">
         <span>📺</span>
@@ -545,14 +426,10 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
         </div>
       </div>
       <div class="stream-embed" id="streamEmbed">
-        <iframe
-          src="https://www.youtube.com/embed/z-j1uxBmis0?si=i_PyxTNIPzwFvR8b&autoplay=0"
-          title="NASA Artemis II Live Mission Coverage"
-          frameborder="0"
+        <iframe src="https://www.youtube.com/embed/z-j1uxBmis0?si=i_PyxTNIPzwFvR8b&autoplay=0"
+          title="NASA Artemis II Live Mission Coverage" frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen>
-        </iframe>
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
     </div>
 
@@ -571,7 +448,41 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
         <div class="aeb-next" id="aebNext">—</div>
       </div>
     </div>
-  </div>
+
+    <!-- ════ IMAGE GALLERY BLOCK ════════════════════════════════ -->
+    <div id="galleryBlock" style="flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border2);">
+      <div class="stream-hdr">
+        <span>🛰️</span>
+        <span class="stream-hdr-title">Mission Image Feed</span>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+          <span id="galleryCount" style="font-size:.46rem;color:var(--muted);border:1px solid var(--border);padding:1px 5px">— images</span>
+          <button class="s-tab active" onclick="loadGallery()" style="padding:2px 8px">↻ Refresh</button>
+        </div>
+      </div>
+      <!-- Thumbnail strip -->
+      <div id="galleryStrip" style="display:flex;gap:4px;padding:6px 8px;overflow-x:auto;min-height:78px;align-items:center;scrollbar-width:thin;scrollbar-color:var(--dim) transparent">
+        <div style="font-size:.52rem;color:var(--muted);margin:auto">Loading images…</div>
+      </div>
+      <!-- Lightbox -->
+      <div id="galleryLightbox" style="display:none;padding:0 8px 8px">
+        <div style="position:relative;background:var(--bg);border:1px solid var(--border2);overflow:hidden">
+          <img id="galleryLBImg" src="" alt="" style="width:100%;max-height:240px;object-fit:contain;display:block;background:#000">
+          <div style="padding:7px 10px">
+            <div id="galleryLBTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:2px"></div>
+            <div id="galleryLBDate"  style="font-size:.46rem;color:var(--muted);margin-bottom:4px"></div>
+            <div id="galleryLBDesc"  style="font-size:.5rem;color:var(--muted);line-height:1.55;max-height:52px;overflow:hidden"></div>
+            <a id="galleryLBLink" href="" target="_blank" rel="noopener"
+               style="display:inline-block;margin-top:6px;font-size:.5rem;color:var(--cyan);border:1px solid rgba(0,212,255,.25);padding:2px 7px;text-decoration:none">
+              View full res on NASA ↗
+            </a>
+          </div>
+          <button onclick="document.getElementById('galleryLightbox').style.display='none'"
+                  style="position:absolute;top:6px;right:8px;background:rgba(7,9,16,.75);border:1px solid var(--border2);color:var(--muted);cursor:pointer;font-size:.7rem;padding:1px 6px;font-family:'JetBrains Mono',monospace">✕</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /center -->
 
   <!-- ── RIGHT ── -->
   <div id="right">
@@ -584,21 +495,19 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
       <div class="cam-row"><span class="cam-lbl">Attitude Mode</span><span class="cam-val" id="rpAtt">—</span></div>
       <div class="cam-row"><span class="cam-lbl">Mission Phase</span><span class="cam-val"><span class="ph-badge ph-trans" id="rpPhase" style="font-size:.42rem;padding:1px 4px">—</span></span></div>
     </div>
-
     <div class="rp-hdr">
       <div class="rp-hdr-dot" style="background:var(--amber)"></div>
       <span class="rp-hdr-title">Upcoming</span>
       <span class="rp-hdr-ct">next 8</span>
     </div>
     <div id="upcomingList"></div>
-
     <div class="rp-hdr">
       <div class="rp-hdr-dot" style="background:var(--green)"></div>
       <span class="rp-hdr-title">Milestones</span>
       <span class="rp-hdr-ct" id="msCt">—</span>
     </div>
     <div id="msList"></div>
-  </div>
+  </div><!-- /right -->
 
 </div><!-- /main -->
 
@@ -620,51 +529,82 @@ body { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text)
 </div>
 
 <!-- ══════════════════════════════════════════════
+     SUPPORT POPUP
+══════════════════════════════════════════════ -->
+<div id="sns-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(7,9,16,.72);align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;">
+  <div style="background:#111422;border:1px solid #1c2238;max-width:380px;width:calc(100% - 32px);border-radius:4px;overflow:hidden;">
+    <div style="background:#0b0d18;border-bottom:1px solid #1c2238;padding:9px 12px;display:flex;align-items:center;gap:8px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#00e676;animation:pip 1.6s ease infinite;flex-shrink:0"></div>
+      <span style="font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:#6070a0;font-weight:700;flex:1">OurNightSky · Support</span>
+      <button onclick="snsClose()" style="background:none;border:none;color:#6070a0;cursor:pointer;font-size:1.1rem;line-height:1;padding:0;transition:color .15s" onmouseover="this.style.color='#d8e0ff'" onmouseout="this.style.color='#6070a0'">×</button>
+    </div>
+    <div style="padding:18px 16px 14px">
+      <div style="font-size:1.5rem;margin-bottom:8px">🌙</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:800;color:#fff;line-height:1.15;margin-bottom:6px;letter-spacing:.01em">Help keep the <span style="color:#00d4ff">sky lights on.</span></div>
+      <div style="font-size:.56rem;color:#6070a0;line-height:1.65;margin-bottom:14px">This tracker — and all our projects — runs on coffee and passion. No ads, no subscriptions, just humans who love space. Your support keeps future missions like Artemis III tracking live.</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+        <a href="https://ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
+          <span style="font-size:.85rem">🌌</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">OurNightSky.us</div><div style="font-size:.46rem;color:#6070a0">ournightsky.us</div></div></a>
+        <a href="https://comets.ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
+          <span style="font-size:.85rem">☄️</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">Comets Tracker</div><div style="font-size:.46rem;color:#6070a0">comets.ournightsky.us</div></div></a>
+        <a href="https://live.ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
+          <span style="font-size:.85rem">📡</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">Live Sky Events</div><div style="font-size:.46rem;color:#6070a0">live.ournightsky.us</div></div></a>
+      </div>
+      <div style="display:flex;gap:7px">
+        <a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener" onclick="snsClose()" style="flex:1;background:#ffb300;border:none;color:#070910;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;cursor:pointer;border-radius:2px;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">☕ Buy us a coffee</a>
+        <button onclick="snsClose()" style="flex:1;background:transparent;border:1px solid #1c2238;color:#6070a0;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.08em;cursor:pointer;border-radius:2px">Maybe later</button>
+      </div>
+      <div onclick="snsDismiss()" style="font-size:.46rem;color:#2d3a5a;text-align:center;margin-top:9px;cursor:pointer">Don't show this again</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════════ -->
 <script>
 // ─── CONSTANTS ────────────────────────────────────
-const LAUNCH = new Date('2026-04-01T22:35:00Z');
+const LAUNCH  = new Date('2026-04-01T22:35:00Z');
 const MISS_MS = 10*24*3600*1000, MOON_KM = 384400, C = 299792;
 
 const ACTS = [
-  {h0:0,   h1:0.5, n:'Launch & Ascent',                t:'sys', b:'b-sys', d:'SLS lifts off. ICPS inserts Orion into Earth parking orbit.', att:'Ascent',      ph:'LAUNCH'},
-  {h0:0.5, h1:6,   n:'Earth Orbit Checkout',           t:'sys', b:'b-sys', d:'Proximity ops demo. Apogee/perigee burns. Systems checks.', att:'Inertial',     ph:'EARTH-ORBIT'},
-  {h0:6,   h1:8,   n:'Translunar Injection Burn',      t:'sys', b:'b-sys', d:'Main engine fires ~5 min. Free-return trajectory set.',      att:'TLI Attitude', ph:'TLI'},
-  {h0:8,   h1:24,  n:'Post-TLI Checkout & Crew Meal',  t:'meal',b:'b-meal',d:'Crew settles into deep space cruise. Meals, medical checks.',att:'Barbecue Roll',ph:'TRANS-LUNAR'},
-  {h0:24,  h1:48,  n:'Outbound Science Observations',  t:'sci', b:'b-sci', d:'Earth photography, zodiacal light obs. CPR training.',      att:'Inertial',     ph:'TRANS-LUNAR'},
-  {h0:48,  h1:72,  n:'Mid-Course Corrections 1–3',     t:'sys', b:'b-sys', d:'Three small trajectory correction burns. Emergency comms test.', att:'Burn Att.', ph:'TRANS-LUNAR'},
-  {h0:72,  h1:96,  n:'Deep Space Science & Exercise',  t:'ex',  b:'b-ex',  d:'Crew exercise. Observe Moon growing. Spacesuit checks.',    att:'Barbecue Roll',ph:'TRANS-LUNAR'},
-  {h0:96,  h1:112, n:'Lunar Approach & Flyby Prep',    t:'sci', b:'b-sci', d:'Crew meal & flyby prep. Photography targets briefed.',      att:'Bias -XSI',    ph:'TRANS-LUNAR'},
-  {h0:112, h1:126, n:'Lunar Flyby – Photography & Obs',t:'sci', b:'b-sci', d:'Closest approach ~8,900 km. Crew photographs Moon up close.',att:'Observation',  ph:'TRANS-LUNAR'},
-  {h0:126, h1:130, n:'Solar Eclipse Observation',      t:'sci', b:'b-sci', d:'Rare solar eclipse. Crew photographs Earth eclipsing Sun.', att:'Observation',  ph:'TRANS-LUNAR'},
-  {h0:130, h1:144, n:'Far-Side Transit – Loss of Signal',t:'oth',b:'b-oth',d:'Orion behind Moon. ~30 min radio blackout.',               att:'Passive',      ph:'LUNAR-FLYBY'},
-  {h0:144, h1:156, n:'Post-Flyby Science',             t:'sci', b:'b-sci', d:'Unique vantage post-flyby. Distance record broken.',        att:'Inertial',     ph:'RETURN'},
-  {h0:156, h1:180, n:'Return Transit – Exercise',      t:'ex',  b:'b-ex',  d:'Return cruise. Daily exercise, meals, crew rest.',          att:'Barbecue Roll',ph:'RETURN'},
-  {h0:180, h1:216, n:'Video Downlink & PAO Events',    t:'pao', b:'b-pao', d:'Live video downlinks. Press conference.',                   att:'Inertial',     ph:'RETURN'},
-  {h0:216, h1:226, n:'Sleep Period',                   t:'slp', b:'b-slp', d:'Rest period. Two-shift sleep schedule.',                   att:'Barbecue Roll',ph:'RETURN'},
-  {h0:226, h1:230, n:'Wake & Meal',                    t:'meal',b:'b-meal',d:'Wake-up, meal, final system prep.',                         att:'Inertial',     ph:'RETURN'},
-  {h0:230, h1:238, n:'Reentry Prep & Briefing',        t:'sys', b:'b-sys', d:'Crew dons suits. CM/SM separation. Reentry brief.',         att:'Entry Att.',   ph:'RETURN'},
-  {h0:238, h1:240, n:'Reentry & Splashdown',           t:'sys', b:'b-sys', d:'Skip reentry ~40,000 km/h. Pacific Ocean splashdown.',      att:'Entry',        ph:'SPLASHDOWN'},
+  {h0:0,   h1:0.5, n:'Launch & Ascent',                 t:'sys', b:'b-sys', d:'SLS lifts off. ICPS inserts Orion into Earth parking orbit.', att:'Ascent',       ph:'LAUNCH'},
+  {h0:0.5, h1:6,   n:'Earth Orbit Checkout',            t:'sys', b:'b-sys', d:'Proximity ops demo. Apogee/perigee burns. Systems checks.',  att:'Inertial',      ph:'EARTH-ORBIT'},
+  {h0:6,   h1:8,   n:'Translunar Injection Burn',       t:'sys', b:'b-sys', d:'Main engine fires ~5 min. Free-return trajectory set.',       att:'TLI Attitude',  ph:'TLI'},
+  {h0:8,   h1:24,  n:'Post-TLI Checkout & Crew Meal',   t:'meal',b:'b-meal',d:'Crew settles into deep space cruise. Meals, medical checks.', att:'Barbecue Roll', ph:'TRANS-LUNAR'},
+  {h0:24,  h1:48,  n:'Outbound Science Observations',   t:'sci', b:'b-sci', d:'Earth photography, zodiacal light obs. CPR training.',        att:'Inertial',      ph:'TRANS-LUNAR'},
+  {h0:48,  h1:72,  n:'Mid-Course Corrections 1–3',      t:'sys', b:'b-sys', d:'Three small trajectory correction burns. Emergency comms test.',att:'Burn Att.',   ph:'TRANS-LUNAR'},
+  {h0:72,  h1:96,  n:'Deep Space Science & Exercise',   t:'ex',  b:'b-ex',  d:'Crew exercise. Observe Moon growing. Spacesuit checks.',      att:'Barbecue Roll', ph:'TRANS-LUNAR'},
+  {h0:96,  h1:112, n:'Lunar Approach & Flyby Prep',     t:'sci', b:'b-sci', d:'Crew meal & flyby prep. Photography targets briefed.',        att:'Bias -XSI',     ph:'TRANS-LUNAR'},
+  {h0:112, h1:126, n:'Lunar Flyby – Photography & Obs', t:'sci', b:'b-sci', d:'Closest approach ~8,900 km. Crew photographs Moon up close.', att:'Observation',   ph:'TRANS-LUNAR'},
+  {h0:126, h1:130, n:'Solar Eclipse Observation',       t:'sci', b:'b-sci', d:'Rare solar eclipse. Crew photographs Earth eclipsing Sun.',   att:'Observation',   ph:'TRANS-LUNAR'},
+  {h0:130, h1:144, n:'Far-Side Transit – Loss of Signal',t:'oth', b:'b-oth', d:'Orion behind Moon. ~30 min radio blackout.',                 att:'Passive',       ph:'LUNAR-FLYBY'},
+  {h0:144, h1:156, n:'Post-Flyby Science',              t:'sci', b:'b-sci', d:'Unique vantage post-flyby. Distance record broken.',           att:'Inertial',      ph:'RETURN'},
+  {h0:156, h1:180, n:'Return Transit – Exercise',       t:'ex',  b:'b-ex',  d:'Return cruise. Daily exercise, meals, crew rest.',            att:'Barbecue Roll', ph:'RETURN'},
+  {h0:180, h1:216, n:'Video Downlink & PAO Events',     t:'pao', b:'b-pao', d:'Live video downlinks. Press conference.',                     att:'Inertial',      ph:'RETURN'},
+  {h0:216, h1:226, n:'Sleep Period',                    t:'slp', b:'b-slp', d:'Rest period. Two-shift sleep schedule.',                      att:'Barbecue Roll', ph:'RETURN'},
+  {h0:226, h1:230, n:'Wake & Meal',                     t:'meal',b:'b-meal',d:'Wake-up, meal, final system prep.',                            att:'Inertial',      ph:'RETURN'},
+  {h0:230, h1:238, n:'Reentry Prep & Briefing',         t:'sys', b:'b-sys', d:'Crew dons suits. CM/SM separation. Reentry brief.',           att:'Entry Att.',    ph:'RETURN'},
+  {h0:238, h1:240, n:'Reentry & Splashdown',            t:'sys', b:'b-sys', d:'Skip reentry ~40,000 km/h. Pacific Ocean splashdown.',        att:'Entry',         ph:'SPLASHDOWN'},
 ];
 
 const MLS = [
-  {n:'SLS Liftoff',           h:0,    done:true,  d:'Launched April 1, 2026 · 18:35 EDT'},
-  {n:'Solar Array Deploy',    h:0.4,  done:true,  d:'4 wings confirmed deployed'},
-  {n:'Proximity Ops Demo',    h:3,    done:true,  d:'Manual maneuvering with ICPS complete'},
-  {n:'Apogee Raise Burn',     h:4,    done:true,  d:'Apogee raise completed successfully'},
-  {n:'TLI Burn Complete',     h:7,    done:true,  d:'Free-return trajectory set'},
-  {n:'Lunar SOI Entry',       h:106,  done:false, d:'Orion enters lunar sphere of influence'},
-  {n:'Flyby Coverage Begins', h:111,  done:false, d:'NASA begins live flyby broadcast'},
-  {n:'Lunar Close Approach',  h:120,  done:false, d:'Closest approach ~8,900 km above surface'},
-  {n:'Far-Side Blackout',     h:130,  done:false, d:'Loss of signal behind the Moon'},
-  {n:'Max Earth Distance',    h:126,  done:false, d:'Farthest from Earth — distance record'},
-  {n:'Signal Reacquired',     h:131,  done:false, d:'Comms restored post far-side'},
-  {n:'Solar Eclipse',         h:128,  done:false, d:'Crew observes solar eclipse from deep space'},
+  {n:'SLS Liftoff',            h:0,   done:true,  d:'Launched April 1, 2026 · 18:35 EDT'},
+  {n:'Solar Array Deploy',     h:0.4, done:true,  d:'4 wings confirmed deployed'},
+  {n:'Proximity Ops Demo',     h:3,   done:true,  d:'Manual maneuvering with ICPS complete'},
+  {n:'Apogee Raise Burn',      h:4,   done:true,  d:'Apogee raise completed successfully'},
+  {n:'TLI Burn Complete',      h:7,   done:true,  d:'Free-return trajectory set'},
+  {n:'Lunar SOI Entry',        h:106, done:false, d:'Orion enters lunar sphere of influence'},
+  {n:'Flyby Coverage Begins',  h:111, done:false, d:'NASA begins live flyby broadcast'},
+  {n:'Lunar Close Approach',   h:120, done:false, d:'Closest approach ~8,900 km above surface'},
+  {n:'Far-Side Blackout',      h:130, done:false, d:'Loss of signal behind the Moon'},
+  {n:'Max Earth Distance',     h:126, done:false, d:'Farthest from Earth — distance record'},
+  {n:'Signal Reacquired',      h:131, done:false, d:'Comms restored post far-side'},
+  {n:'Solar Eclipse',          h:128, done:false, d:'Crew observes solar eclipse from deep space'},
   {n:'Mid-Course Correction 5',h:192, done:false, d:'Final trajectory correction before entry'},
-  {n:'CM/SM Separation',      h:237,  done:false, d:'Crew module separates from service module'},
-  {n:'Reentry',               h:238,  done:false, d:'Skip reentry at ~40,000 km/h'},
-  {n:'Splashdown',            h:240,  done:false, d:'Pacific Ocean recovery'},
+  {n:'CM/SM Separation',       h:237, done:false, d:'Crew module separates from service module'},
+  {n:'Reentry',                h:238, done:false, d:'Skip reentry at ~40,000 km/h'},
+  {n:'Splashdown',             h:240, done:false, d:'Pacific Ocean recovery'},
 ];
 
 const MS_ICONS = {
@@ -691,7 +631,7 @@ const APOLLO_CTX = [
   {mh:240, txt:"Apollo 8 splashed down December 27, 1968. Artemis II returns on free-return trajectory — same physics, 57 years later, four humans who've made history."},
 ];
 
-// ─── MATH ─────────────────────────────────────────
+// ─── MATH HELPERS ─────────────────────────────────
 const pad = n => String(n).padStart(2,'0');
 const fmt = n => Math.round(n).toLocaleString();
 
@@ -711,13 +651,13 @@ function hToMet(h) {
 
 function getPos(hrs) {
   const h = Math.min(hrs, 240); let dist, vel;
-  if (h<.3)      { dist=6371+h*1e3; vel=25e3+h*3e4; }
-  else if (h<6)  { dist=6971; vel=28e3; }
-  else if (h<8)  { const t=(h-6)/2; dist=6971+t*5e3; vel=28e3+t*11e3; }
-  else if (h<120){ const t=(h-8)/112; dist=12e3+t*t*(392e3-12e3); vel=39e3*(1-t)+3400*t; }
-  else if (h<144){ const t=(h-120)/24; const pk=Math.sin(t*Math.PI); dist=392e3-pk*4e3; vel=3400+pk*1200; }
-  else if (h<228){ const t=(h-144)/84; dist=392e3*(1-t*t)+6600*t*t; vel=3400+t*t*(36e3-3400); }
-  else           { const t=(h-228)/12; dist=6600*(1-t)+6371*t; vel=4e4*(1-t)+500*t; }
+  if      (h<.3)  { dist=6371+h*1e3; vel=25e3+h*3e4; }
+  else if (h<6)   { dist=6971; vel=28e3; }
+  else if (h<8)   { const t=(h-6)/2; dist=6971+t*5e3; vel=28e3+t*11e3; }
+  else if (h<120) { const t=(h-8)/112; dist=12e3+t*t*(392e3-12e3); vel=39e3*(1-t)+3400*t; }
+  else if (h<144) { const t=(h-120)/24; const pk=Math.sin(t*Math.PI); dist=392e3-pk*4e3; vel=3400+pk*1200; }
+  else if (h<228) { const t=(h-144)/84; dist=392e3*(1-t*t)+6600*t*t; vel=3400+t*t*(36e3-3400); }
+  else            { const t=(h-228)/12; dist=6600*(1-t)+6371*t; vel=4e4*(1-t)+500*t; }
   return { alt: Math.max(0,dist-6371), dc: dist, dm: Math.abs(MOON_KM+6371-dist), vel: Math.round(vel) };
 }
 
@@ -726,299 +666,193 @@ function getActIdx(hrs) {
   return 0;
 }
 
-// periapsis/apoapsis model
 function getOrbit(hrs) {
-  const pos = getPos(hrs);
   if (hrs < 6) return { peri: 300, apo: 700 };
-  if (hrs < 8) return { peri: 300 + (hrs-6)/2*200, apo: 700 + (hrs-6)/2*2e4 };
+  if (hrs < 8) return { peri: 300+(hrs-6)/2*200, apo: 700+(hrs-6)/2*2e4 };
   const t = Math.min((hrs-8)/112, 1);
-  const peri = 300 + t * 4200;
-  const apo  = 700 + t * 437000;
-  return { peri: Math.round(peri*10)/10, apo: Math.round(apo*10)/10 };
+  return { peri: Math.round((300+t*4200)*10)/10, apo: Math.round(700+t*437000) };
 }
 
-// ─── TRAJECTORY CANVAS ───────────────────────────
+// ─── TRAJECTORY MAP ───────────────────────────────
 function drawMap(hrs) {
-  const cv = document.getElementById('mapCanvas');
-  if (!cv) return;
-  const W = cv.parentElement.clientWidth, H = 196;
-  const dpr = devicePixelRatio || 1;
-  cv.width = W*dpr; cv.height = H*dpr;
-  cv.style.width = W+'px'; cv.style.height = H+'px';
-  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, W, H);
-
-  // stars
-  for (let i=0; i<70; i++) {
-    const x=(i*7919%W+W)%W, y=(i*6271%H+H)%H, r=Math.random()*0.8+0.2;
-    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(180,200,255,${.08+Math.random()*.2})`; ctx.fill();
-  }
-
-  const ex=W*.18, ey=H*.52, mx=W*.82, my=H*.4;
-
-  // Earth
-  const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,22); eg.addColorStop(0,'#1a6bb5'); eg.addColorStop(.6,'#0a2660'); eg.addColorStop(1,'#040e22');
-  ctx.beginPath(); ctx.arc(ex,ey,22,0,Math.PI*2); ctx.fillStyle=eg; ctx.fill();
-  ctx.beginPath(); ctx.arc(ex,ey,28,0,Math.PI*2); ctx.strokeStyle='rgba(68,138,255,.16)'; ctx.lineWidth=7; ctx.stroke();
-  ctx.fillStyle='rgba(160,200,255,.55)'; ctx.font='500 7px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('Earth',ex,ey+35);
-
-  // Moon
-  const mg=ctx.createRadialGradient(mx,my,2,mx,my,14); mg.addColorStop(0,'#8a8fa8'); mg.addColorStop(1,'#1a1c2c');
-  ctx.beginPath(); ctx.arc(mx,my,14,0,Math.PI*2); ctx.fillStyle=mg; ctx.fill();
-  ctx.beginPath(); ctx.arc(mx,my,20,0,Math.PI*2); ctx.strokeStyle='rgba(179,136,255,.1)'; ctx.lineWidth=7; ctx.stroke();
-  ctx.fillStyle='rgba(179,136,255,.55)'; ctx.font='500 7px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('Moon',mx,my+27);
-
-  // TLI label
-  const tliX = ex+(mx-ex)*.15, tliY = ey-12;
-  ctx.fillStyle='rgba(255,64,129,.7)'; ctx.font='600 6px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('TLI',tliX,tliY-4);
-  ctx.beginPath(); ctx.arc(tliX,tliY,3,0,Math.PI*2); ctx.fillStyle='rgba(255,64,129,.5)'; ctx.fill();
-
-  // Path
-  const STEPS=300, pts=[];
-  for (let i=0; i<=STEPS; i++) {
-    const h=(i/STEPS)*240; let px, py;
-    if (h<120) { const t=h/120, cmx=ex+(mx-ex)*.42, cmy=ey-56; px=(1-t)*(1-t)*ex+2*(1-t)*t*cmx+t*t*mx; py=(1-t)*(1-t)*ey+2*(1-t)*t*cmy+t*t*my; }
-    else if (h<144) { const t=(h-120)/24, ang=-Math.PI/3+t*Math.PI*1.1; px=mx+Math.cos(ang)*(14+12); py=my+Math.sin(ang)*(14+12); }
-    else { const t=(h-144)/96, cmx=ex+(mx-ex)*.54, cmy=ey+72; px=(1-t)*(1-t)*mx+2*(1-t)*t*cmx+t*t*ex; py=(1-t)*(1-t)*my+2*(1-t)*t*cmy+t*t*ey; }
-    pts.push({px, py});
-  }
-  // future
-  ctx.setLineDash([3,5]); ctx.lineWidth=1; ctx.strokeStyle='rgba(80,100,160,.22)';
-  ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py)); ctx.stroke(); ctx.setLineDash([]);
-  // flown
-  const cut=Math.min(Math.floor((hrs/240)*STEPS),STEPS);
-  if (cut>1) {
-    const gl=ctx.createLinearGradient(ex,ey,pts[cut].px,pts[cut].py);
-    gl.addColorStop(0,'rgba(0,136,187,.5)'); gl.addColorStop(1,'rgba(0,212,255,1)');
-    ctx.lineWidth=2.5; ctx.strokeStyle=gl;
-    ctx.beginPath(); pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py)); ctx.stroke();
-    // glow
-    ctx.lineWidth=7; ctx.strokeStyle='rgba(0,212,255,.08)';
-    ctx.beginPath(); pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py)); ctx.stroke();
-  }
-  // craft
-  const cp = pts[Math.min(cut,STEPS-1)];
-  ctx.beginPath(); ctx.arc(cp.px,cp.py,9,0,Math.PI*2); ctx.fillStyle='rgba(0,212,255,.1)'; ctx.fill();
-  ctx.beginPath(); ctx.arc(cp.px,cp.py,3.5,0,Math.PI*2);
-  const cg=ctx.createRadialGradient(cp.px,cp.py,0,cp.px,cp.py,3.5); cg.addColorStop(0,'#fff'); cg.addColorStop(1,'#00d4ff');
-  ctx.fillStyle=cg; ctx.fill();
-  ctx.fillStyle='rgba(0,212,255,.85)'; ctx.font='700 7px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('Orion',cp.px+6,cp.py-2);
-
-  // "← to Earth" label if near moon
-  if (hrs > 120 && hrs < 160) {
-    ctx.fillStyle='rgba(0,212,255,.4)'; ctx.font='500 6px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('← to Earth',ex+28,ey+28);
-  }
-}
-
-// ─── WIREFRAME SPACECRAFT ────────────────────────
-let _roll=0, _pitch=0, _yaw=0;
-
-function drawWireframe(roll, pitch, yaw) {
-  const cv = document.getElementById('attCanvas');
-  if (!cv) return;
-  const W = cv.parentElement.clientWidth, H = 100;
-  const dpr = devicePixelRatio||1;
-  cv.width=W*dpr; cv.height=H*dpr;
-  cv.style.width=W+'px'; cv.style.height=H+'px';
-  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,W,H);
-
-  const cx=W*.38, cy=H*.52;
-  const r = roll*Math.PI/180, p = pitch*Math.PI/180, y = yaw*Math.PI/180;
-
-  // rotation matrices combined
-  function rot(x,y,z) {
-    // Rx * Ry * Rz
-    const cy2=Math.cos(y),sy=Math.sin(y), cp=Math.cos(p),sp=Math.sin(p), cr=Math.cos(r),sr=Math.sin(r);
-    return {
-      x: cy2*cr*x + (sr*sp*cy2 - sy*cp)*y + (sr*cp*cy2 + sy*sp)*z,
-      y: sy*cr*x  + (sr*sp*sy  + cy2*cp)*y + (sr*cp*sy  - cy2*sp)*z,
-      z: -sr*x    + sp*cr*y               + cp*cr*z
-    };
-  }
-
-  function proj(v, s=28) {
-    const fov=1.6, zOff=3;
-    const perspective = fov/(v.z+zOff);
-    return { x: cx + v.x*s*perspective, y: cy - v.y*s*perspective };
-  }
-
-  // Orion capsule vertices (simplified cone+cylinder)
-  const verts = [
-    // command module cone (front)
-    {x:0,y:0,z:1.2},   // nose 0
-    {x:.7,y:0,z:.4},   // rim fr R 1
-    {x:0,y:.7,z:.4},   // rim fr T 2
-    {x:-.7,y:0,z:.4},  // rim fr L 3
-    {x:0,y:-.7,z:.4},  // rim fr B 4
-    // mid cylinder
-    {x:.7,y:0,z:-.4},  // rim bk R 5
-    {x:0,y:.7,z:-.4},  // rim bk T 6
-    {x:-.7,y:0,z:-.4}, // rim bk L 7
-    {x:0,y:-.7,z:-.4}, // rim bk B 8
-    // service module back
-    {x:.5,y:0,z:-1.2}, // sm R 9
-    {x:0,y:.5,z:-1.2}, // sm T 10
-    {x:-.5,y:0,z:-1.2},// sm L 11
-    {x:0,y:-.5,z:-1.2},// sm B 12
-    // solar array points (ESA wings)
-    {x:2.2,y:0,z:-.4}, // wing1 tip 13
-    {x:2.2,y:0,z:.1},  // wing1 tip inner 14
-    {x:-2.2,y:0,z:-.4},// wing2 tip 15
-    {x:-2.2,y:0,z:.1}, // wing2 tip inner 16
-  ];
-
-  const edges = [
-    // cone to rim
-    [0,1],[0,2],[0,3],[0,4],
-    // front rim
-    [1,2],[2,3],[3,4],[4,1],
-    // front to back
-    [1,5],[2,6],[3,7],[4,8],
-    // back rim
-    [5,6],[6,7],[7,8],[8,5],
-    // SM
-    [5,9],[6,10],[7,11],[8,12],
-    [9,10],[10,11],[11,12],[12,9],
-    // solar arrays
-    [5,13],[13,14],[14,1],  // wing1
-    [7,15],[15,16],[16,3],  // wing2
-  ];
-
-  const rVerts = verts.map(v => rot(v.x,v.y,v.z));
-  const pVerts = rVerts.map(v => proj(v));
-
-  // draw shadow first
-  ctx.strokeStyle='rgba(179,136,255,.08)'; ctx.lineWidth=4;
-  edges.forEach(([a,b])=>{
-    ctx.beginPath();ctx.moveTo(pVerts[a].x+3,pVerts[a].y+3);ctx.lineTo(pVerts[b].x+3,pVerts[b].y+3);ctx.stroke();
-  });
-  // draw edges
-  edges.forEach(([a,b])=>{
-    const zA=(rVerts[a].z+rVerts[b].z)/2;
-    const brightness=Math.max(0.25,Math.min(1,(zA+1.5)/3));
-    // solar arrays get teal
-    const isSolar=a>=13||b>=13;
-    const col=isSolar?`rgba(29,233,182,${brightness*.75})`:`rgba(179,136,255,${brightness*.8})`;
-    ctx.strokeStyle=col; ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(pVerts[a].x,pVerts[a].y);ctx.lineTo(pVerts[b].x,pVerts[b].y);ctx.stroke();
-  });
-  // nose dot
-  ctx.beginPath(); ctx.arc(pVerts[0].x,pVerts[0].y,2,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,212,255,.8)'; ctx.fill();
-
-  // attitude readout overlay on right side
-  const rx=W*.67;
-  ctx.font='700 7px JetBrains Mono';
-  ctx.fillStyle='rgba(179,136,255,.6)'; ctx.textAlign='left';
-  ctx.fillText(`R: ${roll}°`, rx, H*.3);
-  ctx.fillText(`P: ${pitch}°`, rx, H*.5);
-  ctx.fillText(`Y: ${yaw}°`, rx, H*.7);
-}
-
-// ─── TIMELINE CANVAS ─────────────────────────────
-function drawTimeline(hrs) {
-  const cv=document.getElementById('tlCanvas'); if(!cv) return;
-  const W=cv.parentElement.clientWidth, H=52;
-  const dpr=devicePixelRatio||1;
+  const cv = document.getElementById('mapCanvas'); if (!cv) return;
+  const W = cv.parentElement.clientWidth, H = 196, dpr = devicePixelRatio||1;
   cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
   const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,W,H);
+  for (let i=0;i<70;i++) {
+    const x=(i*7919%W+W)%W,y=(i*6271%H+H)%H,r=Math.random()*.8+.2;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(180,200,255,${.08+Math.random()*.2})`;ctx.fill();
+  }
+  const ex=W*.18,ey=H*.52,mx=W*.82,my=H*.4;
+  const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,22);
+  eg.addColorStop(0,'#1a6bb5');eg.addColorStop(.6,'#0a2660');eg.addColorStop(1,'#040e22');
+  ctx.beginPath();ctx.arc(ex,ey,22,0,Math.PI*2);ctx.fillStyle=eg;ctx.fill();
+  ctx.beginPath();ctx.arc(ex,ey,28,0,Math.PI*2);ctx.strokeStyle='rgba(68,138,255,.16)';ctx.lineWidth=7;ctx.stroke();
+  ctx.fillStyle='rgba(160,200,255,.55)';ctx.font='500 7px JetBrains Mono';ctx.textAlign='center';ctx.fillText('Earth',ex,ey+35);
+  const mg=ctx.createRadialGradient(mx,my,2,mx,my,14);
+  mg.addColorStop(0,'#8a8fa8');mg.addColorStop(1,'#1a1c2c');
+  ctx.beginPath();ctx.arc(mx,my,14,0,Math.PI*2);ctx.fillStyle=mg;ctx.fill();
+  ctx.beginPath();ctx.arc(mx,my,20,0,Math.PI*2);ctx.strokeStyle='rgba(179,136,255,.1)';ctx.lineWidth=7;ctx.stroke();
+  ctx.fillStyle='rgba(179,136,255,.55)';ctx.font='500 7px JetBrains Mono';ctx.textAlign='center';ctx.fillText('Moon',mx,my+27);
+  const tliX=ex+(mx-ex)*.15,tliY=ey-12;
+  ctx.fillStyle='rgba(255,64,129,.7)';ctx.font='600 6px JetBrains Mono';ctx.textAlign='center';ctx.fillText('TLI',tliX,tliY-4);
+  ctx.beginPath();ctx.arc(tliX,tliY,3,0,Math.PI*2);ctx.fillStyle='rgba(255,64,129,.5)';ctx.fill();
+  const STEPS=300,pts=[];
+  for (let i=0;i<=STEPS;i++) {
+    const h=(i/STEPS)*240; let px,py;
+    if (h<120)      { const t=h/120,cmx=ex+(mx-ex)*.42,cmy=ey-56; px=(1-t)*(1-t)*ex+2*(1-t)*t*cmx+t*t*mx; py=(1-t)*(1-t)*ey+2*(1-t)*t*cmy+t*t*my; }
+    else if (h<144) { const t=(h-120)/24,ang=-Math.PI/3+t*Math.PI*1.1; px=mx+Math.cos(ang)*26; py=my+Math.sin(ang)*26; }
+    else            { const t=(h-144)/96,cmx=ex+(mx-ex)*.54,cmy=ey+72; px=(1-t)*(1-t)*mx+2*(1-t)*t*cmx+t*t*ex; py=(1-t)*(1-t)*my+2*(1-t)*t*cmy+t*t*ey; }
+    pts.push({px,py});
+  }
+  ctx.setLineDash([3,5]);ctx.lineWidth=1;ctx.strokeStyle='rgba(80,100,160,.22)';
+  ctx.beginPath();pts.forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();ctx.setLineDash([]);
+  const cut=Math.min(Math.floor((hrs/240)*STEPS),STEPS);
+  if (cut>1) {
+    const gl=ctx.createLinearGradient(ex,ey,pts[cut].px,pts[cut].py);
+    gl.addColorStop(0,'rgba(0,136,187,.5)');gl.addColorStop(1,'rgba(0,212,255,1)');
+    ctx.lineWidth=2.5;ctx.strokeStyle=gl;
+    ctx.beginPath();pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();
+    ctx.lineWidth=7;ctx.strokeStyle='rgba(0,212,255,.08)';
+    ctx.beginPath();pts.slice(0,cut+1).forEach((p,i)=>i===0?ctx.moveTo(p.px,p.py):ctx.lineTo(p.px,p.py));ctx.stroke();
+  }
+  const cp=pts[Math.min(cut,STEPS-1)];
+  ctx.beginPath();ctx.arc(cp.px,cp.py,9,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,.1)';ctx.fill();
+  ctx.beginPath();ctx.arc(cp.px,cp.py,3.5,0,Math.PI*2);
+  const cg=ctx.createRadialGradient(cp.px,cp.py,0,cp.px,cp.py,3.5);cg.addColorStop(0,'#fff');cg.addColorStop(1,'#00d4ff');
+  ctx.fillStyle=cg;ctx.fill();
+  ctx.fillStyle='rgba(0,212,255,.85)';ctx.font='700 7px JetBrains Mono';ctx.textAlign='left';ctx.fillText('Orion',cp.px+6,cp.py-2);
+  if (hrs>120&&hrs<160) { ctx.fillStyle='rgba(0,212,255,.4)';ctx.font='500 6px JetBrains Mono';ctx.textAlign='left';ctx.fillText('← to Earth',ex+28,ey+28); }
+}
 
-  const startH=Math.max(0,hrs-4), endH=Math.min(240,hrs+8);
-  const hToX = h => (h-startH)/(endH-startH)*W;
+// ─── WIREFRAME SPACECRAFT ─────────────────────────
+let _roll=0,_pitch=0,_yaw=0;
+function drawWireframe(roll,pitch,yaw) {
+  const cv=document.getElementById('attCanvas'); if (!cv) return;
+  const W=cv.parentElement.clientWidth,H=100,dpr=devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const cx=W*.38,cy=H*.52;
+  const r=roll*Math.PI/180,p=pitch*Math.PI/180,y=yaw*Math.PI/180;
+  function rot(x,y,z) {
+    const cy2=Math.cos(y),sy=Math.sin(y),cp=Math.cos(p),sp=Math.sin(p),cr=Math.cos(r),sr=Math.sin(r);
+    return {
+      x: cy2*cr*x+(sr*sp*cy2-sy*cp)*y+(sr*cp*cy2+sy*sp)*z,
+      y: sy*cr*x+(sr*sp*sy+cy2*cp)*y+(sr*cp*sy-cy2*sp)*z,
+      z: -sr*x+sp*cr*y+cp*cr*z
+    };
+  }
+  function proj(v,s=28) {
+    const fov=1.6,zOff=3,perspective=fov/(v.z+zOff);
+    return {x:cx+v.x*s*perspective,y:cy-v.y*s*perspective};
+  }
+  const verts=[
+    {x:0,y:0,z:1.2},{x:.7,y:0,z:.4},{x:0,y:.7,z:.4},{x:-.7,y:0,z:.4},{x:0,y:-.7,z:.4},
+    {x:.7,y:0,z:-.4},{x:0,y:.7,z:-.4},{x:-.7,y:0,z:-.4},{x:0,y:-.7,z:-.4},
+    {x:.5,y:0,z:-1.2},{x:0,y:.5,z:-1.2},{x:-.5,y:0,z:-1.2},{x:0,y:-.5,z:-1.2},
+    {x:2.2,y:0,z:-.4},{x:2.2,y:0,z:.1},{x:-2.2,y:0,z:-.4},{x:-2.2,y:0,z:.1},
+  ];
+  const edges=[
+    [0,1],[0,2],[0,3],[0,4],[1,2],[2,3],[3,4],[4,1],
+    [1,5],[2,6],[3,7],[4,8],[5,6],[6,7],[7,8],[8,5],
+    [5,9],[6,10],[7,11],[8,12],[9,10],[10,11],[11,12],[12,9],
+    [5,13],[13,14],[14,1],[7,15],[15,16],[16,3],
+  ];
+  const rVerts=verts.map(v=>rot(v.x,v.y,v.z));
+  const pVerts=rVerts.map(v=>proj(v));
+  ctx.strokeStyle='rgba(179,136,255,.08)';ctx.lineWidth=4;
+  edges.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(pVerts[a].x+3,pVerts[a].y+3);ctx.lineTo(pVerts[b].x+3,pVerts[b].y+3);ctx.stroke();});
+  edges.forEach(([a,b])=>{
+    const zA=(rVerts[a].z+rVerts[b].z)/2;
+    const brightness=Math.max(.25,Math.min(1,(zA+1.5)/3));
+    const isSolar=a>=13||b>=13;
+    ctx.strokeStyle=isSolar?`rgba(29,233,182,${brightness*.75})`:`rgba(179,136,255,${brightness*.8})`;
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pVerts[a].x,pVerts[a].y);ctx.lineTo(pVerts[b].x,pVerts[b].y);ctx.stroke();
+  });
+  ctx.beginPath();ctx.arc(pVerts[0].x,pVerts[0].y,2,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,.8)';ctx.fill();
+  const rx=W*.67;ctx.font='700 7px JetBrains Mono';ctx.fillStyle='rgba(179,136,255,.6)';ctx.textAlign='left';
+  ctx.fillText(`R: ${roll}°`,rx,H*.3);ctx.fillText(`P: ${pitch}°`,rx,H*.5);ctx.fillText(`Y: ${yaw}°`,rx,H*.7);
+}
 
-  // tick lines + labels
-  for (let tick=Math.ceil(startH); tick<=endH; tick++) {
+// ─── TIMELINE ─────────────────────────────────────
+function drawTimeline(hrs) {
+  const cv=document.getElementById('tlCanvas'); if (!cv) return;
+  const W=cv.parentElement.clientWidth,H=52,dpr=devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  const startH=Math.max(0,hrs-4),endH=Math.min(240,hrs+8);
+  const hToX=h=>(h-startH)/(endH-startH)*W;
+  for (let tick=Math.ceil(startH);tick<=endH;tick++) {
     if (tick%2!==0) continue;
     const x=hToX(tick);
-    ctx.fillStyle='rgba(28,34,56,.7)'; ctx.fillRect(x-.5,0,1,H);
-    ctx.fillStyle='rgba(96,112,160,.65)'; ctx.font='500 6.5px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(28,34,56,.7)';ctx.fillRect(x-.5,0,1,H);
+    ctx.fillStyle='rgba(96,112,160,.65)';ctx.font='500 6.5px JetBrains Mono';ctx.textAlign='center';
     const d=Math.floor(tick/24);
     ctx.fillText(`T+${d>0?d+'d+':''}${tick%24}h`,x,8);
   }
-
-  // ROW 1: Activities y=10,h=16
   ACTS.forEach(act=>{
     if (act.h1<startH||act.h0>endH) return;
-    const x1=Math.max(0,hToX(act.h0)), x2=Math.min(W,hToX(act.h1)), w=x2-x1; if(w<1)return;
+    const x1=Math.max(0,hToX(act.h0)),x2=Math.min(W,hToX(act.h1)),w=x2-x1; if(w<1)return;
     const col=TC[act.t]||'#6070a0';
-    ctx.fillStyle=col+'20'; ctx.fillRect(x1,10,w,16);
-    ctx.strokeStyle=col+'70'; ctx.lineWidth=.8; ctx.strokeRect(x1+.5,10.5,w-1,15);
-    if (w>45) { ctx.fillStyle=col; ctx.font='600 6.5px JetBrains Mono'; ctx.textAlign='left';
-      ctx.fillText(act.n.length>24?act.n.slice(0,22)+'…':act.n, x1+3, 21); }
+    ctx.fillStyle=col+'20';ctx.fillRect(x1,10,w,16);
+    ctx.strokeStyle=col+'70';ctx.lineWidth=.8;ctx.strokeRect(x1+.5,10.5,w-1,15);
+    if (w>45){ctx.fillStyle=col;ctx.font='600 6.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText(act.n.length>24?act.n.slice(0,22)+'…':act.n,x1+3,21);}
   });
-  ctx.fillStyle='rgba(96,112,160,.4)'; ctx.font='500 5.5px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('CREW',2,20);
-
-  // ROW 2: Phase y=29,h=9
+  ctx.fillStyle='rgba(96,112,160,.4)';ctx.font='500 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText('CREW',2,20);
   ACTS.forEach(act=>{
     if(act.h1<startH||act.h0>endH) return;
     const x1=Math.max(0,hToX(act.h0)),x2=Math.min(W,hToX(act.h1)),w=x2-x1; if(w<1)return;
     const phCols={'LAUNCH':'#ff6b35','EARTH-ORBIT':'#448aff','TLI':'#ff4081','TRANS-LUNAR':'#00d4ff','LUNAR-FLYBY':'#b388ff','RETURN':'#00e676','SPLASHDOWN':'#ffb300'};
     const col=phCols[act.ph]||'#6070a0';
-    ctx.fillStyle=col+'28'; ctx.fillRect(x1,29,w,9);
+    ctx.fillStyle=col+'28';ctx.fillRect(x1,29,w,9);
     if(w>55){ctx.fillStyle=col+'bb';ctx.font='600 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText(act.ph,x1+3,37);}
   });
   ctx.fillStyle='rgba(96,112,160,.4)';ctx.font='500 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText('PHASE',2,37);
-
-  // ROW 3: Milestones diamonds y=41
   MLS.forEach(ms=>{
     if(ms.h<startH||ms.h>endH) return;
-    const x=hToX(ms.h), col=ms.done?'#00e676':'#448aff';
+    const x=hToX(ms.h),col=ms.done?'#00e676':'#448aff';
     ctx.fillStyle=col;
     ctx.beginPath();ctx.moveTo(x,39);ctx.lineTo(x+4,43);ctx.lineTo(x,47);ctx.lineTo(x-4,43);ctx.closePath();ctx.fill();
   });
   ctx.fillStyle='rgba(96,112,160,.4)';ctx.font='500 5.5px JetBrains Mono';ctx.textAlign='left';ctx.fillText('MILES.',2,45);
-
-  // Now line
   const nowX=hToX(hrs);
   ctx.strokeStyle='rgba(255,82,82,.9)';ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(nowX,0);ctx.lineTo(nowX,H);ctx.stroke();
   ctx.fillStyle='#ff5252';ctx.beginPath();ctx.moveTo(nowX-4,0);ctx.lineTo(nowX+4,0);ctx.lineTo(nowX,7);ctx.closePath();ctx.fill();
 }
 
-// ─── RENDER LISTS ────────────────────────────────
+// ─── RENDER LISTS ─────────────────────────────────
 function renderUpcoming(hrs) {
-  const upcoming = ACTS.filter(a=>a.h0>hrs).slice(0,8);
-  document.getElementById('upcomingList').innerHTML = upcoming.map(act=>{
-    const dH=act.h0-hrs, h=Math.floor(dH), m=Math.round((dH-h)*60);
-    const t = dH<24 ? `${h}h ${m}m` : `${Math.floor(dH/24)}d ${Math.floor(dH%24)}h`;
+  const upcoming=ACTS.filter(a=>a.h0>hrs).slice(0,8);
+  document.getElementById('upcomingList').innerHTML=upcoming.map(act=>{
+    const dH=act.h0-hrs,h=Math.floor(dH),m=Math.round((dH-h)*60);
+    const t=dH<24?`${h}h ${m}m`:`${Math.floor(dH/24)}d ${Math.floor(dH%24)}h`;
     const col=TC[act.t]||'#6070a0';
-    return `<div class="up-item">
-      <div class="up-bar" style="background:${col}"></div>
-      <div class="up-body">
-        <div class="up-name">${act.n}</div>
-        <span class="up-badge ${act.b}">${act.t.toUpperCase()}</span>
-      </div>
-      <div class="up-time">${t}</div>
-    </div>`;
+    return `<div class="up-item"><div class="up-bar" style="background:${col}"></div><div class="up-body"><div class="up-name">${act.n}</div><span class="up-badge ${act.b}">${act.t.toUpperCase()}</span></div><div class="up-time">${t}</div></div>`;
   }).join('');
 }
 
 function renderMilestones(hrs) {
-  const done = MLS.filter(m=>m.h<=hrs).length;
-  document.getElementById('msCt').textContent = `${done}/${MLS.length}`;
-  document.getElementById('msList').innerHTML = MLS.map(ms=>{
-    const isDone=ms.h<=hrs, isCur=!isDone&&ms.h<=(hrs+2);
+  const done=MLS.filter(m=>m.h<=hrs).length;
+  document.getElementById('msCt').textContent=`${done}/${MLS.length}`;
+  document.getElementById('msList').innerHTML=MLS.map(ms=>{
+    const isDone=ms.h<=hrs,isCur=!isDone&&ms.h<=(hrs+2);
     const dc=isDone?'done':isCur?'cur':'fut';
-    return `<div class="ms-it">
-      <div class="ms-dot ${dc}"></div>
-      <div class="ms-bd">
-        <div class="ms-nm ${dc}">${ms.n}</div>
-        <div class="ms-dd">${ms.d}</div>
-        <div class="ms-met">MET ${hToMet(ms.h)}</div>
-      </div>
-    </div>`;
+    return `<div class="ms-it"><div class="ms-dot ${dc}"></div><div class="ms-bd"><div class="ms-nm ${dc}">${ms.n}</div><div class="ms-dd">${ms.d}</div><div class="ms-met">MET ${hToMet(ms.h)}</div></div></div>`;
   }).join('');
 }
 
-// ─── STREAM ──────────────────────────────────────
+// ─── STREAM / TABS ────────────────────────────────
 function setSrc(src) {
-  document.querySelectorAll('.s-tab').forEach((b,i)=>{
-    b.classList.toggle('active', ['official','orion','links'][i]===src);
+  document.querySelectorAll('.stream-tabs-row .s-tab').forEach((b,i)=>{
+    b.classList.toggle('active',['official','orion','links'][i]===src);
   });
-  const el = document.getElementById('streamEmbed');
+  const el=document.getElementById('streamEmbed');
   if (src==='official') {
     el.innerHTML=`<iframe src="https://www.youtube.com/embed/z-j1uxBmis0?si=RejuScoI-kq3T2DP&autoplay=0" title="NASA Artemis II Live" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
   } else if (src==='orion') {
@@ -1040,195 +874,219 @@ function setTab(t) {
 
 // ─── ATTITUDE SIM ─────────────────────────────────
 function getAtt(hrs) {
-  const t = hrs*3600;
+  const t=hrs*3600;
   return {
-    roll:  ((-43 + Math.sin(t*.0003)*8)).toFixed(1),
-    pitch: ((75  + Math.sin(t*.0002)*5)).toFixed(1),
-    yaw:   ((-32 + Math.cos(t*.00025)*6)).toFixed(1),
+    roll:  ((-43+Math.sin(t*.0003)*8)).toFixed(1),
+    pitch: ((75+Math.sin(t*.0002)*5)).toFixed(1),
+    yaw:   ((-32+Math.cos(t*.00025)*6)).toFixed(1),
     rr:    ((-0.71+Math.random()*.02)).toFixed(2),
     pr:    ((-0.71+Math.random()*.02)).toFixed(2),
     gyro:  ((0.490+Math.random()*.005)).toFixed(3),
   };
 }
 
-// ─── NEXT MILESTONE ──────────────────────────────
+// ─── NEXT MILESTONE ───────────────────────────────
 function getNextMS(hrs) {
-  const ms = MLS.filter(m=>m.h>hrs).sort((a,b)=>a.h-b.h)[0];
+  const ms=MLS.filter(m=>m.h>hrs).sort((a,b)=>a.h-b.h)[0];
   if (!ms) return {n:'Splashdown',d:'Mission complete',cd:'—',ico:'🌊'};
-  const dH=ms.h-hrs, d=Math.floor(dH/24), h=Math.floor(dH%24), m=Math.floor((dH%1)*60);
-  const cd = dH>24?`T-${d}d ${h}h`:dH>1?`T-${h}h ${m}m`:`T-${m}m`;
-  return {n:ms.n, d:ms.d, cd, ico: MS_ICONS[ms.n]||'🎯'};
+  const dH=ms.h-hrs,d=Math.floor(dH/24),h=Math.floor(dH%24),m=Math.floor((dH%1)*60);
+  const cd=dH>24?`T-${d}d ${h}h`:dH>1?`T-${h}h ${m}m`:`T-${m}m`;
+  return {n:ms.n,d:ms.d,cd,ico:MS_ICONS[ms.n]||'🎯'};
 }
 
-// ─── MAIN UPDATE ─────────────────────────────────
+// ─── MAIN UPDATE ──────────────────────────────────
 function update() {
-  const met = getMET(new Date()); if (!met) return;
-  const h = met.hrs, pos = getPos(h), pct = Math.min(100,met.ms/MISS_MS*100);
-  const fd = Math.floor(h/24)+1;
-  const ai = getActIdx(h), act = ACTS[ai];
-  const att = getAtt(h);
-  const orb = getOrbit(h);
-  const pathKm = h<120?h/120*5e5:h<144?5e5+(h-120)/24*6e4:5.6e5+(h-144)/96*4.8e5;
-  const nm = getNextMS(h);
-  const mStr = metStr(met);
-  const phCls = PHASE_CLS[act.ph]||'ph-trans';
+  const met=getMET(new Date()); if (!met) return;
+  const h=met.hrs,pos=getPos(h),pct=Math.min(100,met.ms/MISS_MS*100);
+  const fd=Math.floor(h/24)+1;
+  const ai=getActIdx(h),act=ACTS[ai];
+  const att=getAtt(h);
+  const orb=getOrbit(h);
+  const pathKm=h<120?h/120*5e5:h<144?5e5+(h-120)/24*6e4:5.6e5+(h-144)/96*4.8e5;
+  const nm=getNextMS(h);
+  const mStr=metStr(met);
+  const phCls=PHASE_CLS[act.ph]||'ph-trans';
 
-  // Top bar
   document.getElementById('hMet').textContent  = mStr;
-  document.getElementById('hPhase').textContent = act.ph;
-  document.getElementById('hPhase').className   = 'ph-badge '+phCls;
-  document.getElementById('hDay').textContent   = 'FD'+pad(fd);
-  document.getElementById('hVel').textContent   = fmt(pos.vel);
-  document.getElementById('hAlt').textContent   = fmt(pos.alt);
-  document.getElementById('hMoon').textContent  = fmt(pos.dm);
-  document.getElementById('hSig').textContent   = (pos.dc/C).toFixed(3);
-  document.getElementById('hProg').textContent  = pct.toFixed(1)+'%';
+  document.getElementById('hPhase').textContent= act.ph;
+  document.getElementById('hPhase').className  = 'ph-badge '+phCls;
+  document.getElementById('hDay').textContent  = 'FD'+pad(fd);
+  document.getElementById('hVel').textContent  = fmt(pos.vel);
+  document.getElementById('hAlt').textContent  = fmt(pos.alt);
+  document.getElementById('hMoon').textContent = fmt(pos.dm);
+  document.getElementById('hSig').textContent  = (pos.dc/C).toFixed(3);
+  document.getElementById('hProg').textContent = pct.toFixed(1)+'%';
 
-  // Left panel badges
-  const mb = document.getElementById('mapPhaseBadge');
-  mb.textContent = act.ph; mb.className = 'p-hdr-badge '+phCls;
-  const tp = document.getElementById('telemPhase');
-  tp.textContent = act.ph; tp.className = 'ph-badge '+phCls;
+  const mb=document.getElementById('mapPhaseBadge');
+  mb.textContent=act.ph; mb.className='p-hdr-badge '+phCls;
+  const tp=document.getElementById('telemPhase');
+  tp.textContent=act.ph; tp.className='ph-badge '+phCls;
 
-  // Telem rows
   const maxV=39000;
   const setBar=(id,pct)=>{ const el=document.getElementById(id); if(el) el.style.width=Math.max(1,Math.min(100,pct))+'%'; };
   document.getElementById('vSpeed').innerHTML  = fmt(pos.vel)+'<span class="t-unit">km/h</span>';
-  setBar('bSpeed', (pos.vel/maxV)*100);
-  const mrel = Math.abs(pos.vel - 800);
+  setBar('bSpeed',(pos.vel/maxV)*100);
+  const mrel=Math.abs(pos.vel-800);
   document.getElementById('vMoonSpd').innerHTML= fmt(mrel)+'<span class="t-unit">km/h</span>';
-  setBar('bMoonSpd', (mrel/5000)*100);
-  document.getElementById('vG').textContent    = '~0.000 g';
-  setBar('bG', 1);
+  setBar('bMoonSpd',(mrel/5000)*100);
+  document.getElementById('vG').textContent    = '~0.000 g'; setBar('bG',1);
   document.getElementById('vAlt').innerHTML    = fmt(pos.alt)+'<span class="t-unit">km</span>';
-  setBar('bAlt', (pos.alt/400000)*100);
+  setBar('bAlt',(pos.alt/400000)*100);
   document.getElementById('vEarth').innerHTML  = fmt(pos.alt)+'<span class="t-unit">km</span>';
-  setBar('bEarth', (pos.alt/400000)*100);
+  setBar('bEarth',(pos.alt/400000)*100);
   document.getElementById('vMoon').innerHTML   = fmt(pos.dm)+'<span class="t-unit">km</span>';
-  setBar('bMoon', Math.max(0, 100-(pos.dm/400000)*100));
-  document.getElementById('vPeri').innerHTML   = fmt(orb.peri*10)/10+'<span class="t-unit">km</span>';
+  setBar('bMoon',Math.max(0,100-(pos.dm/400000)*100));
+  document.getElementById('vPeri').innerHTML   = orb.peri+'<span class="t-unit">km</span>';
   document.getElementById('vApo').innerHTML    = fmt(orb.apo)+'<span class="t-unit">km</span>';
   document.getElementById('vSig').innerHTML    = (pos.dc/C).toFixed(3)+'<span class="t-unit">sec</span>';
-  setBar('bSig', (pos.dc/C/1.5)*100);
+  setBar('bSig',(pos.dc/C/1.5)*100);
   document.getElementById('vSigRt').innerHTML  = ((pos.dc/C)*2).toFixed(3)+'<span class="t-unit">sec</span>';
   document.getElementById('vPath').innerHTML   = fmt(pathKm)+'<span class="t-unit">km</span>';
 
-  // Attitude
   document.getElementById('aRoll').textContent = att.roll+'°';
   document.getElementById('aPitch').textContent= att.pitch+'°';
   document.getElementById('aYaw').textContent  = att.yaw+'°';
   document.getElementById('aRR').textContent   = att.rr+'°/s';
   document.getElementById('aPR').textContent   = att.pr+'°/s';
   document.getElementById('aGyro').textContent = att.gyro+'°/s';
-  document.getElementById('attModeLabel').textContent = act.att;
-  drawWireframe(parseFloat(att.roll), parseFloat(att.pitch), parseFloat(att.yaw));
+  document.getElementById('attModeLabel').textContent=act.att;
+  drawWireframe(parseFloat(att.roll),parseFloat(att.pitch),parseFloat(att.yaw));
 
-  // Activity block
-  document.getElementById('actBadge').textContent = act.t.toUpperCase();
-  document.getElementById('actBadge').className   = 'act-type-badge '+act.b;
-  document.getElementById('actName').textContent  = act.n;
-  document.getElementById('actDesc').textContent  = act.d;
-  document.getElementById('actStart').textContent = 'MET '+hToMet(act.h0);
-  document.getElementById('actEnd').textContent   = 'MET '+hToMet(act.h1);
-  const dH=act.h1-act.h0, dHr=Math.floor(dH), dM=Math.round((dH-dHr)*60);
-  document.getElementById('actDur').textContent   = dHr+'h '+dM+'m';
-  const ap2 = Math.min(100,Math.max(0,((h-act.h0)/(act.h1-act.h0))*100));
-  document.getElementById('actProgPct').textContent = ap2.toFixed(1)+'%';
-  document.getElementById('actProgBar').style.width = ap2.toFixed(1)+'%';
-  document.getElementById('actAttMode').textContent  = act.att;
-  document.getElementById('actMPhase').textContent   = act.ph;
+  document.getElementById('actBadge').textContent= act.t.toUpperCase();
+  document.getElementById('actBadge').className  = 'act-type-badge '+act.b;
+  document.getElementById('actName').textContent = act.n;
+  document.getElementById('actDesc').textContent = act.d;
+  document.getElementById('actStart').textContent= 'MET '+hToMet(act.h0);
+  document.getElementById('actEnd').textContent  = 'MET '+hToMet(act.h1);
+  const dH=act.h1-act.h0,dHr=Math.floor(dH),dM=Math.round((dH-dHr)*60);
+  document.getElementById('actDur').textContent  = dHr+'h '+dM+'m';
+  const ap2=Math.min(100,Math.max(0,((h-act.h0)/(act.h1-act.h0))*100));
+  document.getElementById('actProgPct').textContent= ap2.toFixed(1)+'%';
+  document.getElementById('actProgBar').style.width= ap2.toFixed(1)+'%';
+  document.getElementById('actAttMode').textContent= act.att;
+  document.getElementById('actMPhase').textContent = act.ph;
 
-  // Milestone
-  document.getElementById('msIco').textContent   = nm.ico;
-  document.getElementById('msName').textContent  = nm.n;
-  document.getElementById('msDescText').textContent = nm.d;
-  document.getElementById('msCd').textContent    = nm.cd;
+  document.getElementById('msIco').textContent    = nm.ico;
+  document.getElementById('msName').textContent   = nm.n;
+  document.getElementById('msDescText').textContent=nm.d;
+  document.getElementById('msCd').textContent     = nm.cd;
 
-  // Right panel
-  document.getElementById('rpName').textContent  = act.n;
-  document.getElementById('rpAtt').textContent   = act.att;
-  const rp = document.getElementById('rpPhase');
-  rp.textContent = act.ph; rp.className = 'ph-badge '+phCls;
+  document.getElementById('rpName').textContent   = act.n;
+  document.getElementById('rpAtt').textContent    = act.att;
+  const rp=document.getElementById('rpPhase');
+  rp.textContent=act.ph; rp.className='ph-badge '+phCls;
 
-  // Apollo
-  const ap = APOLLO_CTX.find(a=>h<=a.mh)||APOLLO_CTX[APOLLO_CTX.length-1];
-  document.getElementById('apolloTxt').textContent  = ap.txt;
-  document.getElementById('apolloMet').textContent  = 'MET '+mStr;
-  // Last event
-  const pastActs = ACTS.filter(a=>a.h0<=h);
+  const ap=APOLLO_CTX.find(a=>h<=a.mh)||APOLLO_CTX[APOLLO_CTX.length-1];
+  document.getElementById('apolloTxt').textContent = ap.txt;
+  document.getElementById('apolloMet').textContent = 'MET '+mStr;
+  const pastActs=ACTS.filter(a=>a.h0<=h);
   if (pastActs.length) {
-    const last = pastActs[pastActs.length-1];
-    document.getElementById('aebMet').textContent  = 'MET '+hToMet(last.h0);
-    document.getElementById('aebName').textContent = last.n;
-    document.getElementById('aebDesc').textContent = last.d;
+    const last=pastActs[pastActs.length-1];
+    document.getElementById('aebMet').textContent = 'MET '+hToMet(last.h0);
+    document.getElementById('aebName').textContent= last.n;
+    document.getElementById('aebDesc').textContent= last.d;
   }
-  // Next event
-  const nextAct = ACTS.find(a=>a.h0>h);
+  const nextAct=ACTS.find(a=>a.h0>h);
   if (nextAct) {
-    const dHN = nextAct.h0-h, hN=Math.floor(dHN), mN=Math.round((dHN-hN)*60);
-    document.getElementById('aebNext').textContent = `NEXT · MET ${hToMet(nextAct.h0)} · IN ${dHN.toFixed(1)}H — ${nextAct.n}`;
+    const dHN=nextAct.h0-h,hN=Math.floor(dHN),mN=Math.round((dHN-hN)*60);
+    document.getElementById('aebNext').textContent=`NEXT · MET ${hToMet(nextAct.h0)} · IN ${dHN.toFixed(1)}H — ${nextAct.n}`;
   }
 
-  // Canvases
   drawMap(h);
   drawTimeline(h);
   renderUpcoming(h);
   renderMilestones(h);
 
-  // Smooth attitude rotation for wireframe
-  _roll  = parseFloat(att.roll);
-  _pitch = parseFloat(att.pitch);
-  _yaw   = parseFloat(att.yaw);
+  _roll=parseFloat(att.roll);
+  _pitch=parseFloat(att.pitch);
+  _yaw=parseFloat(att.yaw);
 }
 
 update();
-setInterval(update, 1000);
-window.addEventListener('resize', ()=>{
+setInterval(update,1000);
+window.addEventListener('resize',()=>{
   const m=getMET(new Date()); if(m){drawMap(m.hrs);drawTimeline(m.hrs);drawWireframe(_roll,_pitch,_yaw);}
 });
-</script>
-  <!-- ═══ SUPPORT POPUP ═══════════════════════════════════════ -->
-<div id="sns-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(7,9,16,.72);align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;">
-  <div style="background:#111422;border:1px solid #1c2238;max-width:380px;width:calc(100% - 32px);border-radius:4px;overflow:hidden;">
-    <div style="background:#0b0d18;border-bottom:1px solid #1c2238;padding:9px 12px;display:flex;align-items:center;gap:8px;">
-      <div style="width:7px;height:7px;border-radius:50%;background:#00e676;animation:pip 1.6s ease infinite;flex-shrink:0"></div>
-      <span style="font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:#6070a0;font-weight:700;flex:1">OurNightSky · Support</span>
-      <button onclick="snsClose(false)" style="background:none;border:none;color:#6070a0;cursor:pointer;font-size:1.1rem;line-height:1;padding:0;transition:color .15s" onmouseover="this.style.color='#d8e0ff'" onmouseout="this.style.color='#6070a0'">×</button>
-    </div>
-    <div style="padding:18px 16px 14px">
-      <div style="font-size:1.5rem;margin-bottom:8px">🌙</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:800;color:#fff;line-height:1.15;margin-bottom:6px;letter-spacing:.01em">Help keep the <span style="color:#00d4ff">sky lights on.</span></div>
-      <div style="font-size:.56rem;color:#6070a0;line-height:1.65;margin-bottom:14px">This tracker — and all our projects — runs on coffee and passion. No ads, no subscriptions, just humans who love space. Your support keeps future missions like Artemis III tracking live.</div>
-      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
-        <a href="https://ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
-          <span style="font-size:.85rem">🌌</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">OurNightSky.us</div><div style="font-size:.46rem;color:#6070a0">ournightsky.us</div></div></a>
-        <a href="https://comets.ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
-          <span style="font-size:.85rem">☄️</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">Comets Tracker</div><div style="font-size:.46rem;color:#6070a0">comets.ournightsky.us</div></div></a>
-        <a href="https://live.ournightsky.us" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#0b0d18;border:1px solid #1c2238;padding:7px 10px;border-radius:2px">
-          <span style="font-size:.85rem">📡</span><div><div style="font-size:.6rem;font-weight:700;color:#00d4ff">Live Sky Events</div><div style="font-size:.46rem;color:#6070a0">live.ournightsky.us</div></div></a>
-      </div>
-      <div style="display:flex;gap:7px">
-        <a href="https://buymeacoffee.com/ournightsky" target="_blank" rel="noopener" onclick="snsClose(true)" style="flex:1;background:#ffb300;border:none;color:#070910;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.08em;cursor:pointer;border-radius:2px;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">☕ Buy us a coffee</a>
-        <button onclick="snsClose(false)" style="flex:1;background:transparent;border:1px solid #1c2238;color:#6070a0;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.08em;cursor:pointer;border-radius:2px">Maybe later</button>
-      </div>
-      <div onclick="snsDismiss()" style="font-size:.46rem;color:#2d3a5a;text-align:center;margin-top:9px;cursor:pointer">Don't show this again</div>
-    </div>
-  </div>
-</div>
-<script>
+
+// ─── IMAGE GALLERY ────────────────────────────────
+(function(){
+  const API   = 'https://images-api.nasa.gov/search?q=artemis+II&media_type=image&page_size=24&year_start=2026';
+  const strip = document.getElementById('galleryStrip');
+  const lb    = document.getElementById('galleryLightbox');
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+
+  function openLightbox(item) {
+    const d=item.data[0];
+    const thumb=item.links&&item.links[0]?item.links[0].href:'';
+    document.getElementById('galleryLBImg').src   = thumb;
+    document.getElementById('galleryLBTitle').textContent = d.title||'—';
+    document.getElementById('galleryLBDate').textContent  = fmtDate(d.date_created);
+    document.getElementById('galleryLBDesc').textContent  = d.description?d.description.slice(0,220)+(d.description.length>220?'…':''):'';
+    document.getElementById('galleryLBLink').href = 'https://images.nasa.gov/details/'+d.nasa_id;
+    lb.style.display='block';
+    lb.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  window.loadGallery = function() {
+    strip.innerHTML='<div style="font-size:.52rem;color:var(--muted);margin:auto">Loading…</div>';
+    lb.style.display='none';
+    fetch(API)
+      .then(r=>r.json())
+      .then(json=>{
+        const items=(json.collection&&json.collection.items)||[];
+        document.getElementById('galleryCount').textContent=items.length+' images';
+        if (!items.length) {
+          strip.innerHTML='<div style="font-size:.52rem;color:var(--muted);margin:auto">No images found</div>';
+          return;
+        }
+        strip.innerHTML='';
+        items.forEach(item=>{
+          const thumb=item.links&&item.links[0]?item.links[0].href:null;
+          if (!thumb) return;
+          const d=item.data[0];
+          const wrap=document.createElement('div');
+          wrap.style.cssText='flex-shrink:0;cursor:pointer;border:1px solid var(--border2);transition:border-color .15s;position:relative';
+          wrap.onmouseenter=()=>wrap.style.borderColor='rgba(0,212,255,.5)';
+          wrap.onmouseleave=()=>wrap.style.borderColor='var(--border2)';
+          wrap.onclick=()=>openLightbox(item);
+          const img=document.createElement('img');
+          img.src=thumb; img.alt=d.title||'';
+          img.style.cssText='width:96px;height:64px;object-fit:cover;display:block;background:var(--bg)';
+          img.loading='lazy';
+          const badge=document.createElement('div');
+          badge.style.cssText='position:absolute;bottom:2px;left:2px;font-size:.38rem;background:rgba(7,9,16,.8);color:var(--muted);padding:1px 3px;pointer-events:none';
+          badge.textContent=fmtDate(d.date_created);
+          wrap.appendChild(img);wrap.appendChild(badge);
+          strip.appendChild(wrap);
+        });
+      })
+      .catch(()=>{
+        strip.innerHTML='<div style="font-size:.52rem;color:var(--pink);margin:auto">Failed to load — check connection</div>';
+      });
+  };
+
+  loadGallery();
+  setInterval(loadGallery, 10*60*1000);
+})();
+
+// ─── SUPPORT POPUP ────────────────────────────────
 (function(){
   try { if (localStorage.getItem('sns-dismissed')) return; } catch(e) {}
   setTimeout(function(){
-    const el = document.getElementById('sns-overlay');
-    el.style.display = 'flex';
+    const el=document.getElementById('sns-overlay');
+    if (el) el.style.display='flex';
   }, 30000);
 })();
-function snsClose(supported) {
-  document.getElementById('sns-overlay').style.display = 'none';
+function snsClose() {
+  document.getElementById('sns-overlay').style.display='none';
 }
 function snsDismiss() {
   try { localStorage.setItem('sns-dismissed','1'); } catch(e) {}
-  document.getElementById('sns-overlay').style.display = 'none';
+  document.getElementById('sns-overlay').style.display='none';
 }
 </script>
 </body>
